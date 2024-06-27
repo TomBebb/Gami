@@ -1,10 +1,12 @@
-﻿using Gami.Db.Schema.Metadata;
+﻿using System.IO;
+using Gami.Db.Schema.Metadata;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gami.Db;
 
 public class GamiContext : DbContext
 {
+    public static readonly string DbPath = Path.Join(App.AppDir, "gami.db");
     public DbSet<Achievement> Achievements { get; set; }
     public DbSet<AgeRating> AgeRatings { get; set; }
     public DbSet<Developer> Developers { get; set; }
@@ -18,6 +20,6 @@ public class GamiContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=:memory:");
+        optionsBuilder.UseSqlite($"Data Source={DbPath}");
     }
 }
