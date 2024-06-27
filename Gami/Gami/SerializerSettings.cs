@@ -6,6 +6,6 @@ public static class SerializerSettings
 {
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 }

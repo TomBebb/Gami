@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Gami.Db.Schema.Metadata;
 
-namespace Gami.Scanners;
+namespace Gami.Base;
 
 public interface IGameLibraryScanner
 {
-    public IEnumerable<IGameLibraryRef> Scan();
+    public IAsyncEnumerable<IGameLibraryRef> Scan();
 }
