@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Gami.Base;
 
@@ -14,14 +15,14 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
 
     public async ValueTask Install(string id)
     {
-        await $"{_steamPath} steam://install/{id}".RunShellAsync();
+        await new ProcessStartInfo { FileName = _steamPath, Arguments = $"steam://install/{id}" }.RunAsync();
     }
 
     public string Type => "Steam";
 
     public async ValueTask Launch(string id)
     {
-        Console.WriteLine("Steam launch:"+id);
-        await $"{_steamPath} steam://launch/{id}".RunShellAsync();
+        Console.WriteLine("Steam launch:" + id);
+        await new ProcessStartInfo { FileName = _steamPath, Arguments = $"steam://launch/{id}" }.RunAsync();
     }
 }
