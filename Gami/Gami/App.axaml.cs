@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -8,6 +10,8 @@ namespace Gami;
 
 public partial class App : Application
 {
+    
+    public static readonly string AppDir = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "gami");
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
