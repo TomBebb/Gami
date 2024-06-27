@@ -2,6 +2,7 @@
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -77,8 +78,8 @@ public sealed class SteamScanner : IGameLibraryScanner
         Console.WriteLine("Get App List");
         if (!Path.Exists(AppListCachePath) ||
             DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath) > TimeSpan.FromMinutes(30))
-            await Instance.FinishAsync("curl",
-                $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}");
+            await new ProcessStartInfo("curl",
+                $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}").RunAsync();
 
         var text = File.ReadAllText(AppListCachePath);
         Console.WriteLine("Got App List");

@@ -20,12 +20,17 @@
             <ItemsControl ItemsSource="{Binding Games}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="md:Game">
-                        <Grid ColumnDefinitions="*, Auto">
+                        <Grid ColumnDefinitions="*, Auto, Auto">
                             <Label Content="{Binding Name}" />
                             <Button Grid.Column="1"
                                     Command="{Binding #Root.((vm:MainViewModel)DataContext).PlayGame}"
                                     CommandParameter="{Binding .}">
                                 Play
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).PlayGame}"
+                                    CommandParameter="{Binding .}">
+                                Edit
                             </Button>
                         </Grid>
                     </DataTemplate>
