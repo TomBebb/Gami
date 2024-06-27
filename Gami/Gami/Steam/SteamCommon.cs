@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Cysharp.Diagnostics;
 using Gami.Base;
+using Instances;
 
 namespace Gami.Steam;
 
@@ -13,13 +13,13 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
 
     public async ValueTask Install(string id)
     {
-        await ProcessX.StartAsync($"{_steamPath} steam://install/{id}").WaitAsync();
+        await Instance.FinishAsync(_steamPath, $"steam://install/{id}");
     }
 
     public string Type => "Steam";
 
     public async ValueTask Launch(string id)
     {
-        await ProcessX.StartAsync($"{_steamPath} steam://launch/{id}").WriteLineAllAsync();
+        await Instance.FinishAsync(_steamPath, $"steam://launch/{id}");
     }
 }
