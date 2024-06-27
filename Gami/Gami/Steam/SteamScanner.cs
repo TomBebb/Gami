@@ -48,42 +48,40 @@ public sealed class SteamScanner : IGameLibraryScanner
             yield break;
         }
 
-        var paths = OperatingSystem.IsWindows() ? Directory.EnumerateFiles(path) : Directory.EnumerateDirectories(path);
+        var paths = OperatingSystem.IsWindows()
+            ? Directory.EnumerateFiles(path)
+            : Directory.EnumerateDirectories(path).Except(new[] { "0" });
         var appListRes = await GetAppList();
-        var appListById = appListRes?.AppList.Apps.ToFrozenDictionary(k => k.AppId) ??
+        var appListById = appListRes?.AppList.Apps.DistinctBy(k => k.AppId).ToFrozenDictionary(k => k.AppId) ??
                           FrozenDictionary<int, AppListItem>.Empty;
         if (appListById.Count == 0)
 
             throw new ApplicationException("Invalid app list");
-        Console.WriteLine("AppList: " + string.Join(", ", appListById.Keys.Take(5)) + " paths: "+string.Join(", ", paths) );
         foreach (var file in paths)
         {
             var appId = Path.GetFileName(file);
+            var name = appListById.GetValueOrDefault(int.Parse(appId))?.Name;
+            if (name == null)
+                continue;
             yield return new GameLibraryRef
             {
                 LibraryId = appId,
                 LibraryType = "steam",
-                Name = appListById.GetValueOrDefault(int.Parse(appId))?.Name ?? "???"
+                Name = name
             };
         }
     }
 
     public static async ValueTask<AppListResult?> GetAppList()
     {
-        if (!Directory.Exists(App.AppDir))
-            Directory.CreateDirectory(App.AppDir);
-        var diff = File.Exists(AppListCachePath)
-            ? DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath)
-            : TimeSpan.Zero;
+        Console.WriteLine("Get App List");
         if (!Path.Exists(AppListCachePath) ||
             DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath) > TimeSpan.FromMinutes(30))
-        {
             await Instance.FinishAsync("curl",
-                $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o '{AppListCachePath}'");
-
-        }
+                $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}");
 
         var text = File.ReadAllText(AppListCachePath);
+        Console.WriteLine("Got App List");
         return JsonSerializer.Deserialize<AppListResult>(text, SerializerSettings.JsonOptions);
     }
 }

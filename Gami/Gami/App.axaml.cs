@@ -35,8 +35,11 @@ public class App : Application
                 if (!Directory.Exists(AppDir))
                     Directory.CreateDirectory(AppDir);
                 using DbContext context = new GamiContext();
+                Console.WriteLine("Ensure DB created");
                 context.Database.EnsureCreated();
+                Console.WriteLine("Save changes");
                 context.SaveChanges();
+                Console.WriteLine("Saved changes");
             }
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
