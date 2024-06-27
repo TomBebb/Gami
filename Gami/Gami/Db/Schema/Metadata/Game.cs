@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Gami.ViewModels;
 
 namespace Gami.Db.Schema.Metadata;
 
@@ -17,7 +19,7 @@ public interface IGameLibraryRef
     public string LibraryId { get; set; }
 }
 
-public sealed class Game : NamedIdItem, IGameLibraryRef
+public sealed class Game : ViewModelBase, IGameLibraryRef
 {
     public Game()
     {
@@ -28,6 +30,8 @@ public sealed class Game : NamedIdItem, IGameLibraryRef
         LibraryType = libraryRef.LibraryType;
         LibraryId = libraryRef.LibraryId;
     }
+
+    [Key] public int Id { get; set; }
 
     public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
@@ -41,6 +45,8 @@ public sealed class Game : NamedIdItem, IGameLibraryRef
     public List<Publisher> Publishers { get; set; } = null!;
     public List<Region> Regions { get; set; } = null!;
     public List<Series> Series { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
 
     public string LibraryType { get; set; } = "";
     public string LibraryId { get; set; } = "";

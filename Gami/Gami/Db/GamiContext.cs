@@ -22,4 +22,11 @@ public class GamiContext : DbContext
     {
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Game>()
+            .HasIndex(u => new { u.LibraryType, u.LibraryId })
+            .IsUnique();
+    }
 }

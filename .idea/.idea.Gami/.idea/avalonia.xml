@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="Gami/Gami/App.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
+        <entry key="Gami/Gami/Views/GameList.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami/Gami/Views/MainView.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami/Gami/Views/MainWindow.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
       </map>

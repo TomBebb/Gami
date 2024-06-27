@@ -1,10 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using EFCore.BulkExtensions;
 using Gami.Db;
+using Gami.Db.Schema.Metadata;
+using Gami.Scanners;
 using Gami.ViewModels;
 using Gami.Views;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +27,26 @@ public class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+
+    private static async ValueTask DoScan(SteamScanner scanner)
+    {
+        var steamScanner = new SteamScanner();
+        Console.WriteLine("Scan steam apps");
+        var fetched = new List<IGameLibraryRef>();
+        await foreach (var item in scanner.Scan()) fetched.Add(item);
+        {
+            await using var db = new GamiContext();
+            await db.BulkInsertAsync(fetched.Select(f => new Game
+            {
+                Name = f.Name,
+                LibraryId = f.LibraryId,
+                LibraryType = f.LibraryType,
+                Description = ""
+            }));
+        }
+        Console.WriteLine($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
+        ;
     }
 
     public override void OnFrameworkInitializationCompleted()

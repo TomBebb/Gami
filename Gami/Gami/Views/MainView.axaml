@@ -3,17 +3,37 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.ViewModels"
+             xmlns:md="clr-namespace:Gami.Db.Schema.Metadata"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Views.MainView"
-             x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
+             x:DataType="vm:MainViewModel"
+             x:Name="Root">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
 
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock FontWeight="Bold" Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <ScrollViewer>
 
-    </StackPanel>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Games}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="md:Game">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Content="{Binding Name}" />
+                            <Button Grid.Column="1"
+                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).PlayGame}"
+                                    CommandParameter="{Binding .}">
+                                Play
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock FontWeight="Bold" Text="{Binding Greeting}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

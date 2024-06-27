@@ -23,11 +23,11 @@ public static class GameExtensions
 
     public static ValueTask Launch(this Game game)
     {
-        return LaunchersByName[game.Name].Launch(game.LibraryId);
+        return LaunchersByName[game.LibraryType].Launch(game.LibraryId);
     }
 
     public static ValueTask Install(this Game game)
     {
-        return InstallersByName[game.Name].Install(game.LibraryId);
+        return InstallersByName[game.LibraryType].Install(game.LibraryId);
     }
 }
