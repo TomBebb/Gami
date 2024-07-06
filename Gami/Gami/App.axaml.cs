@@ -37,13 +37,15 @@ public class App : Application
         await foreach (var item in scanner.Scan()) fetched.Add(item);
         {
             await using var db = new GamiContext();
-            await db.BulkInsertAsync(fetched.Where(v => !db.Games.Any(g => g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType)).Select(f => new Game
-            {
-                Name = f.Name,
-                LibraryId = f.LibraryId,
-                LibraryType = f.LibraryType,
-                Description = ""
-            }));
+            await db.BulkInsertAsync(fetched
+                .Where(v => !db.Games.Any(g => g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType)).Select(
+                    f => new Game
+                    {
+                        Name = f.Name,
+                        LibraryId = f.LibraryId,
+                        LibraryType = f.LibraryType,
+                        Description = ""
+                    }));
         }
         Console.WriteLine($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
     }
@@ -52,23 +54,24 @@ public class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
             if (!Design.IsDesignMode)
             {
-                if (!Directory.Exists(AppDir))
-                    Directory.CreateDirectory(AppDir);
                 using DbContext context = new GamiContext();
                 Console.WriteLine("Ensure DB created");
                 context.Database.EnsureCreated();
                 Console.WriteLine("Save changes");
-                context.SaveChanges();
-                Console.WriteLine("Saved changes");
 
                 DoScan().GetAwaiter().GetResult();
+
+                context.SaveChanges();
+                Console.WriteLine("Saved changes");
             }
+
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = new MainViewModel()
+            };
+            if (!Design.IsDesignMode && !Directory.Exists(AppDir)) Directory.CreateDirectory(AppDir);
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

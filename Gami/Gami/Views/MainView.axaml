@@ -43,10 +43,10 @@
                     <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
 
                     <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-                        <ItemsControl ItemsSource="{Binding EditingGame.Genres}">
+                        <ItemsControl ItemsSource="{Binding EditingGame.GameGenres}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="md:Genre">
-                                    <Label Content="{Binding Name}" />
+                                <DataTemplate x:DataType="md:GameGenre">
+                                    <Label Content="{Binding Genre.Name}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

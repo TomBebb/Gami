@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
 using System.Text.Json;
 using EFCore.BulkExtensions;
@@ -33,7 +34,15 @@ public class MainViewModel : ViewModelBase
     {
         using (var db = new GamiContext())
         {
-            Games = new ObservableCollection<Game>(db.Games);
+            Games = new ObservableCollection<Game>(db.Games.Select(v => new Game
+            {
+                Name = v.Name,
+                GameGenres = v.GameGenres.Select(g => new GameGenre
+                {
+                    Genre = new Genre { Name = g.Genre.Name }
+                }).ToList(),
+                Description = v.Description
+            }));
         }
 
         Games.CollectionChanged += (sender, args) =>
