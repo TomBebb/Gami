@@ -29,7 +29,7 @@
                 <Grid
                     IsVisible="{Binding EditingGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}"
-                    RowDefinitions="*,*,*,Auto"
+                    RowDefinitions="*,*,*,*,*,Auto"
                     ColumnDefinitions="Auto, *">
                     <Label Content="Name" />
                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EditingGame.Name}" />
@@ -37,10 +37,24 @@
                     <Label Grid.Row="1" Grid.Column="0" Content="Description" />
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding EditingGame.Description}" />
                     <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
+
                     <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding EditingGame.ReleaseDate}" />
 
-                    <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+                    <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
+
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                        <ItemsControl ItemsSource="{Binding EditingGame.Genres}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="md:Genre">
+                                    <Label Content="{Binding Name}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+                                Orientation="Horizontal">
                         <Button Content="Save" />
+                        <Button Content="Cancel" />
 
                     </StackPanel>
 
