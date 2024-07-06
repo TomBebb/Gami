@@ -21,4 +21,24 @@
     <ItemGroup>
         <ProjectReference Include="..\Gami\Gami.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaXaml Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Remove="publish\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="publish\**" />
+    </ItemGroup>
 </Project>
