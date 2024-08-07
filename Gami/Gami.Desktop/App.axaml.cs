@@ -38,7 +38,7 @@ public class App : Application
                 ConcurrentBag<Achievement>>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
             {
-                if (fetched.Count >= 1)
+                if (fetched.Count >= 10)
                     break;
                 fetched
                     .Add(item);
@@ -47,9 +47,7 @@ public class App : Application
                         out var achievementScanner))
                     Log.Debug("Scan {Name} Achievements", scanner.Key);
 
-                var currBag = new ConcurrentBag<Achievement>();
-                await foreach (var achievement in achievementScanner.Scan(item))
-                    currBag.Add(achievement);
+                var currBag = await achievementScanner!.Scan(item);
 
                 fetchedAchievements[item.LibraryId] = currBag;
 

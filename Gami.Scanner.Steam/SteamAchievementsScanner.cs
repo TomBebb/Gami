@@ -1,7 +1,7 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Flurl;
 using Gami.Core;
@@ -93,11 +93,12 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         ;
     }
 
-    public async IAsyncEnumerable<Achievement> Scan(IGameLibraryRef game)
+    public async ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game)
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
+        var res = new ConcurrentBag<Achievement>();
         if (allAchievements.Game?.AvailableGameStats?.Achievements == null)
-            yield break;
+            return res;
         var achievementsByName = allAchievements.Game.AvailableGameStats.Achievements
             .ToFrozenDictionary(v => v?.Name ?? "");
         var playerAchievements =
@@ -109,8 +110,9 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
-        var client = new HttpClient();
-        foreach (var achievement in playerAchievements.PlayerStats.Achievements)
+        var client = HttpConsts.HttpClient;
+        await Task.WhenAll(playerAchievements.PlayerStats.Achievements.Select(async
+            achievement =>
         {
             var globalAchievement = achievementsByName[achievement.ApiName];
 
@@ -121,7 +123,8 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                 client.GetByteArrayAsync(globalAchievement.IconGray)
             });
             Log.Debug("Fetched icons for {Name}", globalAchievement.DisplayName);
-            yield return new Achievement()
+
+            res.Add(new Achievement()
             {
                 LibraryId = achievement.ApiName,
                 Name = globalAchievement.DisplayName,
@@ -129,7 +132,8 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                 Unlocked = achievement.Achieved == 1,
                 LockedIcon = icons[0],
                 UnlockedIcon = icons[1]
-            };
-        }
+            });
+        }));
+        return res;
     }
 }

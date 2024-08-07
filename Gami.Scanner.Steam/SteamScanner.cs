@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using Flurl;
 using Gami.Core;
 using Gami.Core.Models;
@@ -28,7 +27,7 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned()
     {
-        var client = new HttpClient();
+        var client = HttpConsts.HttpClient;
         var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
             .SetQueryParam("key", _config.ApiKey)
             .SetQueryParam("steamid", _config.SteamId)

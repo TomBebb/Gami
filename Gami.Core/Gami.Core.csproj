@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="ReactiveUI" Version="19.5.41"/>
         <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
+        <PackageReference Include="System.Threading.RateLimiting" Version="8.0.0"/>
     </ItemGroup>
 
 </Project>
