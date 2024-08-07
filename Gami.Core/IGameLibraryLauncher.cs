@@ -1,4 +1,4 @@
-namespace Gami.Desktop.Base;
+namespace Gami.Core;
 
 public interface IGameLibraryLauncher
 {

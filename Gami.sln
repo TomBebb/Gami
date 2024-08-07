@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami\Gami.Desktop\Gami.Desktop.csproj", "{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Core", "Gami.Core\Gami.Core.csproj", "{A4414C51-2859-4241-B60D-DBB9398F82EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

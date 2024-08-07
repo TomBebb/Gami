@@ -1,4 +1,4 @@
-namespace Gami.Desktop.Db.Models;
+namespace Gami.Core.Models;
 
 public interface IGameLibraryRef
 {

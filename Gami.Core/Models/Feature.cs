@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Gami.Desktop.Db.Models;
+﻿namespace Gami.Core.Models;
 
 public sealed class Feature : NamedIdItem
 {

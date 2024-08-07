@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Gami.Desktop.Db.Models;
+using Gami.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gami.Desktop.Db;

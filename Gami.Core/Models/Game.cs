@@ -1,28 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Gami.Desktop.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Db.Models;
+namespace Gami.Core.Models;
 
-public sealed class Game : ViewModelBase, IGameLibraryRef
+public sealed class Game : ReactiveObject, IGameLibraryRef
 {
-    public Game()
-    {
-    }
-
-    public Game(IGameLibraryRef libraryRef)
-    {
-        LibraryType = libraryRef.LibraryType;
-        LibraryId = libraryRef.LibraryId;
-    }
-
     [Key] public int Id { get; set; }
-
-    [Reactive] public GameInstallStatus InstallStatus { get; set; }
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
-    public DateTime ReleaseDate { get; set; }
+    [Reactive] public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
 
     public List<GameAchievement> GameAchievements { get; } = null!;
@@ -34,6 +20,8 @@ public sealed class Game : ViewModelBase, IGameLibraryRef
     public List<GamePublisher> GamePublishers { get; set; } = null!;
     public List<GameRegion> GameRegions { get; set; } = null!;
     public List<GameSeries> GameSeries { get; set; } = null!;
+
+    [Reactive] public GameInstallStatus InstallStatus { get; set; }
 
     public string Name { get; set; } = null!;
 

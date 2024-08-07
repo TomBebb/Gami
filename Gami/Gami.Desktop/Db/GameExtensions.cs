@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using Gami.Desktop.Base;
-using Gami.Desktop.Db.Models;
+using Gami.Core;
+using Gami.Core.Models;
 using Gami.Desktop.Steam;
 
 namespace Gami.Desktop.Db;

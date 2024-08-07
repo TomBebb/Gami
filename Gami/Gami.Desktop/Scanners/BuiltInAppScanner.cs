@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Gami.Desktop.Db.Models;
+using Gami.Core.Models;
 using IniParser.Parser;
 
 namespace Gami.Desktop.Scanners;
@@ -20,8 +20,7 @@ public static class BuiltInAppScanner
             {
                 Name = data["Name"],
                 LibraryId = Path.Join(data["Path"], data["Exec"]),
-                LibraryType = "exec",
-                
+                LibraryType = "exec"
             };
         }
 
