@@ -9,7 +9,7 @@ using Gami.Db.Models;
 using Serilog;
 using ValveKeyValue;
 
-namespace Gami.Scanners;
+namespace Gami.Steam;
 
 public sealed class AppListItem
 {

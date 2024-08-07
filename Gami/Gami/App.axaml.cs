@@ -12,6 +12,7 @@ using EFCore.BulkExtensions;
 using Gami.Db;
 using Gami.Db.Models;
 using Gami.Scanners;
+using Gami.Steam;
 using Gami.ViewModels;
 using Gami.Views;
 using Microsoft.EntityFrameworkCore;
