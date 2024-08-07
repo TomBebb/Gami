@@ -20,7 +20,8 @@ public static class BuiltInAppScanner
             {
                 Name = data["Name"],
                 LibraryId = Path.Join(data["Path"], data["Exec"]),
-                LibraryType = "exec"
+                LibraryType = "exec",
+                
             };
         }
 

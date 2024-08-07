@@ -11,7 +11,6 @@ using Avalonia.Markup.Xaml;
 using EFCore.BulkExtensions;
 using Gami.Db;
 using Gami.Db.Models;
-using Gami.Scanners;
 using Gami.Steam;
 using Gami.ViewModels;
 using Gami.Views;
@@ -44,6 +43,7 @@ public class App : Application
                 .Where(v => !db.Games.Any(g => g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType)).Select(
                     f => new Game
                     {
+                        InstallStatus = f.InstallStatus,
                         Name = f.Name,
                         LibraryId = f.LibraryId,
                         LibraryType = f.LibraryType,
