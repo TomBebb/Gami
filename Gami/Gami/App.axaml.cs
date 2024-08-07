@@ -56,6 +56,8 @@ public class App : Application
         {
             if (!Design.IsDesignMode)
             {
+                Console.WriteLine("Ensure local app dir exists");
+                Directory.CreateDirectory(AppDir);
                 using DbContext context = new GamiContext();
                 Console.WriteLine("Ensure DB created");
                 context.Database.EnsureCreated();
