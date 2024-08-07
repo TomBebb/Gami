@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gami.ViewModels;
+using ReactiveUI.Fody.Helpers;
 
 namespace Gami.Db.Models;
 
@@ -19,6 +20,8 @@ public sealed class Game : ViewModelBase, IGameLibraryRef
 
     [Key] public int Id { get; set; }
 
+    [Reactive] public GameInstallStatus InstallStatus { get; set; }
+    public bool Installed => InstallStatus == GameInstallStatus.Installed;
     public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
 

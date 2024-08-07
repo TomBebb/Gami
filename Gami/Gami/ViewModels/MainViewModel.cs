@@ -38,6 +38,7 @@ public class MainViewModel : ViewModelBase
             {
                 LibraryType = v.LibraryType,
                 LibraryId = v.LibraryId,
+                InstallStatus = v.InstallStatus,
                 Name = v.Name,
                 GameGenres = v.GameGenres.Select(g => new GameGenre
                 {

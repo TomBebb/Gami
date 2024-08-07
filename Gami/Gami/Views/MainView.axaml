@@ -66,6 +66,7 @@
                             <Grid ColumnDefinitions="*, Auto, Auto">
                                 <Label Content="{Binding Name}" />
                                 <Button Grid.Column="1"
+                                        IsEnabled="{Binding Installed}"
                                         Command="{Binding #Root.((vm:MainViewModel)DataContext).PlayGame}"
                                         CommandParameter="{Binding .}">
                                     Play
