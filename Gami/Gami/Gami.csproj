@@ -23,5 +23,6 @@
         <PackageReference Include="Lnk" Version="1.3.8"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6"/>
         <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
+        <PackageReference Include="ValveKeyValue" Version="0.11.0.378"/>
     </ItemGroup>
 </Project>
