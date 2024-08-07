@@ -36,6 +36,7 @@ public class App : Application
         Log.Information("Scan steam apps");
         var fetched = new List<IGameLibraryRef>();
         await foreach (var item in scanner.Scan()) fetched.Add(item);
+        Log.Debug($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
         {
             await using var db = new GamiContext();
             await db.BulkInsertAsync(fetched
@@ -48,7 +49,6 @@ public class App : Application
                         Description = ""
                     }));
         }
-        Log.Debug($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
     }
 
     public override void OnFrameworkInitializationCompleted()
