@@ -18,6 +18,8 @@ using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SixLabors.ImageSharp;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace Gami.Desktop;
 
@@ -38,7 +40,7 @@ public class App : Application
                 ConcurrentBag<Achievement>>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
             {
-                if (fetched.Count >= 10)
+                if (fetched.Count >= 1)
                     break;
                 fetched
                     .Add(item);
@@ -48,6 +50,11 @@ public class App : Application
                     Log.Debug("Scan {Name} Achievements", scanner.Key);
 
                 var currBag = await achievementScanner!.Scan(item);
+                await Parallel.ForEachAsync(currBag, async (achievement,
+                    cancellationToken) =>
+                {
+                    await achievement.UnlockedIcon.CompressImage(cancellationToken);
+                });
 
                 fetchedAchievements[item.LibraryId] = currBag;
 
