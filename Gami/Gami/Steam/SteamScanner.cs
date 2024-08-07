@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Gami.Base;
-using Gami.Db.Schema.Metadata;
+using Gami.Db.Models;
 using Instances;
 using Serilog;
 

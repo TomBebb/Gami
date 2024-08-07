@@ -1,4 +1,4 @@
-namespace Gami.Db.Schema.Metadata;
+namespace Gami.Db.Models;
 
 public sealed class GamePlatform
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gami.Db.Schema;
+namespace Gami.Db.Models;
 
 public class NamedIdItem
 {

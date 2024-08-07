@@ -4,7 +4,7 @@ using System.Reactive;
 using System.Text.Json;
 using EFCore.BulkExtensions;
 using Gami.Db;
-using Gami.Db.Schema.Metadata;
+using Gami.Db.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;

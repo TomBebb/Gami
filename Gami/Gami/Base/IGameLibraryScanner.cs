@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Gami.Db.Schema.Metadata;
+using Gami.Db.Models;
 
 namespace Gami.Base;
 

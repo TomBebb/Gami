@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gami.Base;
-using Gami.Db.Schema.Metadata;
+using Gami.Db.Models;
 using Gami.Steam;
 
 namespace Gami.Db;

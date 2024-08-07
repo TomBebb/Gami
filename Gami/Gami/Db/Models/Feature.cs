@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Gami.Db.Schema.Metadata;
+namespace Gami.Db.Models;
 
 public sealed class Feature : NamedIdItem
 {

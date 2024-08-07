@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gami.ViewModels;
 
-namespace Gami.Db.Schema.Metadata;
+namespace Gami.Db.Models;
 
 public sealed class Game : ViewModelBase, IGameLibraryRef
 {

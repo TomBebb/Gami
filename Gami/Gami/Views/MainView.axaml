@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.ViewModels"
-             xmlns:md="clr-namespace:Gami.Db.Schema.Metadata"
+             xmlns:models="clr-namespace:Gami.Db.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Views.MainView"
              x:DataType="vm:MainViewModel"
@@ -45,7 +45,7 @@
                     <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
                         <ItemsControl ItemsSource="{Binding EditingGame.GameGenres}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="md:GameGenre">
+                                <DataTemplate x:DataType="models:GameGenre">
                                     <Label Content="{Binding Genre.Name}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -62,7 +62,7 @@
 
                 <ItemsControl ItemsSource="{Binding Games}">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="md:Game">
+                        <DataTemplate DataType="models:Game">
                             <Grid ColumnDefinitions="*, Auto, Auto">
                                 <Label Content="{Binding Name}" />
                                 <Button Grid.Column="1"

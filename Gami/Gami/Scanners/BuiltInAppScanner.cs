@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Gami.Db.Schema.Metadata;
+using Gami.Db.Models;
 using IniParser.Parser;
 
 namespace Gami.Scanners;
