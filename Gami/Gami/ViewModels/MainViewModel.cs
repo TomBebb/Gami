@@ -36,6 +36,8 @@ public class MainViewModel : ViewModelBase
         {
             Games = new ObservableCollection<Game>(db.Games.Select(v => new Game
             {
+                LibraryType = v.LibraryType,
+                LibraryId = v.LibraryId,
                 Name = v.Name,
                 GameGenres = v.GameGenres.Select(g => new GameGenre
                 {
