@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Gami.Base;
 using Gami.Db.Models;
 using Gami.Steam;
@@ -21,13 +21,21 @@ public static class GameExtensions
             new("steam", SteamCommon.Instance)
         }.ToFrozenDictionary();
 
+    private static T GetLauncher<T>(this FrozenDictionary<string, T> dictionary, string libType)
+    {
+        if (!dictionary.TryGetValue(libType, out var launcher))
+            throw new ApplicationException(
+                $"No launcher found with library type '{libType}\", valid keys: {string.Join(", ", dictionary.Keys)}");
+        return launcher;
+    }
+
     public static void Launch(this Game game)
     {
-        LaunchersByName[game.LibraryType].Launch(game.LibraryId);
+        LaunchersByName.GetLauncher(game.LibraryType).Launch(game.LibraryId);
     }
 
     public static void Install(this Game game)
     {
-        InstallersByName[game.LibraryType].Install(game.LibraryId);
+        InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
     }
 }

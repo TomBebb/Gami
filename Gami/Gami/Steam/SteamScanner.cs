@@ -38,7 +38,7 @@ public sealed class SteamScanner : IGameLibraryScanner
 
         var mapped = new GameLibraryRef()
         {
-            LibraryType = "Steam",
+            LibraryType = SteamCommon.TypeName,
             LibraryId = appId,
             Name = name,
             InstallStatus = bytesDl == bytesToDl
