@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -18,8 +16,6 @@ using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using SixLabors.ImageSharp;
-using Image = SixLabors.ImageSharp.Image;
 
 namespace Gami.Desktop;
 
