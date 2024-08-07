@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Gami.Base;
+using Serilog;
 
 namespace Gami.Steam;
 
@@ -22,7 +23,7 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
 
     public async ValueTask Launch(string id)
     {
-        Console.WriteLine("Steam launch:" + id);
+        Log.Debug("Steam launch: {}", id);
         await new ProcessStartInfo { FileName = _steamPath, Arguments = $"steam://launch/{id}" }.RunAsync();
     }
 }

@@ -15,6 +15,7 @@ using Gami.Scanners;
 using Gami.ViewModels;
 using Gami.Views;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Gami;
 
@@ -32,7 +33,7 @@ public class App : Application
     private static async ValueTask DoScan()
     {
         var scanner = new SteamScanner();
-        Console.WriteLine("Scan steam apps");
+        Log.Information("Scan steam apps");
         var fetched = new List<IGameLibraryRef>();
         await foreach (var item in scanner.Scan()) fetched.Add(item);
         {
@@ -47,7 +48,7 @@ public class App : Application
                         Description = ""
                     }));
         }
-        Console.WriteLine($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
+        Log.Debug($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -56,17 +57,17 @@ public class App : Application
         {
             if (!Design.IsDesignMode)
             {
-                Console.WriteLine("Ensure local app dir exists");
+                Log.Information("Ensure local app dir exists");
                 Directory.CreateDirectory(AppDir);
                 using DbContext context = new GamiContext();
-                Console.WriteLine("Ensure DB created");
+                Log.Information("Ensure DB created");
                 context.Database.EnsureCreated();
-                Console.WriteLine("Save changes");
+                Log.Information("Save changes");
 
                 DoScan().GetAwaiter().GetResult();
 
                 context.SaveChanges();
-                Console.WriteLine("Saved changes");
+                Log.Information("Saved changes");
             }
 
             desktop.MainWindow = new MainWindow

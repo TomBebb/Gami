@@ -7,6 +7,7 @@ using Gami.Db;
 using Gami.Db.Schema.Metadata;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Serilog;
 using Console = System.Console;
 
 namespace Gami.ViewModels;
@@ -17,14 +18,13 @@ public class MainViewModel : ViewModelBase
     {
         PlayGame = ReactiveCommand.Create((Game game) =>
         {
-            Console.WriteLine("Play game: " + JsonSerializer.Serialize(game));
+            Log.Information("Play game: {}", JsonSerializer.Serialize(game));
             game.Launch().AsTask().GetAwaiter().GetResult();
         });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
-            Console.WriteLine("Edit game: " + JsonSerializer.Serialize(game));
+            Log.Information("Edit game: {}",  JsonSerializer.Serialize(game));
             EditingGame = game;
-            Console.WriteLine("Edit game: " + JsonSerializer.Serialize(EditingGame));
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
         RefreshCache();

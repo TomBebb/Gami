@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Gami.Base;
 using Gami.Db.Schema.Metadata;
 using Instances;
+using Serilog;
 
 namespace Gami.Scanners;
 
@@ -75,14 +76,14 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public static async ValueTask<AppListResult?> GetAppList()
     {
-        Console.WriteLine("Get App List");
+        Log.Debug("Get App List");
         if (!Path.Exists(AppListCachePath) ||
             DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath) > TimeSpan.FromMinutes(30))
             await new ProcessStartInfo("curl",
                 $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}").RunAsync();
 
         var text = await File.ReadAllTextAsync(AppListCachePath);
-        Console.WriteLine("Got App List");
+        Log.Debug("Got App List");
         return JsonSerializer.Deserialize<AppListResult>(text, SerializerSettings.JsonOptions);
     }
 }
