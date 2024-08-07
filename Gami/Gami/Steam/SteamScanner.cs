@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Gami.Base;
@@ -15,40 +16,6 @@ public sealed class SteamScanner : IGameLibraryScanner
         ? @"C:\Program Files (x86)\Steam\steamapps"
         : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Steam/steamapps");
-
-    private static GameLibraryRef MapGameManifest(string path)
-    {
-        Log.Debug("MapGameMan {Path}", path);
-        var stream = File.OpenRead(path);
-        Log.Debug("MapGame Opened stream {Path}", path);
-        var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
-        Log.Debug("MapGame created deserializer {Path}", path);
-        KVObject data = kv.Deserialize(stream);
-        Log.Debug("MapGame deserialized {Path}", path);
-        var appId = data["appid"]?.ToString();
-        Log.Debug("Raw appId: {AppId}", appId);
-        var name = data["name"].ToString();
-
-        Log.Debug("Raw name: {AppId}", name);
-        var bytesToDl = data["BytesToDownload"].ToString();
-        Log.Debug("Raw BytesToDownload: {AppId}", bytesToDl);
-
-        var bytesDl = data["BytesDownloaded"].ToString();
-        Log.Debug("Raw BytesDownloaded: {AppId}", bytesDl);
-
-        var mapped = new GameLibraryRef()
-        {
-            LibraryType = SteamCommon.TypeName,
-            LibraryId = appId,
-            Name = name,
-            InstallStatus = bytesDl == bytesToDl
-                ? GameInstallStatus.Installed
-                : GameInstallStatus.Installing
-        };
-
-        Log.Debug("Mapped bytes: {Mapped}", JsonSerializer.Serialize(mapped));
-        return mapped;
-    }
 
 
     public async IAsyncEnumerable<IGameLibraryRef> Scan()
@@ -73,5 +40,39 @@ public sealed class SteamScanner : IGameLibraryScanner
                 continue;
             yield return mapped;
         }
+    }
+
+    private static GameLibraryRef MapGameManifest(string path)
+    {
+        Log.Debug("MapGameMan {Path}", path);
+        var stream = File.OpenRead(path);
+        Log.Debug("MapGame Opened stream {Path}", path);
+        var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
+        Log.Debug("MapGame created deserializer {Path}", path);
+        KVObject data = kv.Deserialize(stream);
+        Log.Debug("MapGame deserialized {Path}", path);
+        var appId = data["appid"].ToString(CultureInfo.CurrentCulture);
+        Log.Debug("Raw appId: {AppId}", appId);
+        var name = data["name"].ToString(CultureInfo.CurrentCulture);
+
+        Log.Debug("Raw name: {AppId}", name);
+        var bytesToDl = data["BytesToDownload"].ToString(CultureInfo.InvariantCulture);
+        Log.Debug("Raw BytesToDownload: {AppId}", bytesToDl);
+
+        var bytesDl = data["BytesDownloaded"].ToString(CultureInfo.InvariantCulture);
+        Log.Debug("Raw BytesDownloaded: {AppId}", bytesDl);
+
+        var mapped = new GameLibraryRef
+        {
+            LibraryType = SteamCommon.TypeName,
+            LibraryId = appId,
+            Name = name,
+            InstallStatus = bytesDl == bytesToDl
+                ? GameInstallStatus.Installed
+                : GameInstallStatus.Installing
+        };
+
+        Log.Debug("Mapped bytes: {Mapped}", JsonSerializer.Serialize(mapped));
+        return mapped;
     }
 }
