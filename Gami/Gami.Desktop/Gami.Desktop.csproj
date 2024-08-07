@@ -13,33 +13,57 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)"/>
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="EFCore.BulkExtensions" Version="8.0.4"/>
+        <PackageReference Include="ini-parser-new" Version="2.6.2"/>
+        <PackageReference Include="Lnk" Version="1.3.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6"/>
+        <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>
         <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Include="ValveKeyValue" Version="0.11.0.378" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Gami\Gami.csproj"/>
+        <AvaloniaXaml Remove="publish\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AvaloniaXaml Remove="publish\**" />
+        <Compile Remove="publish\**"/>
+        <Compile Update="App.axaml.cs">
+            <DependentUpon>App.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="publish\**" />
+        <EmbeddedResource Remove="publish\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="publish\**" />
+        <AdditionalFiles Remove="publish\**"/>
+        <AdditionalFiles Include="Views\MainView.axaml"/>
+        <AdditionalFiles Include="Views\MainWindow.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Remove="publish\**" />
+        <None Remove="publish\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="publish\**" />
+        <AvaloniaResource Include="Assets\avalonia-logo.ico"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\..\..\.nuget\packages\instances\3.0.0\contentFiles\any\netstandard2.0\README.md">
+            <Link>README.md</Link>
+        </Content>
     </ItemGroup>
 </Project>

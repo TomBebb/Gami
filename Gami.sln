@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami", "Gami\Gami\Gami.csproj", "{9624C3B3-E4C0-4F2A-BAE3-31D411522988}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami\Gami.Desktop\Gami.Desktop.csproj", "{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}"
 EndProject
 Global
@@ -10,10 +8,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9624C3B3-E4C0-4F2A-BAE3-31D411522988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9624C3B3-E4C0-4F2A-BAE3-31D411522988}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9624C3B3-E4C0-4F2A-BAE3-31D411522988}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9624C3B3-E4C0-4F2A-BAE3-31D411522988}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Release|Any CPU.ActiveCfg = Release|Any CPU
