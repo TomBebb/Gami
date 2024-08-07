@@ -18,12 +18,12 @@ public class MainViewModel : ViewModelBase
     {
         PlayGame = ReactiveCommand.Create((Game game) =>
         {
-            Log.Information("Play game: {}", JsonSerializer.Serialize(game));
+            Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
             game.Launch();
         });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
-            Log.Information("Edit game: {}", JsonSerializer.Serialize(game));
+            Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
