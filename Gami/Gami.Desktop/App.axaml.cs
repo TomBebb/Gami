@@ -9,9 +9,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using EFCore.BulkExtensions;
+using Gami.Core;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
-using Gami.Desktop.Steam;
+using Gami.Desktop.Plugins;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,8 @@ namespace Gami.Desktop;
 public class App : Application
 {
     public static readonly string AppDir =
-        Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "gami");
+        Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "gami");
 
 
     public override void Initialize()
@@ -32,23 +34,30 @@ public class App : Application
 
     private static async ValueTask DoScan()
     {
-        var scanner = new SteamScanner();
-        Log.Information("Scan steam apps");
-        var fetched = new List<IGameLibraryRef>();
-        await foreach (var item in scanner.Scan()) fetched.Add(item);
-        Log.Debug($"Steam apps {JsonSerializer.Serialize(fetched, SerializerSettings.JsonOptions)}");
+        foreach (var scanner in GameExtensions.ScannersByName)
         {
-            await using var db = new GamiContext();
-            await db.BulkInsertAsync(fetched
-                .Where(v => !db.Games.Any(g => g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType)).Select(
-                    f => new Game
-                    {
-                        InstallStatus = f.InstallStatus,
-                        Name = f.Name,
-                        LibraryId = f.LibraryId,
-                        LibraryType = f.LibraryType,
-                        Description = ""
-                    }));
+            Log.Information("Scan {Name} apps", scanner.Key);
+            var fetched = new List<IGameLibraryRef>();
+            await foreach (var item in scanner.Value.Scan()) fetched.Add(item);
+            Log.Debug(
+                "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
+                    SerializerSettings
+                        .JsonOptions));
+            {
+                await using var db = new GamiContext();
+                await db.BulkInsertAsync(fetched
+                    .Where(v => !db.Games.Any(g =>
+                        g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType))
+                    .Select(
+                        f => new Game
+                        {
+                            InstallStatus = f.InstallStatus,
+                            Name = f.Name,
+                            LibraryId = f.LibraryId,
+                            LibraryType = f.LibraryType,
+                            Description = ""
+                        }));
+            }
         }
     }
 
@@ -75,7 +84,8 @@ public class App : Application
             {
                 DataContext = new MainViewModel()
             };
-            if (!Design.IsDesignMode && !Directory.Exists(AppDir)) Directory.CreateDirectory(AppDir);
+            if (!Design.IsDesignMode && !Directory.Exists(AppDir))
+                Directory.CreateDirectory(AppDir);
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

@@ -5,6 +5,7 @@ using System.Text.Json;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
+using Gami.Desktop.Plugins;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;

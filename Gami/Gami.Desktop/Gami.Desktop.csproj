@@ -28,7 +28,6 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
-        <PackageReference Include="ValveKeyValue" Version="0.11.0.378"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -69,6 +68,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Gami.Core\Gami.Core.csproj"/>
+        <ProjectReference Include="..\..\Gami.Scanner.Steam\Gami.Scanner.Steam.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

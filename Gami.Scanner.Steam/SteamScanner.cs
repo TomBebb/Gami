@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text.Json;
 using Gami.Core;
 using Gami.Core.Models;
 using Serilog;
 using ValveKeyValue;
 
-namespace Gami.Desktop.Steam;
+namespace Gami.Scanner.Steam;
 
 public sealed class SteamScanner : IGameLibraryScanner
 {
     private static string AppsPath => OperatingSystem.IsWindows()
         ? @"C:\Program Files (x86)\Steam\steamapps"
-        : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        : Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Steam/steamapps");
 
+
+    public string Type => "steam";
 
     public async IAsyncEnumerable<IGameLibraryRef> Scan()
     {
@@ -35,7 +35,8 @@ public sealed class SteamScanner : IGameLibraryScanner
             var mapped = MapGameManifest(manifestPath);
             Log.Debug("Mapped game manifest at {Path}", manifestPath);
             var name = mapped.Name;
-            if (name == "Steam Controller Configs" || name.StartsWith("Steam Linux") || name.StartsWith("Proton") ||
+            if (name == "Steam Controller Configs" || name.StartsWith("Steam Linux") ||
+                name.StartsWith("Proton") ||
                 name.StartsWith("Steamworks"))
                 continue;
             yield return mapped;
