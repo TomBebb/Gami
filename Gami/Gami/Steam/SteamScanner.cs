@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Gami.Base;
 using Gami.Db.Models;
 using Serilog;
@@ -11,28 +9,9 @@ using ValveKeyValue;
 
 namespace Gami.Steam;
 
-public sealed class AppListItem
-{
-    [JsonPropertyName("appid")] public int AppId { get; set; }
-
-    public string Name { get; set; } = null!;
-}
-
-public sealed class AppList
-{
-    public ImmutableList<AppListItem> Apps { get; set; } = null!;
-}
-
-public sealed class AppListResult
-{
-    [JsonPropertyName("applist")] public AppList AppList { get; set; }
-}
-
 public sealed class SteamScanner : IGameLibraryScanner
 {
-    public static readonly string AppListCachePath = Path.Join(App.AppDir, "steam_cache.json");
-
-    private static string ScanPath => OperatingSystem.IsWindows()
+    private static string AppsPath => OperatingSystem.IsWindows()
         ? @"C:\Program Files (x86)\Steam\steamapps"
         : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Steam/steamapps");
@@ -74,7 +53,7 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public async IAsyncEnumerable<IGameLibraryRef> Scan()
     {
-        var path = ScanPath;
+        var path = AppsPath;
         if (!Path.Exists(path))
         {
             await Console.Error.WriteLineAsync("Non-existent scan path: " + path);
