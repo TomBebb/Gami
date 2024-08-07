@@ -23,5 +23,5 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
     public void Install(string id) => RunGameCmd("install", id);
     public string Type => "Steam";
 
-    public void Launch(string id) => RunGameCmd("launch", id);
+    public void Launch(string id) => RunGameCmd("rungameid", id);
 }
