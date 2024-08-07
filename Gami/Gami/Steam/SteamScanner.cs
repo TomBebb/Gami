@@ -76,13 +76,22 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public static async ValueTask<AppListResult?> GetAppList()
     {
-        Log.Debug("Get App List");
-        if (!Path.Exists(AppListCachePath) ||
-            DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath) > TimeSpan.FromMinutes(30))
+        var hasCacheFile = Path.Exists(AppListCachePath);
+        var sinceLastDownload =
+            hasCacheFile ? DateTime.UtcNow - File.GetLastWriteTimeUtc(AppListCachePath) : TimeSpan.Zero;
+        Log.Debug("Get App List; hasCache={HasCache}, sinceLastDl={SinceLastDownload}", hasCacheFile,
+            sinceLastDownload);
+        if (!hasCacheFile || sinceLastDownload > TimeSpan.FromMinutes(30))
+        {
+            Log.Debug("Fetching app list");
             await new ProcessStartInfo("curl",
                 $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}").RunAsync();
+            Log.Debug("Fetched app list");
+        }
 
-        var text = await File.ReadAllTextAsync(AppListCachePath);
+        Log.Debug("Reading from cache: {CachePath}", AppListCachePath);
+
+        var text = File.ReadAllText(AppListCachePath);
         Log.Debug("Got App List");
         return JsonSerializer.Deserialize<AppListResult>(text, SerializerSettings.JsonOptions);
     }
