@@ -21,13 +21,13 @@ public static class GameExtensions
             new("steam", SteamCommon.Instance)
         }.ToFrozenDictionary();
 
-    public static ValueTask Launch(this Game game)
+    public static void Launch(this Game game)
     {
-        return LaunchersByName[game.LibraryType].Launch(game.LibraryId);
+        LaunchersByName[game.LibraryType].Launch(game.LibraryId);
     }
 
-    public static ValueTask Install(this Game game)
+    public static void Install(this Game game)
     {
-        return InstallersByName[game.LibraryType].Install(game.LibraryId);
+        InstallersByName[game.LibraryType].Install(game.LibraryId);
     }
 }

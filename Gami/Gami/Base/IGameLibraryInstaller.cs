@@ -5,5 +5,5 @@ namespace Gami.Base;
 public interface IGameLibraryInstaller
 {
     public string Type { get; }
-    public ValueTask Install(string id);
+    public void Install(string id);
 }

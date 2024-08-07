@@ -5,5 +5,5 @@ namespace Gami.Base;
 public interface IGameLibraryLauncher
 {
     public string Type { get; }
-    public ValueTask Launch(string id);
+    public void Launch(string id);
 }
