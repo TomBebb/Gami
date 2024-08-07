@@ -70,7 +70,7 @@ public sealed class SteamScanner : IGameLibraryScanner
         }
 
         Log.Debug("Scanning steam games in {Dir}", path);
-        foreach (var partialPath in Directory.GetFiles(path, @"appmanifest*"))
+        foreach (var partialPath in Directory.EnumerateFiles(path, @"appmanifest*"))
         {
             var manifestPath = Path.Combine(path, partialPath);
             Log.Debug("Mapping game manifest at {Path}", manifestPath);
