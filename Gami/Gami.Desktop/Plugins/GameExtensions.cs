@@ -88,6 +88,14 @@ public static class GameExtensions
             })
             .ToFrozenDictionary(v => v.Type);
 
+    public static readonly FrozenDictionary<string, IGameAchievementScanner>
+        AchievementsByName = Plugins.Select(p =>
+            {
+                var assembly = LoadPlugin(p);
+                return GetMatching<IGameAchievementScanner>(assembly);
+            })
+            .ToFrozenDictionary(v => v.Type);
+
     private static T GetLauncher<T>(this FrozenDictionary<string, T> dictionary,
         string libType)
     {

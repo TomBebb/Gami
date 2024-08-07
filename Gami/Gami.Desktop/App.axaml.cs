@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,8 +35,27 @@ public class App : Application
             Log.Information("Scan {Name} apps", scanner.Key);
             var fetched = new List<IGameLibraryRef>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
+            {
+                if (fetched.Count >= 1)
+                    break;
                 fetched
                     .Add(item);
+
+                if (GameExtensions.AchievementsByName.TryGetValue(scanner.Key,
+                        out var achievementScanner))
+                    Log.Debug("Scan {Name} Achievements", scanner.Key);
+
+                await foreach (var achievement in achievementScanner.Scan(item))
+                {
+                    await using var db = new GamiContext();
+                    await db.Achievements.AddAsync(achievement);
+
+                    await db.SaveChangesAsync();
+                }
+
+                Log.Debug("got achievements for {Item}", item.LibraryId);
+            }
+
             Log.Debug(
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
                     SerializerSettings
@@ -66,14 +86,18 @@ public class App : Application
             {
                 Log.Information("Ensure local app dir exists");
                 Directory.CreateDirectory(Consts.BasePluginDir);
-                using DbContext context = new GamiContext();
-                Log.Information("Ensure DB created");
-                context.Database.EnsureCreated();
+                using (DbContext context = new GamiContext())
+                {
+                    Log.Information("Ensure DB created");
+                    context.Database.EnsureCreated();
+                }
+
                 Log.Information("Save changes");
 
                 DoScan().GetAwaiter().GetResult();
-
-                context.SaveChanges();
+                /*Task.Run(() =>
+                    DoScan().AsTask());
+                */
                 Log.Information("Saved changes");
             }
 

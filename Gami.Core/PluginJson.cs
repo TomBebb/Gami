@@ -19,7 +19,7 @@ public static class PluginJson
         var path = Path.Join(Consts.BasePluginDir, addon + ".json");
         if (!File.Exists(path))
             return null;
-        var content = File.Open(path, FileMode.Open);
+        var content = File.ReadAllText(path);
         return JsonSerializer.Deserialize<T>(content,
             new JsonSerializerOptions(JsonSerializerDefaults.Web));
     }
