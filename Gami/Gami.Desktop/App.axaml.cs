@@ -33,7 +33,8 @@ public class App : Application
         foreach (var scanner in GameExtensions.ScannersByName)
         {
             Log.Information("Scan {Name} apps", scanner.Key);
-            var fetched = new List<IGameLibraryRef>();
+            var fetched = new ConcurrentBag<IGameLibraryRef>();
+            var fetchedAchievements = new ConcurrentDictionary<string, Achievement>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
             {
                 if (fetched.Count >= 1)
@@ -46,12 +47,7 @@ public class App : Application
                     Log.Debug("Scan {Name} Achievements", scanner.Key);
 
                 await foreach (var achievement in achievementScanner.Scan(item))
-                {
-                    await using var db = new GamiContext();
-                    await db.Achievements.AddAsync(achievement);
-
-                    await db.SaveChangesAsync();
-                }
+                    fetchedAchievements[item.LibraryId] = achievement;
 
                 Log.Debug("got achievements for {Item}", item.LibraryId);
             }
@@ -60,20 +56,22 @@ public class App : Application
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
                     SerializerSettings
                         .JsonOptions));
+            Log.Debug(
+                "{Name} achievements {Achievements}", scanner.Key,
+                JsonSerializer.Serialize(fetchedAchievements,
+                    SerializerSettings
+                        .JsonOptions));
             {
                 await using var db = new GamiContext();
-                await db.BulkInsertAsync(fetched
-                    .Where(v => !db.Games.Any(g =>
-                        g.LibraryId == v.LibraryId && g.LibraryType == v.LibraryType))
-                    .Select(
-                        f => new Game
-                        {
-                            InstallStatus = f.InstallStatus,
-                            Name = f.Name,
-                            LibraryId = f.LibraryId,
-                            LibraryType = f.LibraryType,
-                            Description = ""
-                        }));
+                await db.BulkInsertOrUpdateAsync<Game>(fetched.Select(
+                    f => new Game
+                    {
+                        InstallStatus = f.InstallStatus,
+                        Name = f.Name,
+                        LibraryId = f.LibraryId,
+                        LibraryType = f.LibraryType,
+                        Description = ""
+                    }));
             }
         }
     }

@@ -9,7 +9,6 @@ public class GamiContext : DbContext
 {
     public static readonly string DbPath = Path.Join(Consts.AppDir, "gami.db");
     public DbSet<Achievement> Achievements { get; set; }
-    public DbSet<GameAchievement> GameAchievements { get; set; }
     public DbSet<AgeRating> AgeRatings { get; set; }
     public DbSet<GameAgeRating> GameAgeRatings { get; set; }
     public DbSet<Developer> Developers { get; set; }
@@ -38,8 +37,6 @@ public class GamiContext : DbContext
         builder.Entity<Game>()
             .HasIndex(u => new { u.LibraryType, u.LibraryId })
             .IsUnique();
-        builder.Entity<GameAchievement>()
-            .HasKey(u => new { u.GameId, u.AchievementId });
         builder.Entity<GameAgeRating>()
             .HasKey(u => new { u.GameId, u.AgeRatingId });
         builder.Entity<GameFeature>()

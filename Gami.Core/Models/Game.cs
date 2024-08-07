@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -11,7 +12,10 @@ public sealed class Game : ReactiveObject, IGameLibraryRef
     [Reactive] public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
 
-    public List<GameAchievement> GameAchievements { get; } = null!;
+    [Reactive]
+    public ImmutableList<Achievement> Achievements { get; set; } =
+        ImmutableList<Achievement>.Empty;
+
     public List<GameAgeRating> GameAgeRatings { get; } = null!;
     public List<GameDeveloper> GameDevelopers { get; } = null!;
     public List<GameFeature> GameFeatures { get; }
