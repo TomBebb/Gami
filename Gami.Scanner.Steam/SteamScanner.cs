@@ -1,5 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using Flurl;
 using Gami.Core;
 using Gami.Core.Models;
 using Serilog;
@@ -9,6 +13,10 @@ namespace Gami.Scanner.Steam;
 
 public sealed class SteamScanner : IGameLibraryScanner
 {
+    private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
+                                  throw new ApplicationException(
+                                      "steam.json must be manually created for now");
+
     private static string AppsPath => OperatingSystem.IsWindows()
         ? @"C:\Program Files (x86)\Steam\steamapps"
         : Path.Join(
@@ -18,8 +26,42 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public string Type => "steam";
 
+    private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned()
+    {
+        var client = new HttpClient();
+        var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
+            .SetQueryParam("key", _config.ApiKey)
+            .SetQueryParam("steamid", _config.SteamId)
+            .SetQueryParam("include_appinfo", 1)
+            .SetQueryParam("format", "json");
+        Log.Debug("Steam scanning player owned games: {Url}", url);
+
+        var res = await client.GetFromJsonAsync<OwnedGamesResults>(url).ConfigureAwait
+            (false);
+        Log.Debug("Steam scanned player owned games: {Total}",
+            res?.Response.Games.Length ?? 0);
+        return res!.Response.Games;
+    }
+
     public async IAsyncEnumerable<IGameLibraryRef> Scan()
     {
+        var ownedGames = await ScanOwned().ConfigureAwait(false);
+        Log.Debug("Got owned games: {Total}", ownedGames.Length);
+        foreach (var game in ownedGames)
+        {
+            Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
+            var gameRef = new GameLibraryRef()
+            {
+                InstallStatus = GameInstallStatus.InLibrary,
+                LibraryId = game.AppId.ToString(),
+                LibraryType = Type,
+                Name = game.Name
+            };
+            Log.Debug("Yield {Game}", JsonSerializer.Serialize(gameRef));
+            yield return gameRef;
+        }
+
+        Log.Debug("Scan steam path {Path}", AppsPath);
         var path = AppsPath;
         if (!Path.Exists(path))
         {

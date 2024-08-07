@@ -22,11 +22,6 @@ namespace Gami.Desktop;
 
 public class App : Application
 {
-    public static readonly string AppDir =
-        Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "gami");
-
-
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -38,7 +33,9 @@ public class App : Application
         {
             Log.Information("Scan {Name} apps", scanner.Key);
             var fetched = new List<IGameLibraryRef>();
-            await foreach (var item in scanner.Value.Scan()) fetched.Add(item);
+            await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
+                fetched
+                    .Add(item);
             Log.Debug(
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
                     SerializerSettings
@@ -68,7 +65,7 @@ public class App : Application
             if (!Design.IsDesignMode)
             {
                 Log.Information("Ensure local app dir exists");
-                Directory.CreateDirectory(AppDir);
+                Directory.CreateDirectory(Consts.BasePluginDir);
                 using DbContext context = new GamiContext();
                 Log.Information("Ensure DB created");
                 context.Database.EnsureCreated();
@@ -84,8 +81,8 @@ public class App : Application
             {
                 DataContext = new MainViewModel()
             };
-            if (!Design.IsDesignMode && !Directory.Exists(AppDir))
-                Directory.CreateDirectory(AppDir);
+            if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
+                Directory.CreateDirectory(Consts.AppDir);
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

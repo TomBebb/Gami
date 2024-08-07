@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Gami.Core;
 using Gami.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,7 @@ namespace Gami.Desktop.Db;
 
 public class GamiContext : DbContext
 {
-    public static readonly string DbPath = Path.Join(App.AppDir, "gami.db");
+    public static readonly string DbPath = Path.Join(Consts.AppDir, "gami.db");
     public DbSet<Achievement> Achievements { get; set; }
     public DbSet<GameAchievement> GameAchievements { get; set; }
     public DbSet<AgeRating> AgeRatings { get; set; }
