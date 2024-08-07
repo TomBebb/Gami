@@ -34,7 +34,8 @@ public class App : Application
         {
             Log.Information("Scan {Name} apps", scanner.Key);
             var fetched = new ConcurrentBag<IGameLibraryRef>();
-            var fetchedAchievements = new ConcurrentDictionary<string, Achievement>();
+            var fetchedAchievements = new ConcurrentDictionary<string,
+                ConcurrentBag<Achievement>>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
             {
                 if (fetched.Count >= 1)
@@ -46,8 +47,11 @@ public class App : Application
                         out var achievementScanner))
                     Log.Debug("Scan {Name} Achievements", scanner.Key);
 
+                var currBag = new ConcurrentBag<Achievement>();
                 await foreach (var achievement in achievementScanner.Scan(item))
-                    fetchedAchievements[item.LibraryId] = achievement;
+                    currBag.Add(achievement);
+
+                fetchedAchievements[item.LibraryId] = currBag;
 
                 Log.Debug("got achievements for {Item}", item.LibraryId);
             }
@@ -66,12 +70,25 @@ public class App : Application
                 await db.BulkInsertOrUpdateAsync<Game>(fetched.Select(
                     f => new Game
                     {
+                        Id = $"{f.LibraryType}:{f.LibraryId}",
                         InstallStatus = f.InstallStatus,
                         Name = f.Name,
-                        LibraryId = f.LibraryId,
-                        LibraryType = f.LibraryType,
                         Description = ""
                     }));
+
+
+                await db.BulkInsertOrUpdateAsync<Achievement>(
+                    fetchedAchievements.SelectMany(
+                        f => f.Value.Select(a => new Achievement()
+                        {
+                            UnlockTime = a.UnlockTime,
+                            LockedIcon = a.LockedIcon,
+                            UnlockedIcon = a.UnlockedIcon,
+                            GameId = $"{scanner.Key}:{f.Key}",
+                            Name = a.Name,
+                            LibraryId = a.LibraryId,
+                            Unlocked = a.Unlocked
+                        })));
             }
         }
     }

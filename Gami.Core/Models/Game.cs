@@ -7,7 +7,7 @@ namespace Gami.Core.Models;
 
 public sealed class Game : ReactiveObject, IGameLibraryRef
 {
-    [Key] public int Id { get; set; }
+    [Key] public string Id { get; set; }
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
     [Reactive] public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;

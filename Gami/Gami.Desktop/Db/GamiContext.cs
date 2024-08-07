@@ -35,8 +35,13 @@ public class GamiContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<Game>()
-            .HasIndex(u => new { u.LibraryType, u.LibraryId })
-            .IsUnique();
+            .Property(g => g.LibraryType)
+            .HasComputedColumnSql(@"substr([Id], 0, instr([Id], ':'))");
+
+        builder.Entity<Game>()
+            .Property(g => g.LibraryId)
+            .HasComputedColumnSql(@"substr(id, instr(id, ':')+1)");
+
         builder.Entity<GameAgeRating>()
             .HasKey(u => new { u.GameId, u.AgeRatingId });
         builder.Entity<GameFeature>()
