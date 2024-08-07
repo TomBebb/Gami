@@ -81,7 +81,7 @@ public sealed class SteamScanner : IGameLibraryScanner
             await new ProcessStartInfo("curl",
                 $"https://api.steampowered.com/ISteamApps/GetAppList/v2 -o {AppListCachePath}").RunAsync();
 
-        var text = File.ReadAllText(AppListCachePath);
+        var text = await File.ReadAllTextAsync(AppListCachePath);
         Console.WriteLine("Got App List");
         return JsonSerializer.Deserialize<AppListResult>(text, SerializerSettings.JsonOptions);
     }
