@@ -1,0 +1,10 @@
+﻿{
+  "key": "steam",
+  "name": "Steam Scanner",
+  "settings": [
+    {
+      "name": "Steam API key",
+      "key": "apiKey"
+    }
+  ]
+}

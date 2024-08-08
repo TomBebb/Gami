@@ -71,6 +71,9 @@
         <Content Include="..\Directory.Build.props">
             <Link>Directory.Build.props</Link>
         </Content>
+        <Content Include="..\plugin.schema.json">
+            <Link>plugin.schema.json</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
