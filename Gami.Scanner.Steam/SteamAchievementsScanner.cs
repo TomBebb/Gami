@@ -20,7 +20,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
     private sealed class PlayerAchievements
     {
-        public ImmutableArray<PlayerAchievementItem> Achievements { get; set; }
+        public ImmutableArray<PlayerAchievementItem>? Achievements { get; set; }
     }
 
     private sealed class PlayerAchievementsResults
@@ -70,11 +70,23 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         Log.Debug("Fetch playerachievements for {GameId}", url);
 
-        var res = await HttpConsts.HttpClient.GetFromJsonAsync<PlayerAchievementsResults>(
-            url,
-            new
-                JsonSerializerOptions(JsonSerializerDefaults.Web));
-        return res!;
+        try
+        {
+            var res = await HttpConsts.HttpClient
+                .GetFromJsonAsync<PlayerAchievementsResults>(
+                    url,
+                    new
+                        JsonSerializerOptions(JsonSerializerDefaults.Web));
+            return res!;
+        }
+        catch (HttpRequestException ex)
+        {
+            return new PlayerAchievementsResults()
+            {
+                PlayerStats = new PlayerAchievements()
+                    { Achievements = ImmutableArray<PlayerAchievementItem>.Empty }
+            };
+        }
     }
 
     private async ValueTask<GameSchemaResult> GetGameAchievements
@@ -137,8 +149,8 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         var playerAchievements =
             await GetPlayerAchievements(game).ConfigureAwait(false);
         Log.Debug("Player Achievements: {Achievements}",
-            playerAchievements.PlayerStats.Achievements.Length);
-        foreach (var achievement in playerAchievements.PlayerStats.Achievements)
+            playerAchievements.PlayerStats.Achievements?.Length ?? 0);
+        foreach (var achievement in playerAchievements.PlayerStats.Achievements ?? ImmutableArray<PlayerAchievementItem>.Empty)
             res.Add(new AchievementProgress()
             {
                 AchievementId =
