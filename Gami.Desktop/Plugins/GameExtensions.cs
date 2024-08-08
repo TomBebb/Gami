@@ -132,6 +132,14 @@ public static class GameExtensions
             })
             .ToFrozenDictionary(v => v.Type);
 
+    public static readonly FrozenDictionary<string, IGameIconLookup>
+        IconLookupByName = Plugins.Select(p =>
+            {
+                var assembly = LoadPlugin(p);
+                return GetMatching<IGameIconLookup>(assembly);
+            })
+            .ToFrozenDictionary(v => v.Type);
+
     public static readonly FrozenDictionary<string, PluginConfig>
         PluginConfigs = Plugins.Select(p =>
             {

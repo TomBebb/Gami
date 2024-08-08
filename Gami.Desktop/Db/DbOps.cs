@@ -13,6 +13,28 @@ namespace Gami.Desktop.Db;
 
 public static class DbOps
 {
+    private static async ValueTask ScanMissingIcons()
+    {
+        await using var db = new GamiContext();
+
+        foreach (var item in db.Games
+                     .Where(g => g.Icon == null)
+                     .Select(g => new GameLibraryRef() { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
+        {
+            var scanner = GameExtensions.IconLookupByName[item.LibraryType];
+            var icon = await scanner.LookupIcon(item);
+            var mapped = new Game()
+            {
+                Id = $"{item.LibraryType}:{item.LibraryId}",
+                Icon = icon
+            };
+            db.Games.Attach(mapped);
+            db.Entry(mapped).Property(x => x.Icon).IsModified = true;
+
+            await db.SaveChangesAsync();
+        }
+    }
+
     private static async ValueTask ScanMissingAchievementsData()
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
@@ -118,8 +140,14 @@ public static class DbOps
             await db.SaveChangesAsync();
         }
 
-        return;
 
+        Task.Run(async () =>
+        {
+            Log.Debug("Scanning icons");
+            await ScanMissingIcons();
+            Log.Debug("Scanned icon");
+        });
+        /*
         Task.Run(async () =>
         {
             Log.Debug("Scanning missing achievement data");
@@ -128,6 +156,6 @@ public static class DbOps
             await ScanAchievementsProgress();
 
             Log.Debug("Scanned achievements progress");
-        });
+        }); */
     }
 }
