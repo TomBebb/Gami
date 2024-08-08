@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -60,7 +59,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
     public string Type => SteamCommon.TypeName;
 
-    private Task<PlayerAchievementsResults> GetPlayerAchievements
+    private async ValueTask<PlayerAchievementsResults> GetPlayerAchievements
         (IGameLibraryRef game)
     {
         var url =
@@ -71,13 +70,14 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         Log.Debug("Fetch playerachievements for {GameId}", url);
 
-        return new HttpClient().GetFromJsonAsync<PlayerAchievementsResults>(url,
+        var res = await HttpConsts.HttpClient.GetFromJsonAsync<PlayerAchievementsResults>(
+            url,
             new
                 JsonSerializerOptions(JsonSerializerDefaults.Web));
-        ;
+        return res!;
     }
 
-    private Task<GameSchemaResult> GetGameAchievements
+    private async ValueTask<GameSchemaResult> GetGameAchievements
         (IGameLibraryRef game)
     {
         var url =
@@ -87,10 +87,12 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         Log.Debug("Fetch game aachievements for {GameId}", url);
 
-        return new HttpClient().GetFromJsonAsync<GameSchemaResult>(url,
+
+        var res = await HttpConsts.HttpClient.GetFromJsonAsync<GameSchemaResult>(url,
             new
                 JsonSerializerOptions(JsonSerializerDefaults.Web));
-        ;
+
+        return res!;
     }
 
     public async ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game)
