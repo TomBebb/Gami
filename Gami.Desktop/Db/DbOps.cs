@@ -45,7 +45,7 @@ public static class DbOps
                     }
 
                     Log.Debug("Scanning achievements {Data}",
-                        JsonSerializer.Serialize(achievements));
+                        JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
                     await using var db = new GamiContext();
                     await db.BulkInsertAsync(achievements.Select(a => new Achievement()
                     {
@@ -93,13 +93,13 @@ public static class DbOps
         foreach (var scanner in GameExtensions.ScannersByName)
         {
             Log.Information("Scan {Name} apps", scanner.Key);
-            var fetched = new ConcurrentBag<IGameLibraryRef>();
+            var fetched = new ConcurrentBag<IGameLibraryMetadata>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
                 fetched
                     .Add(item);
 
             Log.Debug(
-                "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
+                "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched.Select(f => f.Name),
                     SerializerSettings
                         .JsonOptions));
 
@@ -108,9 +108,12 @@ public static class DbOps
                 Id = $"{scanner.Key}:{g.LibraryId}",
                 Name = g.Name,
                 InstallStatus = g.InstallStatus,
-                Description = ""
+                Description = "",
+                Icon = g.Icon
             }));
         }
+
+        return;
 
         Task.Run(async () =>
         {

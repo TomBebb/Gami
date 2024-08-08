@@ -150,7 +150,8 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             await GetPlayerAchievements(game).ConfigureAwait(false);
         Log.Debug("Player Achievements: {Achievements}",
             playerAchievements.PlayerStats.Achievements?.Length ?? 0);
-        foreach (var achievement in playerAchievements.PlayerStats.Achievements ?? ImmutableArray<PlayerAchievementItem>.Empty)
+        foreach (var achievement in playerAchievements.PlayerStats.Achievements ??
+                                    ImmutableArray<PlayerAchievementItem>.Empty)
             res.Add(new AchievementProgress()
             {
                 AchievementId =

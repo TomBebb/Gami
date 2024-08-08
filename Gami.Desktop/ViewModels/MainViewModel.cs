@@ -5,6 +5,7 @@ using System.Text.Json;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
+using Gami.Desktop.Models;
 using Gami.Desktop.Plugins;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -14,7 +15,7 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    [Reactive] public Game SelectedGame { get; set; }
+    [Reactive] public MappedGame SelectedGame { get; set; }
 
     public MainViewModel()
     {
@@ -33,7 +34,7 @@ public class MainViewModel : ViewModelBase
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
         });
-        EditGame = ReactiveCommand.Create((Game game) =>
+        EditGame = ReactiveCommand.Create((MappedGame game) =>
         {
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
@@ -46,7 +47,7 @@ public class MainViewModel : ViewModelBase
     {
         using (var db = new GamiContext())
         {
-            Games = new ObservableCollection<Game>(db.Games.Select(v => new Game
+            Games = new ObservableCollection<MappedGame>(db.Games.Select(v => new MappedGame()
             {
                 LibraryType = v.LibraryType,
                 LibraryId = v.LibraryId,
@@ -56,7 +57,8 @@ public class MainViewModel : ViewModelBase
                 {
                     Genre = new Genre { Name = g.Genre.Name }
                 }).ToList(),
-                Description = v.Description
+                Description = v.Description,
+                Icon = v.Icon
             }));
         }
 
@@ -68,16 +70,16 @@ public class MainViewModel : ViewModelBase
     }
 #pragma warning disable CA1822 // Mark members as static
 
-    [Reactive] public Game? EditingGame { get; set; }
+    [Reactive] public MappedGame? EditingGame { get; set; }
 
     public ReactiveCommand<Game, Unit> PlayGame { get; }
-    public ReactiveCommand<Game, Unit> EditGame { get; set; }
+    public ReactiveCommand<MappedGame, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
 
 
-    public ObservableCollection<Game> Games { get; private set; } = new();
+    public ObservableCollection<MappedGame> Games { get; private set; } = new();
 
 #pragma warning restore CA1822 // Mark members as static
 }

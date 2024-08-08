@@ -2,15 +2,18 @@
 using System.ComponentModel.DataAnnotations;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using SixLabors.ImageSharp;
 
 namespace Gami.Core.Models;
 
-public sealed class Game : ReactiveObject, IGameLibraryRef
+public class Game : ReactiveObject, IGameLibraryRef
 {
     [Key] public string Id { get; set; }
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
     [Reactive] public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
+
+    public byte[]? Icon { get; set; }
 
     [Reactive]
     public ImmutableList<Achievement> Achievements { get; set; } =

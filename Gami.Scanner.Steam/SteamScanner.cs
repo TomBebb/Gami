@@ -34,14 +34,17 @@ public sealed class SteamScanner : IGameLibraryScanner
             .SetQueryParam("format", "json");
         Log.Debug("Steam scanning player owned games: {Url}", url);
 
-        var res = await client.GetFromJsonAsync<OwnedGamesResults>(url).ConfigureAwait
+        var res = await client.GetFromJsonAsync<OwnedGamesResults>(url, new JsonSerializerOptions(JsonSerializerDefaults.General)
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        }).ConfigureAwait
             (false);
         Log.Debug("Steam scanned player owned games: {Total}",
             res?.Response.Games.Length ?? 0);
         return res!.Response.Games;
     }
 
-    public async IAsyncEnumerable<IGameLibraryRef> Scan()
+    public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
     {
         var path = AppsPath;
 
@@ -76,19 +79,30 @@ public sealed class SteamScanner : IGameLibraryScanner
             if (installedIds.Contains(game.AppId))
                 continue;
             Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
-            var gameRef = new GameLibraryRef()
+            byte[]? icon = null;
+            if (!string.IsNullOrEmpty(game.ImgIconUrl))
+            {
+                var url =
+                    $"http://media.steampowered.com/steamcommunity/public/images/apps/{game.AppId}/{game.ImgIconUrl}.jpg";
+                Log.Debug("Icon URL: {Url}", url);
+                icon = await HttpConsts.HttpClient.GetByteArrayAsync(url);
+                Log.Debug("Got Icon URL: {Url}", url);
+            }
+
+            var gameRef = new ScannedGameLibraryMetadata()
             {
                 InstallStatus = GameInstallStatus.InLibrary,
                 LibraryId = game.AppId.ToString(),
                 LibraryType = Type,
-                Name = game.Name
+                Name = game.Name,
+                Icon = icon
             };
             Log.Debug("Yield {Game}", JsonSerializer.Serialize(gameRef));
             yield return gameRef;
         }
     }
 
-    private static GameLibraryRef MapGameManifest(string path)
+    private static ScannedGameLibraryMetadata MapGameManifest(string path)
     {
         Log.Debug("MapGameMan {Path}", path);
         var stream = File.OpenRead(path);
@@ -108,7 +122,7 @@ public sealed class SteamScanner : IGameLibraryScanner
         var bytesDl = data["BytesDownloaded"].ToString(CultureInfo.InvariantCulture);
         Log.Debug("Raw BytesDownloaded: {AppId}", bytesDl);
 
-        var mapped = new GameLibraryRef
+        var mapped = new ScannedGameLibraryMetadata()
         {
             LibraryType = SteamCommon.TypeName,
             LibraryId = appId,
