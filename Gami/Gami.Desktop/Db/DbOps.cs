@@ -16,21 +16,26 @@ public static class DbOps
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
         {
-            await using var db = new GamiContext();
-            var gamesMissingAchievements = db.Games
-                .Where(g => g.Achievements.Count == 0)
-                .Where(g => g.LibraryType == type)
-                .Select(g => new GameLibraryRef()
-                {
-                    LibraryType = g.LibraryType,
-                    LibraryId = g.LibraryId,
-                    Name = g.Name
-                }).ToImmutableArray();
+            ImmutableArray<GameLibraryRef> gamesMissingAchievements;
+            await using (var db = new GamiContext())
+            {
+                gamesMissingAchievements =
+                [
+                    ..db.Games
+                        .Where(g => g.Achievements.Count == 0)
+                        .Where(g => g.LibraryType == type)
+                        .Select(g => new GameLibraryRef()
+                        {
+                            LibraryType = g.LibraryType,
+                            LibraryId = g.LibraryId,
+                            Name = g.Name
+                        })
+                ];
+            }
 
             await Task.WhenAll(
                 gamesMissingAchievements.Select(async g =>
                 {
-                    await using var db = new GamiContext();
                     var achievements = await scanner.Scan(g);
                     foreach (var a in achievements)
                     {
@@ -41,6 +46,7 @@ public static class DbOps
 
                     Log.Debug("Scanning achievements {Data}",
                         JsonSerializer.Serialize(achievements));
+                    await using var db = new GamiContext();
                     await db.BulkInsertAsync(achievements.Select(a => new Achievement()
                     {
                         LockedIcon = a.LockedIcon,
@@ -57,16 +63,18 @@ public static class DbOps
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
         {
-            await using var db = new GamiContext();
-
-            var gamesToScan = db.Games
-                .Where(g => g.LibraryType == type)
-                .Select(g => new GameLibraryRef()
-                {
-                    LibraryType = g.LibraryType,
-                    LibraryId = g.LibraryId,
-                    Name = g.Name
-                }).ToImmutableArray();
+            ImmutableArray<GameLibraryRef> gamesToScan;
+            await using (var db = new GamiContext())
+            {
+                gamesToScan = db.Games
+                    .Where(g => g.LibraryType == type)
+                    .Select(g => new GameLibraryRef()
+                    {
+                        LibraryType = g.LibraryType,
+                        LibraryId = g.LibraryId,
+                        Name = g.Name
+                    }).ToImmutableArray();
+            }
 
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
