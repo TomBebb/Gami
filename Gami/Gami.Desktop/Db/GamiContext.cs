@@ -9,6 +9,7 @@ public class GamiContext : DbContext
 {
     public static readonly string DbPath = Path.Join(Consts.AppDir, "gami.db");
     public DbSet<Achievement> Achievements { get; set; }
+    public DbSet<AchievementProgress> AchievementsProgresses { get; set; }
     public DbSet<AgeRating> AgeRatings { get; set; }
     public DbSet<GameAgeRating> GameAgeRatings { get; set; }
     public DbSet<Developer> Developers { get; set; }
@@ -34,13 +35,31 @@ public class GamiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.Entity<Achievement>()
+            .Property(g => g.GameId)
+            .HasComputedColumnSql(@"substr([Id], 0, instr([Id], '::'))");
+
+        builder.Entity<Achievement>()
+            .HasKey(e => e.Id);
+        builder.Entity<AchievementProgress>()
+            .HasKey(e => e.AchievementId);
+
+        builder.Entity<Achievement>()
+            .HasOne(e => e.Progress)
+            .WithOne(e => e.Achievement)
+            .HasForeignKey<AchievementProgress>(e => e.AchievementId);
+
+        builder.Entity<Achievement>()
+            .Property(g => g.LibraryId)
+            .HasComputedColumnSql(@"substr([Id], instr(id, '::')+1)");
+
         builder.Entity<Game>()
             .Property(g => g.LibraryType)
             .HasComputedColumnSql(@"substr([Id], 0, instr([Id], ':'))");
 
         builder.Entity<Game>()
             .Property(g => g.LibraryId)
-            .HasComputedColumnSql(@"substr(id, instr(id, ':')+1)");
+            .HasComputedColumnSql(@"substr([Id], instr([id], ':')+1)");
 
         builder.Entity<GameAgeRating>()
             .HasKey(u => new { u.GameId, u.AgeRatingId });

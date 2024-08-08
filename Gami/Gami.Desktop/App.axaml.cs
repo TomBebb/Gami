@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -26,72 +28,108 @@ public class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    private static async ValueTask ScanMissingAchievementsData()
+    {
+        foreach (var (type, scanner) in GameExtensions.AchievementsByName)
+        {
+            await using var db = new GamiContext();
+            var gamesMissingAchievements = db.Games
+                .Where(g => g.Achievements.Count == 0)
+                .Where(g => g.LibraryType == type)
+                .Select(g => new GameLibraryRef()
+                {
+                    LibraryType = g.LibraryType,
+                    LibraryId = g.LibraryId,
+                    Name = g.Name
+                }).ToImmutableArray();
+
+            await Task.WhenAll(
+                gamesMissingAchievements.Select(async g =>
+                {
+                    await using var db = new GamiContext();
+                    var achievements = await scanner.Scan(g);
+                    foreach (var a in achievements)
+                    {
+                        var id =
+                            $"{type}:{g.LibraryId}::{a.LibraryId}";
+                        Log.Debug("Process {Id}", id);
+                    }
+
+                    Log.Debug("Scanning achievements {Data}",
+                        JsonSerializer.Serialize(achievements));
+                    await db.BulkInsertAsync(achievements.Select(a => new Achievement()
+                    {
+                        LockedIcon = a.LockedIcon,
+                        UnlockedIcon = a.UnlockedIcon,
+                        Id = $"{type}:{g.LibraryId}::{a.LibraryId}",
+                        Name = a.Name,
+                        LibraryId = a.LibraryId
+                    }));
+                }));
+        }
+    }
+
+    private static async ValueTask ScanAchievementsProgress()
+    {
+        foreach (var (type, scanner) in GameExtensions.AchievementsByName)
+        {
+            await using var db = new GamiContext();
+
+            var gamesToScan = db.Games
+                .Where(g => g.LibraryType == type)
+                .Select(g => new GameLibraryRef()
+                {
+                    LibraryType = g.LibraryType,
+                    LibraryId = g.LibraryId,
+                    Name = g.Name
+                }).ToImmutableArray();
+
+            await Task.WhenAll(
+                gamesToScan.Select(async g =>
+                {
+                    await using var db = new GamiContext();
+                    var achievementsProgress = await scanner.ScanProgress(g);
+
+                    await db.BulkInsertAsync(achievementsProgress);
+                }));
+        }
+    }
+
     private static async ValueTask DoScan()
     {
         foreach (var scanner in GameExtensions.ScannersByName)
         {
             Log.Information("Scan {Name} apps", scanner.Key);
             var fetched = new ConcurrentBag<IGameLibraryRef>();
-            var fetchedAchievements = new ConcurrentDictionary<string,
-                ConcurrentBag<Achievement>>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
             {
                 if (fetched.Count >= 1)
                     break;
                 fetched
                     .Add(item);
-
-                if (GameExtensions.AchievementsByName.TryGetValue(scanner.Key,
-                        out var achievementScanner))
-                    Log.Debug("Scan {Name} Achievements", scanner.Key);
-
-                var currBag = await achievementScanner!.Scan(item);
-                await Parallel.ForEachAsync(currBag, async (achievement,
-                    cancellationToken) =>
-                {
-                    await achievement.UnlockedIcon.CompressImage(cancellationToken);
-                });
-
-                fetchedAchievements[item.LibraryId] = currBag;
-
-                Log.Debug("got achievements for {Item}", item.LibraryId);
             }
 
             Log.Debug(
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
                     SerializerSettings
                         .JsonOptions));
-            Log.Debug(
-                "{Name} achievements {Achievements}", scanner.Key,
-                JsonSerializer.Serialize(fetchedAchievements,
-                    SerializerSettings
-                        .JsonOptions));
+            await using var db = new GamiContext();
+
+            await db.BulkInsertOrUpdateAsync(fetched.Select(g => new Game()
             {
-                await using var db = new GamiContext();
-                await db.BulkInsertOrUpdateAsync<Game>(fetched.Select(
-                    f => new Game
-                    {
-                        Id = $"{f.LibraryType}:{f.LibraryId}",
-                        InstallStatus = f.InstallStatus,
-                        Name = f.Name,
-                        Description = ""
-                    }));
-
-
-                await db.BulkInsertOrUpdateAsync<Achievement>(
-                    fetchedAchievements.SelectMany(
-                        f => f.Value.Select(a => new Achievement()
-                        {
-                            UnlockTime = a.UnlockTime,
-                            LockedIcon = a.LockedIcon,
-                            UnlockedIcon = a.UnlockedIcon,
-                            GameId = $"{scanner.Key}:{f.Key}",
-                            Name = a.Name,
-                            LibraryId = a.LibraryId,
-                            Unlocked = a.Unlocked
-                        })));
-            }
+                Id = $"{scanner.Key}:{g.LibraryId}",
+                Name = g.Name,
+                InstallStatus = g.InstallStatus,
+                Description = ""
+            }));
         }
+
+        Log.Debug("Scanning missing achievement data");
+        await ScanMissingAchievementsData();
+        Log.Debug("Scanned missing achievement data; scanning progress");
+        await ScanAchievementsProgress();
+
+        Log.Debug("Scanned achievements progress");
     }
 
     public override void OnFrameworkInitializationCompleted()

@@ -7,4 +7,7 @@ public interface IGameAchievementScanner
 {
     public string Type { get; }
     public ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game);
+
+    public ValueTask<ConcurrentBag<AchievementProgress>> ScanProgress(
+        IGameLibraryRef game);
 }

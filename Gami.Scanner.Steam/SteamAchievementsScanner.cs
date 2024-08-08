@@ -99,41 +99,51 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         var res = new ConcurrentBag<Achievement>();
         if (allAchievements.Game?.AvailableGameStats?.Achievements == null)
             return res;
-        var achievementsByName = allAchievements.Game.AvailableGameStats.Achievements
-            .ToFrozenDictionary(v => v?.Name ?? "");
-        var playerAchievements =
-            await GetPlayerAchievements(game).ConfigureAwait(false);
-        Log.Debug("Player Achievements: {Achievements}",
-            playerAchievements.PlayerStats.Achievements.Length);
-
-
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
         var client = HttpConsts.HttpClient;
-        await Task.WhenAll(playerAchievements.PlayerStats.Achievements.Select(async
-            achievement =>
-        {
-            var globalAchievement = achievementsByName[achievement.ApiName];
-
-            Log.Debug("Fetching icons for {Name}", globalAchievement.DisplayName);
-            var icons = await Task.WhenAll(new[]
+        await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
+            async
+                achievement =>
             {
-                client.GetByteArrayAsync(globalAchievement.Icon),
-                client.GetByteArrayAsync(globalAchievement.IconGray)
-            });
-            Log.Debug("Fetched icons for {Name}", globalAchievement.DisplayName);
+                Log.Debug("Fetching icons for {Name}", achievement.DisplayName);
+                var icons = await Task.WhenAll(new[]
+                {
+                    client.GetByteArrayAsync(achievement.Icon),
+                    client.GetByteArrayAsync(achievement.IconGray)
+                });
+                Log.Debug("Fetched icons for {Name}", achievement.DisplayName);
 
-            res.Add(new Achievement()
+                res.Add(new Achievement()
+                {
+                    Id =
+                        $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
+                    Name = achievement.DisplayName,
+                    LibraryId = achievement.Name,
+                    LockedIcon = icons[0],
+                    UnlockedIcon = icons[1]
+                });
+            }));
+        return res;
+    }
+
+    public async ValueTask<ConcurrentBag<AchievementProgress>> ScanProgress(
+        IGameLibraryRef game)
+    {
+        var res = new ConcurrentBag<AchievementProgress>();
+        var playerAchievements =
+            await GetPlayerAchievements(game).ConfigureAwait(false);
+        Log.Debug("Player Achievements: {Achievements}",
+            playerAchievements.PlayerStats.Achievements.Length);
+        foreach (var achievement in playerAchievements.PlayerStats.Achievements)
+            res.Add(new AchievementProgress()
             {
-                LibraryId = achievement.ApiName,
-                Name = globalAchievement.DisplayName,
+                AchievementId =
+                    $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",
                 UnlockTime = DateTime.UnixEpoch.AddSeconds(achievement.UnlockTime),
-                Unlocked = achievement.Achieved == 1,
-                LockedIcon = icons[0],
-                UnlockedIcon = icons[1]
+                Unlocked = achievement.Achieved == 1
             });
-        }));
         return res;
     }
 }
