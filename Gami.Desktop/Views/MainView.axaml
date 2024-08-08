@@ -16,11 +16,17 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*">
-        <StackPanel DockPanel.Dock="Top">
-            <Button Command="{Binding Refresh}">
-                Refresh
-            </Button>
-        </StackPanel>
+        <Border BorderBrush="Aqua" BorderThickness="1">
+            <fa:CommandBar
+                DefaultLabelPosition="Right">
+                <fa:CommandBar.PrimaryCommands>
+                    <fa:CommandBarButton IconSource="Refresh"
+                                         Command="{Binding Refresh}"
+                                         Label="Refresh" />
+                </fa:CommandBar.PrimaryCommands>
+            </fa:CommandBar>
+
+        </Border>
         <ScrollViewer Grid.Row="1">
             <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
