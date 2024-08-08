@@ -44,6 +44,7 @@ public sealed class SteamScanner : IGameLibraryScanner
         return res!.Response.Games;
     }
 
+
     public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
     {
         var path = AppsPath;
@@ -51,7 +52,7 @@ public sealed class SteamScanner : IGameLibraryScanner
         Log.Debug("Scan steam path {Path}", path);
         if (!Path.Exists(path))
         {
-            await Console.Error.WriteLineAsync("Non-existent scan path: " + path);
+            Log.Error("Non-existent scan path: " + path);
             yield break;
         }
 

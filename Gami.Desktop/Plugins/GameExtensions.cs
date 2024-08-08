@@ -22,7 +22,7 @@ public static class GameExtensions
                 assemblyName.FullName.Contains("Steam"))
                 Log.Information("Assembly {Name}", assemblyName.Name);
 
-        Console.WriteLine($"Loading commands from: {pluginLocation}");
+        Log.Debug("Loading plugin from: {Path}", pluginLocation);
         var loadContext = new PluginLoadContext(pluginLocation);
         return loadContext.LoadFromAssemblyName(
             new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
