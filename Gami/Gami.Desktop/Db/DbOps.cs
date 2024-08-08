@@ -89,23 +89,19 @@ public static class DbOps
 
     public static async ValueTask DoScan()
     {
+        await using var db = new GamiContext();
         foreach (var scanner in GameExtensions.ScannersByName)
         {
             Log.Information("Scan {Name} apps", scanner.Key);
             var fetched = new ConcurrentBag<IGameLibraryRef>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
-            {
-                if (fetched.Count >= 1)
-                    break;
                 fetched
                     .Add(item);
-            }
 
             Log.Debug(
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched,
                     SerializerSettings
                         .JsonOptions));
-            await using var db = new GamiContext();
 
             await db.BulkInsertOrUpdateAsync(fetched.Select(g => new Game()
             {
@@ -116,11 +112,14 @@ public static class DbOps
             }));
         }
 
-        Log.Debug("Scanning missing achievement data");
-        await ScanMissingAchievementsData();
-        Log.Debug("Scanned missing achievement data; scanning progress");
-        await ScanAchievementsProgress();
+        Task.Run(async () =>
+        {
+            Log.Debug("Scanning missing achievement data");
+            await ScanMissingAchievementsData();
+            Log.Debug("Scanned missing achievement data; scanning progress");
+            await ScanAchievementsProgress();
 
-        Log.Debug("Scanned achievements progress");
+            Log.Debug("Scanned achievements progress");
+        });
     }
 }
