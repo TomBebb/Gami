@@ -102,14 +102,12 @@ public static class DbOps
                 "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched.Select(f => f.Name),
                     SerializerSettings
                         .JsonOptions));
-
             await db.BulkInsertOrUpdateAsync(fetched.Select(g => new Game()
             {
                 Id = $"{scanner.Key}:{g.LibraryId}",
                 Name = g.Name,
                 InstallStatus = g.InstallStatus,
-                Description = "",
-                Icon = g.Icon
+                Description = ""
             }));
         }
 

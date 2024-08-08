@@ -10,21 +10,33 @@ using ValveKeyValue;
 
 namespace Gami.Scanner.Steam;
 
-public sealed class SteamScanner : IGameLibraryScanner
+public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
 {
     private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
                                   new SteamConfig();
 
-    private static string AppsPath =>(OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()) ?
-         Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library/Application Support/Steam/steamapps")
-     : (OperatingSystem.IsWindows()
-        ? @"C:\Program Files (x86)\Steam\steamapps"
-        : Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Steam/steamapps"));
+    private static string AppsPath => OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
+        ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library/Application Support/Steam/steamapps")
+        : OperatingSystem.IsWindows()
+            ? @"C:\Program Files (x86)\Steam\steamapps"
+            : Path.Join(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Steam/steamapps");
 
 
     public string Type => "steam";
+
+    public async ValueTask<byte[]?> LookupIcon(IGameLibraryRef myGame)
+    {
+        var scanned = await ScanOwned();
+        var game = scanned.FirstOrDefault(v => v.AppId.ToString() == myGame.LibraryId);
+        if (game == null)
+            return null;
+
+
+        var url = $"http://media.steampowered.com/steamcommunity/public/images/apps/{game.AppId}/{game.ImgIconUrl}.jpg";
+        return await HttpConsts.HttpClient.GetByteArrayAsync(url);
+    }
 
     private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned()
     {
@@ -81,26 +93,17 @@ public sealed class SteamScanner : IGameLibraryScanner
         {
             if (installedIds.Contains(game.AppId))
                 continue;
-            Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
-            byte[]? icon = null;
-            if (!string.IsNullOrEmpty(game.ImgIconUrl))
-            {
-                var url =
-                    $"http://media.steampowered.com/steamcommunity/public/images/apps/{game.AppId}/{game.ImgIconUrl}.jpg";
-                Log.Debug("Icon URL: {Url}", url);
-                icon = await HttpConsts.HttpClient.GetByteArrayAsync(url);
-                Log.Debug("Got Icon URL: {Url}", url);
-            }
-
             var gameRef = new ScannedGameLibraryMetadata()
             {
                 InstallStatus = GameInstallStatus.InLibrary,
                 LibraryId = game.AppId.ToString(),
                 LibraryType = Type,
-                Name = game.Name,
-                Icon = icon
+                Name = game.Name
             };
-            Log.Debug("Yield {Game}", JsonSerializer.Serialize(gameRef));
+#if DEBUG
+            Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
+#endif
+
             yield return gameRef;
         }
     }
