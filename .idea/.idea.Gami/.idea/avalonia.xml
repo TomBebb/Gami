@@ -3,6 +3,8 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="Gami.Desktop/App.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
+        <entry key="Gami.Desktop/Views/MainView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami/Gami.Desktop/Views/MainView.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami/Gami.Desktop/Views/MainWindow.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami/Gami/App.axaml" value="Gami/Gami.Desktop/Gami.Desktop.csproj" />

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:models="clr-namespace:Gami.Core.Models;assembly=Gami.Core"
+             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Desktop.Views.MainView"
              x:DataType="viewModels:MainViewModel"
@@ -24,7 +25,7 @@
                 </StackPanel>
             </DockPanel>
             <Label>Etc</Label>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <Grid
                     IsVisible="{Binding EditingGame, 
@@ -32,13 +33,16 @@
                     RowDefinitions="*,*,*,*,*,Auto"
                     ColumnDefinitions="Auto, *">
                     <Label Content="Name" />
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EditingGame.Name}" />
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding EditingGame.Name}" />
 
                     <Label Grid.Row="1" Grid.Column="0" Content="Description" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding EditingGame.Description}" />
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Text="{Binding EditingGame.Description}" />
                     <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
 
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding EditingGame.ReleaseDate}" />
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             Text="{Binding EditingGame.ReleaseDate}" />
 
                     <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
 
@@ -51,7 +55,8 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                                HorizontalAlignment="Center"
                                 Orientation="Horizontal">
                         <Button Content="Save" />
                         <Button Content="Cancel" />
@@ -63,20 +68,34 @@
                 <ItemsControl ItemsSource="{Binding Games}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="models:Game">
-                            <Grid ColumnDefinitions="*, Auto,Auto, Auto">
+                            <Grid ColumnDefinitions="5*, Auto, *">
                                 <Label Content="{Binding Name}" />
                                 <Label Grid.Column="1" Content="{Binding InstallStatus}" />
-                                <Button Grid.Column="2"
-                                        IsEnabled="{Binding Installed}"
-                                        Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
-                                        CommandParameter="{Binding .}">
-                                    Play
-                                </Button>
-                                <Button Grid.Column="3"
-                                        Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
-                                        CommandParameter="{Binding .}">
-                                    Edit
-                                </Button>
+                                <fa:CommandBar Grid.Column="2"
+                                               DefaultLabelPosition="Right">
+                                    <fa:CommandBar.PrimaryCommands>
+                                        <fa:CommandBarButton Label="Add"
+                                            BorderThickness="12"
+                                            BorderBrush="Green"
+                                            Command="{Binding AddItem}" />
+                                        <fa:CommandBarButton IconSource="Play"
+                                            IsEnabled="{Binding Installed}"
+                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
+                                            CommandParameter="{Binding .}"
+                                            Label="Play" />
+                                        <fa:CommandBarButton IconSource="Add"
+                                            IsEnabled="{Binding !Installed}"
+                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
+                                            CommandParameter="{Binding .}"
+                                            Label="Install" />
+                                        <fa:CommandBarButton IconSource="Edit"
+                                            IsEnabled="{Binding !Installed}"
+                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
+                                            CommandParameter="{Binding .}" Label="Edit" />
+
+                                    </fa:CommandBar.PrimaryCommands>
+
+                                </fa:CommandBar>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
