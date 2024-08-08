@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
 using Gami.Desktop.Plugins;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace Gami.Desktop.Db;
@@ -93,22 +94,28 @@ public static class DbOps
         foreach (var scanner in GameExtensions.ScannersByName)
         {
             Log.Information("Scan {Name} apps", scanner.Key);
-            var fetched = new ConcurrentBag<IGameLibraryMetadata>();
             await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
-                fetched
-                    .Add(item);
-
-            Log.Debug(
-                "{Name} apps {Apps}", scanner.Key, JsonSerializer.Serialize(fetched.Select(f => f.Name),
-                    SerializerSettings
-                        .JsonOptions));
-            await db.BulkInsertOrUpdateAsync(fetched.Select(g => new Game()
             {
-                Id = $"{scanner.Key}:{g.LibraryId}",
-                Name = g.Name,
-                InstallStatus = g.InstallStatus,
-                Description = ""
-            }));
+                var mapped = new Game()
+                {
+                    Id = $"{scanner.Key}:{item.LibraryId}",
+                    Name = item.Name,
+                    InstallStatus = item.InstallStatus,
+                    Description = ""
+                };
+                if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
+                {
+                    db.Games.Attach(mapped);
+                    db.Entry(mapped).Property(x => x.Name).IsModified = true;
+                    db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
+                }
+                else
+                {
+                    await db.AddAsync(mapped);
+                }
+            }
+
+            await db.SaveChangesAsync();
         }
 
         return;
