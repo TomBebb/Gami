@@ -2,5 +2,5 @@
 
 public sealed class Feature : NamedIdItem
 {
-    public List<GameFeature> GameFeatures { get; set; }
+    public List<GameFeature> GameFeatures { get; set; } = null!;
 }

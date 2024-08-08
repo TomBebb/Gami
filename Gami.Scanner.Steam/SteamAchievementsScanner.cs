@@ -13,7 +13,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 {
     private sealed class PlayerAchievementItem
     {
-        public string ApiName { get; set; }
+        public required string ApiName { get; set; }
         public byte Achieved { get; set; }
         public long UnlockTime { get; set; }
     }
@@ -25,7 +25,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
     private sealed class PlayerAchievementsResults
     {
-        public PlayerAchievements PlayerStats { get; set; }
+        public required PlayerAchievements PlayerStats { get; set; }
     }
 
     private sealed class GameSchemaGameStats
@@ -46,10 +46,10 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     private sealed class GameSchemaAchievement
     {
         public int Hidden { get; set; }
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public string Icon { get; set; }
-        public string IconGray { get; set; }
+        public required string Name { get; set; }
+        public required string DisplayName { get; set; }
+        public required string Icon { get; set; }
+        public required string IconGray { get; set; }
     }
 
     private SteamConfig _config =
@@ -69,7 +69,6 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                 .AppendQueryParam("steamid", _config.SteamId);
 
         Log.Debug("Fetch playerachievements for {GameId}", url);
-
         try
         {
             var res = await HttpConsts.HttpClient
@@ -79,7 +78,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                         JsonSerializerOptions(JsonSerializerDefaults.Web));
             return res!;
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
             return new PlayerAchievementsResults()
             {

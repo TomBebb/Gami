@@ -15,7 +15,7 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    [Reactive] public MappedGame SelectedGame { get; set; }
+    [Reactive] public MappedGame SelectedGame { get; set; } = null!;
 
     public MainViewModel()
     {

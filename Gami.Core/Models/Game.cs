@@ -8,7 +8,7 @@ namespace Gami.Core.Models;
 
 public class Game : ReactiveObject, IGameLibraryRef
 {
-    [Key] public string Id { get; set; }
+    [Key] public string Id { get; set; } = null!;
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
     [Reactive] public DateTime ReleaseDate { get; set; }
     public string Description { get; set; } = null!;
@@ -21,7 +21,7 @@ public class Game : ReactiveObject, IGameLibraryRef
 
     public List<GameAgeRating> GameAgeRatings { get; } = null!;
     public List<GameDeveloper> GameDevelopers { get; } = null!;
-    public List<GameFeature> GameFeatures { get; }
+    public List<GameFeature> GameFeatures { get; } = null!;
     public List<GameGenre> GameGenres { get; set; } = null!;
     public List<GamePlatform> GamePlatforms { get; set; } = null!;
     public List<GamePublisher> GamePublishers { get; set; } = null!;
