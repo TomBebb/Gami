@@ -74,7 +74,7 @@ public static class DbOps
                     await using var db = new GamiContext();
                     var achievementsProgress = await scanner.ScanProgress(g);
 
-                    await db.BulkInsertAsync(achievementsProgress);
+                    await db.BulkInsertOrUpdateAsync(achievementsProgress);
                 }));
         }
     }
