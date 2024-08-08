@@ -143,7 +143,10 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             {
                 AchievementId =
                     $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",
-                UnlockTime = DateTime.UnixEpoch.AddSeconds(achievement.UnlockTime),
+                UnlockTime = achievement.UnlockTime == 0
+                    ? null
+                    : DateTime.UnixEpoch.AddSeconds
+                        (achievement.UnlockTime),
                 Unlocked = achievement.Achieved == 1
             });
         return res;
