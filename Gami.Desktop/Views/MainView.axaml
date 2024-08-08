@@ -15,7 +15,7 @@
         <viewModels:MainViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
         <Border BorderBrush="Aqua" BorderThickness="1">
             <fa:CommandBar
                 DefaultLabelPosition="Right">
@@ -27,53 +27,60 @@
             </fa:CommandBar>
 
         </Border>
-        <ScrollViewer Grid.Row="1">
-            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-                <Grid
-                    IsVisible="{Binding EditingGame, 
+        <Grid Grid.Row="1"
+              IsVisible="{Binding EditingGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}"
-                    RowDefinitions="*,*,*,*,*,Auto"
-                    ColumnDefinitions="Auto, *">
-                    <Label Content="Name" />
-                    <TextBox Grid.Row="0" Grid.Column="1"
-                             Text="{Binding EditingGame.Name}" />
+              RowDefinitions="*,*,*,*,*,Auto"
+              ColumnDefinitions="Auto, *">
+            <Label Content="Name" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding EditingGame.Name}" />
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="Description" />
-                    <TextBox Grid.Row="1" Grid.Column="1"
-                             Text="{Binding EditingGame.Description}" />
-                    <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
+            <Label Grid.Row="1" Grid.Column="0" Content="Description" />
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding EditingGame.Description}" />
+            <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
 
-                    <TextBox Grid.Row="2" Grid.Column="1"
-                             Text="{Binding EditingGame.ReleaseDate}" />
+            <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding EditingGame.ReleaseDate}" />
 
-                    <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
+            <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
 
-                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-                        <ItemsControl ItemsSource="{Binding EditingGame.GameGenres}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:GameGenre">
-                                    <Label Content="{Binding Genre.Name}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
-                                HorizontalAlignment="Center"
-                                Orientation="Horizontal">
-                        <Button Content="Save" />
-                        <Button Content="Cancel" />
-
-                    </StackPanel>
-
-                </Grid>
-
-                <ItemsControl ItemsSource="{Binding Games}">
+            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                <ItemsControl ItemsSource="{Binding EditingGame.GameGenres}">
                     <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:GameGenre">
+                            <Label Content="{Binding Genre.Name}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                <Button Content="Save" />
+                <Button Content="Cancel" />
+
+            </StackPanel>
+
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="2* 7*">
+            <ScrollViewer>
+
+                <ListBox ItemsSource="{Binding Games}"
+                         SelectedItem="{Binding 
+                SelectedGame}">
+
+                    <ListBox.ItemTemplate>
+
                         <DataTemplate DataType="models:Game">
                             <Grid ColumnDefinitions="5*, Auto, *">
-                                <Label Content="{Binding Name}" />
-                                <Label Grid.Column="1" Content="{Binding InstallStatus}" />
+                                <Label VerticalAlignment="Center"
+                                       Content="{Binding Name}" />
+                                <Label Grid.Column="1"
+                                       Content="{Binding InstallStatus}" />
                                 <fa:CommandBar Grid.Column="2"
                                                DefaultLabelPosition="Right">
                                     <fa:CommandBar.PrimaryCommands>
@@ -98,16 +105,50 @@
                                             Background="Blue"
                                             IsEnabled="{Binding !Installed}"
                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
-                                            CommandParameter="{Binding .}" Label="Edit" />
+                                            CommandParameter="{Binding .}"
+                                            Label="Edit" />
 
                                     </fa:CommandBar.PrimaryCommands>
 
                                 </fa:CommandBar>
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+            <StackPanel Grid.Column="1">
+                <fa:CommandBar HorizontalAlignment="Stretch"
+                               DefaultLabelPosition="Right">
+                    <fa:CommandBar.PrimaryCommands>
+                        <fa:CommandBarButton IconSource="Play"
+                                             IsEnabled="{Binding Installed}"
+                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
+                                             CommandParameter="{Binding .}"
+                                             Label="Play" />
+                        <fa:CommandBarButton IconSource="Add"
+                                             Background="Green"
+                                             IsEnabled="{Binding !Installed}"
+                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
+                                             CommandParameter="{Binding .}"
+                                             Label="Install" />
+                        <fa:CommandBarButton IconSource="Delete"
+                                             Background="Red"
+                                             IsEnabled="{Binding Installed}"
+                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).UninstallGame}"
+                                             CommandParameter="{Binding .}"
+                                             Label="Delete" />
+                        <fa:CommandBarButton IconSource="Edit"
+                                             Background="Blue"
+                                             IsEnabled="{Binding !Installed}"
+                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
+                                             CommandParameter="{Binding .}"
+                                             Label="Edit" />
+
+                    </fa:CommandBar.PrimaryCommands>
+
+                </fa:CommandBar>
+                <Label Content="{Binding SelectedGame.InstallStatus}" />
             </StackPanel>
-        </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

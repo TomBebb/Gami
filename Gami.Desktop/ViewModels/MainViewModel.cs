@@ -14,6 +14,8 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    [Reactive] public Game SelectedGame { get; set; }
+
     public MainViewModel()
     {
         PlayGame = ReactiveCommand.Create((Game game) =>
