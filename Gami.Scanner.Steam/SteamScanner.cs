@@ -15,11 +15,13 @@ public sealed class SteamScanner : IGameLibraryScanner
     private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
                                   new SteamConfig();
 
-    private static string AppsPath => OperatingSystem.IsWindows()
+    private static string AppsPath =>(OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()) ?
+         Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library/Application Support/Steam/steamapps")
+     : (OperatingSystem.IsWindows()
         ? @"C:\Program Files (x86)\Steam\steamapps"
         : Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Steam/steamapps");
+            "Steam/steamapps"));
 
 
     public string Type => "steam";
