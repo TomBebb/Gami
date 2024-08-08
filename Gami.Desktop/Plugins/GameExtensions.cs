@@ -63,11 +63,11 @@ public static class GameExtensions
     };
 
 
-    private static readonly FrozenDictionary<string, IGameLibraryInstaller>
+    private static readonly FrozenDictionary<string, IGameLibraryManagement>
         InstallersByName = Plugins.Select(p =>
             {
                 var assembly = LoadPlugin(p);
-                return GetMatching<IGameLibraryInstaller>(assembly);
+                return GetMatching<IGameLibraryManagement>(assembly);
             })
             .ToFrozenDictionary(v => v.Type);
 
@@ -113,5 +113,10 @@ public static class GameExtensions
     public static void Install(this Game game)
     {
         InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
+    }
+
+    public static void Uninstall(this Game game)
+    {
+        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game.LibraryId);
     }
 }

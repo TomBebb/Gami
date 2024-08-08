@@ -74,21 +74,25 @@
                                 <fa:CommandBar Grid.Column="2"
                                                DefaultLabelPosition="Right">
                                     <fa:CommandBar.PrimaryCommands>
-                                        <fa:CommandBarButton Label="Add"
-                                            BorderThickness="12"
-                                            BorderBrush="Green"
-                                            Command="{Binding AddItem}" />
                                         <fa:CommandBarButton IconSource="Play"
                                             IsEnabled="{Binding Installed}"
                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
                                             CommandParameter="{Binding .}"
                                             Label="Play" />
                                         <fa:CommandBarButton IconSource="Add"
+                                            Background="Green"
                                             IsEnabled="{Binding !Installed}"
                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
                                             CommandParameter="{Binding .}"
                                             Label="Install" />
+                                        <fa:CommandBarButton IconSource="Delete"
+                                            Background="Red"
+                                            IsEnabled="{Binding Installed}"
+                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).UninstallGame}"
+                                            CommandParameter="{Binding .}"
+                                            Label="Delete" />
                                         <fa:CommandBarButton IconSource="Edit"
+                                            Background="Blue"
                                             IsEnabled="{Binding !Installed}"
                                             Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
                                             CommandParameter="{Binding .}" Label="Edit" />

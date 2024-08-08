@@ -3,7 +3,7 @@ using Gami.Core;
 
 namespace Gami.Scanner.Steam;
 
-public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
+public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
 {
     public const string TypeName = "steam";
     public static readonly SteamCommon Instance = new();
@@ -14,6 +14,9 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryInstaller
 
     public void Install(string id) =>
         RunGameCmd("install", id);
+
+    public void Uninstall(string id) =>
+        RunGameCmd("uninstall", id);
 
     public string Type => "steam";
 

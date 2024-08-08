@@ -26,6 +26,11 @@ public class MainViewModel : ViewModelBase
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             game.Install();
         });
+        UninstallGame = ReactiveCommand.Create((Game game) =>
+        {
+            Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
+            game.Uninstall();
+        });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
@@ -64,9 +69,9 @@ public class MainViewModel : ViewModelBase
     [Reactive] public Game? EditingGame { get; set; }
 
     public ReactiveCommand<Game, Unit> PlayGame { get; }
-
     public ReactiveCommand<Game, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
+    public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
 
 
