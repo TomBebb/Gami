@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami\Gami.Desktop\Gami.Desktop.csproj", "{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Core", "Gami.Core\Gami.Core.csproj", "{A4414C51-2859-4241-B60D-DBB9398F82EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Scanner.Steam", "Gami.Scanner.Steam\Gami.Scanner.Steam.csproj", "{A0C761EB-6025-4AD4-98DD-03B8EB120853}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami.Desktop\Gami.Desktop.csproj", "{3E17A61F-9A29-4883-9CC0-C657DED4C554}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,10 +12,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E42A625-89CE-4AB8-ABE8-DE7ADDB17842}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4414C51-2859-4241-B60D-DBB9398F82EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -24,5 +20,9 @@ Global
 		{A0C761EB-6025-4AD4-98DD-03B8EB120853}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0C761EB-6025-4AD4-98DD-03B8EB120853}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0C761EB-6025-4AD4-98DD-03B8EB120853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E17A61F-9A29-4883-9CC0-C657DED4C554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E17A61F-9A29-4883-9CC0-C657DED4C554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E17A61F-9A29-4883-9CC0-C657DED4C554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E17A61F-9A29-4883-9CC0-C657DED4C554}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
