@@ -86,67 +86,38 @@
                                        Content="{Binding Name}" />
                                 <Label Grid.Column="2"
                                        Content="{Binding InstallStatus}" />
-                                <fa:CommandBar Grid.Column="3"
-                                               DefaultLabelPosition="Right">
-                                    <fa:CommandBar.PrimaryCommands>
-                                        <fa:CommandBarButton IconSource="Play"
-                                            IsEnabled="{Binding Installed}"
-                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
-                                            CommandParameter="{Binding .}"
-                                            Label="Play" />
-                                        <fa:CommandBarButton IconSource="Add"
-                                            Background="Green"
-                                            IsEnabled="{Binding !Installed}"
-                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
-                                            CommandParameter="{Binding .}"
-                                            Label="Install" />
-                                        <fa:CommandBarButton IconSource="Delete"
-                                            Background="Red"
-                                            IsEnabled="{Binding Installed}"
-                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).UninstallGame}"
-                                            CommandParameter="{Binding .}"
-                                            Label="Delete" />
-                                        <fa:CommandBarButton IconSource="Edit"
-                                            Background="Blue"
-                                            IsEnabled="{Binding !Installed}"
-                                            Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
-                                            CommandParameter="{Binding .}"
-                                            Label="Edit" />
-
-                                    </fa:CommandBar.PrimaryCommands>
-
-                                </fa:CommandBar>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </ScrollViewer>
-            <StackPanel Grid.Column="1">
+            <StackPanel Grid.Column="1"
+                        IsVisible="{Binding SelectedGame, 
+                       Converter={x:Static ObjectConverters.IsNotNull}}">
                 <fa:CommandBar HorizontalAlignment="Stretch"
                                DefaultLabelPosition="Right">
                     <fa:CommandBar.PrimaryCommands>
                         <fa:CommandBarButton IconSource="Play"
-                                             IsEnabled="{Binding Installed}"
+                                             IsEnabled="{Binding SelectedGame.Installed}"
                                              Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
-                                             CommandParameter="{Binding .}"
+                                             CommandParameter="{Binding SelectedGame}"
                                              Label="Play" />
                         <fa:CommandBarButton IconSource="Add"
                                              Background="Green"
-                                             IsEnabled="{Binding !Installed}"
+                                             IsEnabled="{Binding !SelectedGame.Installed}"
                                              Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
-                                             CommandParameter="{Binding .}"
+                                             CommandParameter="{Binding SelectedGame}"
                                              Label="Install" />
                         <fa:CommandBarButton IconSource="Delete"
                                              Background="Red"
-                                             IsEnabled="{Binding Installed}"
+                                             IsEnabled="{Binding SelectedGame.Installed}"
                                              Command="{Binding #Root.((viewModels:MainViewModel)DataContext).UninstallGame}"
-                                             CommandParameter="{Binding .}"
+                                             CommandParameter="{Binding SelectedGame}"
                                              Label="Delete" />
                         <fa:CommandBarButton IconSource="Edit"
                                              Background="Blue"
-                                             IsEnabled="{Binding !Installed}"
                                              Command="{Binding #Root.((viewModels:MainViewModel)DataContext).EditGame}"
-                                             CommandParameter="{Binding .}"
+                                             CommandParameter="{Binding SelectedGame}"
                                              Label="Edit" />
 
                     </fa:CommandBar.PrimaryCommands>
