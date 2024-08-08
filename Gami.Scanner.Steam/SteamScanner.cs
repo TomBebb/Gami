@@ -13,8 +13,7 @@ namespace Gami.Scanner.Steam;
 public sealed class SteamScanner : IGameLibraryScanner
 {
     private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
-                                  throw new ApplicationException(
-                                      "steam.json must be manually created for now");
+                                  new SteamConfig();
 
     private static string AppsPath => OperatingSystem.IsWindows()
         ? @"C:\Program Files (x86)\Steam\steamapps"
@@ -44,10 +43,38 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public async IAsyncEnumerable<IGameLibraryRef> Scan()
     {
+        var path = AppsPath;
+
+        Log.Debug("Scan steam path {Path}", path);
+        if (!Path.Exists(path))
+        {
+            await Console.Error.WriteLineAsync("Non-existent scan path: " + path);
+            yield break;
+        }
+
+        Log.Debug("Scanning steam games in {Dir}", path);
+        var installedIds = new HashSet<long>();
+        foreach (var partialPath in Directory.EnumerateFiles(path, @"appmanifest*"))
+        {
+            var manifestPath = Path.Combine(path, partialPath);
+            Log.Debug("Mapping game manifest at {Path}", manifestPath);
+            var mapped = MapGameManifest(manifestPath);
+            installedIds.Add(long.Parse(mapped.LibraryId));
+            Log.Debug("Mapped game manifest at {Path}", manifestPath);
+            var name = mapped.Name;
+            if (name == "Steam Controller Configs" || name.StartsWith("Steam Linux") ||
+                name.StartsWith("Proton") ||
+                name.StartsWith("Steamworks"))
+                continue;
+            yield return mapped;
+        }
+
         var ownedGames = await ScanOwned().ConfigureAwait(false);
         Log.Debug("Got owned games: {Total}", ownedGames.Length);
         foreach (var game in ownedGames)
         {
+            if (installedIds.Contains(game.AppId))
+                continue;
             Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
             var gameRef = new GameLibraryRef()
             {
@@ -58,29 +85,6 @@ public sealed class SteamScanner : IGameLibraryScanner
             };
             Log.Debug("Yield {Game}", JsonSerializer.Serialize(gameRef));
             yield return gameRef;
-        }
-
-        Log.Debug("Scan steam path {Path}", AppsPath);
-        var path = AppsPath;
-        if (!Path.Exists(path))
-        {
-            await Console.Error.WriteLineAsync("Non-existent scan path: " + path);
-            yield break;
-        }
-
-        Log.Debug("Scanning steam games in {Dir}", path);
-        foreach (var partialPath in Directory.EnumerateFiles(path, @"appmanifest*"))
-        {
-            var manifestPath = Path.Combine(path, partialPath);
-            Log.Debug("Mapping game manifest at {Path}", manifestPath);
-            var mapped = MapGameManifest(manifestPath);
-            Log.Debug("Mapped game manifest at {Path}", manifestPath);
-            var name = mapped.Name;
-            if (name == "Steam Controller Configs" || name.StartsWith("Steam Linux") ||
-                name.StartsWith("Proton") ||
-                name.StartsWith("Steamworks"))
-                continue;
-            yield return mapped;
         }
     }
 
