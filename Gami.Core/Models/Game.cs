@@ -25,7 +25,6 @@ public class Game : ReactiveObject, IGameLibraryRef
     public List<GameGenre> GameGenres { get; set; } = null!;
     public List<GamePlatform> GamePlatforms { get; set; } = null!;
     public List<GamePublisher> GamePublishers { get; set; } = null!;
-    public List<GameRegion> GameRegions { get; set; } = null!;
     public List<GameSeries> GameSeries { get; set; } = null!;
 
     [Reactive] public GameInstallStatus InstallStatus { get; set; }

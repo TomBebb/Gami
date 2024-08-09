@@ -23,8 +23,6 @@ public class GamiContext : DbContext
     public DbSet<GamePlatform> GamePlatforms { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
     public DbSet<GamePublisher> GamePublishers { get; set; }
-    public DbSet<Region> Regions { get; set; }
-    public DbSet<GameRegion> GameRegions { get; set; }
     public DbSet<Series> Series { get; set; }
     public DbSet<GameSeries> GameSeries { get; set; }
 
@@ -73,8 +71,6 @@ public class GamiContext : DbContext
             .HasKey(u => new { u.GameId, u.PlatformId });
         builder.Entity<GamePublisher>()
             .HasKey(u => new { u.GameId, u.PublisherId });
-        builder.Entity<GameRegion>()
-            .HasKey(u => new { u.GameId, u.RegionId });
         builder.Entity<GameSeries>()
             .HasKey(u => new { u.GameId, u.SeriesId });
     }
