@@ -91,12 +91,14 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
 
         var ownedGames = await ScanOwned().ConfigureAwait(false);
         Log.Debug("Got owned games: {Total}", ownedGames.Length);
+
         foreach (var game in ownedGames)
         {
             if (installedIds.Contains(game.AppId))
                 continue;
             var gameRef = new ScannedGameLibraryMetadata()
             {
+                Playtime = TimeSpan.FromMinutes(game.PlaytimeForever),
                 InstallStatus = GameInstallStatus.InLibrary,
                 LibraryId = game.AppId.ToString(),
                 LibraryType = Type,

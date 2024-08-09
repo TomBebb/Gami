@@ -123,13 +123,15 @@ public static class DbOps
                     Id = $"{scanner.Key}:{item.LibraryId}",
                     Name = item.Name,
                     InstallStatus = item.InstallStatus,
-                    Description = ""
+                    Description = "",
+                    Playtime = item.Playtime
                 };
                 if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                 {
                     db.Games.Attach(mapped);
                     db.Entry(mapped).Property(x => x.Name).IsModified = true;
                     db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
+                    db.Entry(mapped).Property(x => x.Playtime).IsModified = true;
                 }
                 else
                 {

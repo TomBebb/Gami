@@ -58,7 +58,8 @@ public class MainViewModel : ViewModelBase
                     Genre = new Genre { Name = g.Genre.Name }
                 }).ToList(),
                 Description = v.Description,
-                Icon = v.Icon
+                Icon = v.Icon,
+                Playtime = v.Playtime
             }));
         }
 

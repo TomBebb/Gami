@@ -124,6 +124,9 @@
 
                 </fa:CommandBar>
                 <Label Content="{Binding SelectedGame.InstallStatus}" />
+
+                <Label>Played for:</Label>
+                <Label Content="{Binding SelectedGame.Playtime}" />
             </StackPanel>
         </Grid>
     </Grid>

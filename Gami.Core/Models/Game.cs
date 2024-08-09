@@ -29,6 +29,7 @@ public class Game : ReactiveObject, IGameLibraryRef
     public List<GameSeries> GameSeries { get; set; } = null!;
 
     [Reactive] public GameInstallStatus InstallStatus { get; set; }
+    [Reactive] public TimeSpan Playtime { get; set; }
 
     public string Name { get; set; } = null!;
 
