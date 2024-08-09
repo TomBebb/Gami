@@ -1,12 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text.Json;
-using EFCore.BulkExtensions;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Models;
 using Gami.Desktop.Plugins;
+using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
@@ -15,6 +16,7 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    [Reactive] public string Search { get; set; }
     [Reactive] public MappedGame SelectedGame { get; set; } = null!;
 
     public MainViewModel()
@@ -40,14 +42,19 @@ public class MainViewModel : ViewModelBase
             EditingGame = game;
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
+        ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
+
+        this.WhenAnyValue(v => v.Search).ForEachAsync((_) => RefreshCache());
         RefreshCache();
     }
 
     public void RefreshCache()
     {
-        using (var db = new GamiContext())
-        {
-            Games = new ObservableCollection<MappedGame>(db.Games.Select(v => new MappedGame()
+        Log.Debug("Refresh cache - Search: {Search}", Search);
+        using var db = new GamiContext();
+        Games = db.Games
+            .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"))
+            .Select(v => new MappedGame()
             {
                 LibraryType = v.LibraryType,
                 LibraryId = v.LibraryId,
@@ -60,19 +67,13 @@ public class MainViewModel : ViewModelBase
                 Description = v.Description,
                 Icon = v.Icon,
                 Playtime = v.Playtime
-            }));
-        }
-
-        Games.CollectionChanged += (sender, args) =>
-        {
-            using var db = new GamiContext();
-            db.BulkUpdateAsync(Games);
-        };
+            }).ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
 
     [Reactive] public MappedGame? EditingGame { get; set; }
 
+    public ReactiveCommand<Unit, Unit> ClearSearch { get; }
     public ReactiveCommand<Game, Unit> PlayGame { get; }
     public ReactiveCommand<MappedGame, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
@@ -80,7 +81,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
 
 
-    public ObservableCollection<MappedGame> Games { get; private set; } = new();
+    [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;
 
 #pragma warning restore CA1822 // Mark members as static
 }

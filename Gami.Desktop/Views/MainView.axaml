@@ -68,29 +68,40 @@
         </Grid>
 
         <Grid Grid.Row="2" ColumnDefinitions="2* 7*">
-            <ScrollViewer>
+            <StackPanel>
 
-                <ListBox ItemsSource="{Binding Games}"
-                         SelectedItem="{Binding 
+                <Grid ColumnDefinitions="* Auto">
+                    <TextBox Text="{Binding Search}" Watermark="Enter search" />
+                    <Button Grid.Column="1"
+                            Command="{Binding ClearSearch}"
+                            IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        Clear
+                    </Button>
+                </Grid>
+                <ScrollViewer>
+
+                    <ListBox ItemsSource="{Binding Games}"
+                             SelectedItem="{Binding 
                 SelectedGame}">
 
-                    <ListBox.ItemTemplate>
+                        <ListBox.ItemTemplate>
 
-                        <DataTemplate DataType="models1:MappedGame">
-                            <Grid ColumnDefinitions="*, 10*,Auto, *">
-                                <Image Grid.Column="0"
-                                       IsVisible="{Binding Icon, 
+                            <DataTemplate DataType="models1:MappedGame">
+                                <Grid ColumnDefinitions="*, 10*,Auto, *">
+                                    <Image Grid.Column="0"
+                                           IsVisible="{Binding Icon, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
-                                       Source="{Binding IconBitmap}" />
-                                <Label Grid.Column="1" VerticalAlignment="Center"
-                                       Content="{Binding Name}" />
-                                <Label Grid.Column="2"
-                                       Content="{Binding InstallStatus}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </ScrollViewer>
+                                           Source="{Binding IconBitmap}" />
+                                    <Label Grid.Column="1" VerticalAlignment="Center"
+                                           Content="{Binding Name}" />
+                                    <Label Grid.Column="2"
+                                           Content="{Binding InstallStatus}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </StackPanel>
             <StackPanel Grid.Column="1"
                         IsVisible="{Binding SelectedGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}">
