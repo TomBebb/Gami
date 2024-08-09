@@ -33,6 +33,8 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         if (game == null)
             return null;
 
+        if (game.ImgIconUrl == "")
+            return null;
 
         var url = $"http://media.steampowered.com/steamcommunity/public/images/apps/{game.AppId}/{game.ImgIconUrl}.jpg";
         return await HttpConsts.HttpClient.GetByteArrayAsync(url);
