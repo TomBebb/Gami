@@ -75,7 +75,10 @@
                     <Button Grid.Column="1"
                             Command="{Binding ClearSearch}"
                             IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                        Clear
+
+                        <fa:FontIcon Name="FontIcon"
+                                     Glyph="Xsaa"
+                                     FontSize="18" />
                     </Button>
                 </Grid>
                 <ScrollViewer>
