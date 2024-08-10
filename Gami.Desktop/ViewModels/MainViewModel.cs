@@ -63,7 +63,10 @@ public class MainViewModel : ViewModelBase
                 Genres = v.Genres,
                 Description = v.Description,
                 Icon = v.Icon,
-                Playtime = v.Playtime
+                Playtime = v.Playtime,
+                Developers = v.Developers,
+                Publishers = v.Publishers,
+                ReleaseDate = v.ReleaseDate
             }).ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
