@@ -60,10 +60,7 @@ public class MainViewModel : ViewModelBase
                 LibraryId = v.LibraryId,
                 InstallStatus = v.InstallStatus,
                 Name = v.Name,
-                GameGenres = v.GameGenres.Select(g => new GameGenre
-                {
-                    Genre = new Genre { Name = g.Genre.Name }
-                }).ToImmutableList(),
+                Genres = v.Genres,
                 Description = v.Description,
                 Icon = v.Icon,
                 Playtime = v.Playtime

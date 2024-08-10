@@ -121,37 +121,25 @@ public static class DbOps
         if (metadata.Description != null)
             curr.Description = metadata.Description;
         if (metadata.Genres != null)
-            curr.GameGenres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new GameGenre()
+            curr.Genres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new Genre()
             {
-                Genre = new Genre()
-                {
-                    Name = v
-                }
-            }).ToImmutableList();
+                Name = v
+            }).ToList();
         if (metadata.Developers != null)
-            curr.GameDevelopers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new GameDeveloper()
+            curr.Developers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new Developer()
             {
-                Developer = new Developer()
-                {
-                    Name = v
-                }
-            }).ToImmutableList();
+                Name = v
+            }).ToList();
         if (metadata.Publishers != null)
-            curr.GamePublishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new GamePublisher()
+            curr.Publishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new Publisher()
             {
-                Publisher = new Publisher()
-                {
-                    Name = v
-                }
-            }).ToImmutableList();
+                Name = v
+            }).ToList();
         if (metadata.Series != null)
-            curr.GameSeries = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new GameSeries()
+            curr.Series = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new Series()
             {
-                Series = new Series()
-                {
-                    Name = v
-                }
-            }).ToImmutableList();
+                Name = v
+            }).ToList();
         await db.SaveChangesAsync();
 
         Log.Debug("Steam saved");

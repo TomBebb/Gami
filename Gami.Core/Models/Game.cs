@@ -11,21 +11,19 @@ public class Game : ReactiveObject, IGameLibraryRef
     [Key] public string Id { get; set; } = null!;
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
     [Reactive] public DateTime ReleaseDate { get; set; }
-    public string Description { get; set; } = null!;
+    [Reactive] public string Description { get; set; } = null!;
 
     public byte[]? Icon { get; set; }
 
-    [Reactive]
-    public ImmutableList<Achievement> Achievements { get; set; } =
-        ImmutableList<Achievement>.Empty;
+    public List<Achievement> Achievements { get; set; } = null!;
 
-    public ImmutableList<GameAgeRating> GameAgeRatings { get; } = null!;
-    public ImmutableList<GameDeveloper> GameDevelopers { get; set; } = null!;
-    public ImmutableList<GameFeature> GameFeatures { get; set; } = null!;
-    public ImmutableList<GameGenre> GameGenres { get; set; } = null!;
-    public ImmutableList<GamePlatform> GamePlatforms { get; set; } = null!;
-    public ImmutableList<GamePublisher> GamePublishers { get; set; } = null!;
-    public ImmutableList<GameSeries> GameSeries { get; set; } = null!;
+    public List<AgeRating> AgeRatings { get; set; } = null!;
+    public List<Developer> Developers { get; set; } = null!;
+    public List<Feature> Features { get; set; } = null!;
+    public List<Genre> Genres { get; set; } = null!;
+    public List<Platform> Platforms { get; set; } = null!;
+    public List<Publisher> Publishers { get; set; } = null!;
+    public List<Series> Series { get; set; } = null!;
 
     [Reactive] public GameInstallStatus InstallStatus { get; set; }
     [Reactive] public TimeSpan Playtime { get; set; }

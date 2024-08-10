@@ -55,10 +55,10 @@
                     <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
 
                     <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-                        <ItemsControl ItemsSource="{Binding EditingGame.GameGenres}">
+                        <ItemsControl ItemsSource="{Binding EditingGame.Genres}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models1:GameGenre">
-                                    <Label Content="{Binding Genre.Name}" />
+                                <DataTemplate x:DataType="models1:Genre">
+                                    <Label Content="{Binding Name}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
