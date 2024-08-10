@@ -63,7 +63,7 @@ public class MainViewModel : ViewModelBase
                 GameGenres = v.GameGenres.Select(g => new GameGenre
                 {
                     Genre = new Genre { Name = g.Genre.Name }
-                }).ToList(),
+                }).ToImmutableList(),
                 Description = v.Description,
                 Icon = v.Icon,
                 Playtime = v.Playtime

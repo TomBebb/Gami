@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
@@ -82,6 +82,81 @@ public static class DbOps
         }
     }
 
+    private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
+    {
+        var metadata = new GameMetadata();
+        foreach (var (_type, scanner) in GameExtensions.MetadataScannersByName)
+            metadata = metadata.Combine(await scanner.ScanMetadata(game));
+        return metadata;
+    }
+
+    private static async ValueTask<int> GetOrCreate<T>(this DbContext context, DbSet<T> set, string value) where T :
+        NamedIdItem, new()
+    {
+        Log.Debug("{Func} Value: {Val}", nameof(GetOrCreate), value);
+        var myId = await set.Where(v => v.Name == value)
+            .Select(v => v.Id)
+            .Cast<int?>()
+            .FirstOrDefaultAsync();
+
+        if (myId != null)
+            return myId.Value;
+
+        var obj = new T() { Name = value };
+
+        await set.AddAsync(obj);
+        await context.SaveChangesAsync();
+        return obj.Id;
+    }
+
+    private static async ValueTask ScanMetadata(GameLibraryRef game)
+    {
+        await using var db = new GamiContext();
+        var metadata = await GetMetadata(game);
+
+        var curr = await db.Games.FindAsync($"{game.LibraryType}:{game.LibraryId}");
+        if (curr == null)
+            throw new ApplicationException($"No matching game ref found in DB for {game.LibraryId}");
+
+        if (metadata.Description != null)
+            curr.Description = metadata.Description;
+        if (metadata.Genres != null)
+            curr.GameGenres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new GameGenre()
+            {
+                Genre = new Genre()
+                {
+                    Name = v
+                }
+            }).ToImmutableList();
+        if (metadata.Developers != null)
+            curr.GameDevelopers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new GameDeveloper()
+            {
+                Developer = new Developer()
+                {
+                    Name = v
+                }
+            }).ToImmutableList();
+        if (metadata.Publishers != null)
+            curr.GamePublishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new GamePublisher()
+            {
+                Publisher = new Publisher()
+                {
+                    Name = v
+                }
+            }).ToImmutableList();
+        if (metadata.Series != null)
+            curr.GameSeries = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new GameSeries()
+            {
+                Series = new Series()
+                {
+                    Name = v
+                }
+            }).ToImmutableList();
+        await db.SaveChangesAsync();
+
+        Log.Debug("Steam saved");
+    }
+
     private static async ValueTask ScanAchievementsProgress()
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
@@ -112,42 +187,57 @@ public static class DbOps
 
     public static async ValueTask DoScan()
     {
-        await using var db = new GamiContext();
-        foreach (var scanner in GameExtensions.ScannersByName)
+        await using (var db = new GamiContext())
         {
-            Log.Information("Scan {Name} apps", scanner.Key);
-            await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
+            foreach (var scanner in GameExtensions.ScannersByName)
             {
-                var mapped = new Game()
+                Log.Information("Scan {Name} apps", scanner.Key);
+                await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
                 {
-                    Id = $"{scanner.Key}:{item.LibraryId}",
-                    Name = item.Name,
-                    InstallStatus = item.InstallStatus,
-                    Description = "",
-                    Playtime = item.Playtime
-                };
-                if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
-                {
-                    db.Games.Attach(mapped);
-                    db.Entry(mapped).Property(x => x.Name).IsModified = true;
-                    db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
-                    db.Entry(mapped).Property(x => x.Playtime).IsModified = true;
+                    var mapped = new Game()
+                    {
+                        Id = $"{scanner.Key}:{item.LibraryId}",
+                        Name = item.Name,
+                        InstallStatus = item.InstallStatus,
+                        Description = "",
+                        Playtime = item.Playtime
+                    };
+                    if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
+                    {
+                        db.Games.Attach(mapped);
+                        db.Entry(mapped).Property(x => x.Name).IsModified = true;
+                        db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
+                        db.Entry(mapped).Property(x => x.Playtime).IsModified = true;
+                    }
+                    else
+                    {
+                        await db.AddAsync(mapped);
+                    }
                 }
-                else
-                {
-                    await db.AddAsync(mapped);
-                }
+
+                await db.SaveChangesAsync();
             }
-
-            await db.SaveChangesAsync();
         }
-
 
         Task.Run(async () =>
         {
             Log.Debug("Scanning icons");
             await ScanMissingIcons();
             Log.Debug("Scanned icon");
+        });
+        Task.Run(async () =>
+        {
+            Log.Debug("Scanning metadata");
+            await using var db = new GamiContext();
+
+            await Task.WhenAll(db.Games.Select(v => new GameLibraryRef()
+            {
+                LibraryId = v.LibraryId,
+                LibraryType = v.LibraryType,
+                Name = v.Name
+            }).Select(v => ScanMetadata(v).AsTask()));
+
+            Log.Debug("Scanned metadta");
         });
         /*
         Task.Run(async () =>

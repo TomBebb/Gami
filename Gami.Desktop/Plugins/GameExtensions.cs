@@ -140,6 +140,15 @@ public static class GameExtensions
             })
             .ToFrozenDictionary(v => v.Type);
 
+
+    public static readonly FrozenDictionary<string, IGameMetadataScanner>
+        MetadataScannersByName = Plugins.Select(p =>
+            {
+                var assembly = LoadPlugin(p);
+                return GetMatching<IGameMetadataScanner>(assembly);
+            })
+            .ToFrozenDictionary(v => v.Type);
+
     public static readonly FrozenDictionary<string, PluginConfig>
         PluginConfigs = Plugins.Select(p =>
             {

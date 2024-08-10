@@ -19,13 +19,13 @@ public class Game : ReactiveObject, IGameLibraryRef
     public ImmutableList<Achievement> Achievements { get; set; } =
         ImmutableList<Achievement>.Empty;
 
-    public List<GameAgeRating> GameAgeRatings { get; } = null!;
-    public List<GameDeveloper> GameDevelopers { get; } = null!;
-    public List<GameFeature> GameFeatures { get; } = null!;
-    public List<GameGenre> GameGenres { get; set; } = null!;
-    public List<GamePlatform> GamePlatforms { get; set; } = null!;
-    public List<GamePublisher> GamePublishers { get; set; } = null!;
-    public List<GameSeries> GameSeries { get; set; } = null!;
+    public ImmutableList<GameAgeRating> GameAgeRatings { get; } = null!;
+    public ImmutableList<GameDeveloper> GameDevelopers { get; set; } = null!;
+    public ImmutableList<GameFeature> GameFeatures { get; set; } = null!;
+    public ImmutableList<GameGenre> GameGenres { get; set; } = null!;
+    public ImmutableList<GamePlatform> GamePlatforms { get; set; } = null!;
+    public ImmutableList<GamePublisher> GamePublishers { get; set; } = null!;
+    public ImmutableList<GameSeries> GameSeries { get; set; } = null!;
 
     [Reactive] public GameInstallStatus InstallStatus { get; set; }
     [Reactive] public TimeSpan Playtime { get; set; }
