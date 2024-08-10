@@ -40,8 +40,13 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         return await HttpConsts.HttpClient.GetByteArrayAsync(url);
     }
 
-    private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned()
+    private ImmutableArray<OwnedGame>? _cachedGames;
+
+    private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned(bool forceRefresh = false)
     {
+        if (_cachedGames.HasValue && !forceRefresh)
+            return _cachedGames.Value;
+
         var client = HttpConsts.HttpClient;
         var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
             .SetQueryParam("key", _config.ApiKey)
@@ -57,7 +62,13 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
             (false);
         Log.Debug("Steam scanned player owned games: {Total}",
             res?.Response.Games.Length ?? 0);
-        return res!.Response.Games;
+        _cachedGames = res!.Response.Games;
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(20));
+            _cachedGames = null;
+        });
+        return _cachedGames.Value;
     }
 
 
