@@ -1,8 +1,10 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Models;
@@ -19,12 +21,33 @@ public class MainViewModel : ViewModelBase
     [Reactive] public string Search { get; set; }
     [Reactive] public MappedGame SelectedGame { get; set; } = null!;
 
+    [Reactive] public Game? PlayingGame { get; set; }
+
     public MainViewModel()
     {
-        PlayGame = ReactiveCommand.Create((Game game) =>
+        PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
             game.Launch();
+
+            PlayingGame = game;
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            var process = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
+            Log.Debug("Game open: {Open}", process != null);
+            if (process != null)
+            {
+                process.EnableRaisingEvents = true;
+                process.Exited += (_, _) =>
+                {
+                    PlayingGame = null;
+                    Log.Debug("Game closed");
+                };
+            }
+            else
+            {
+                PlayingGame = null;
+            }
         });
         InstallGame = ReactiveCommand.Create((Game game) =>
         {
@@ -60,12 +83,9 @@ public class MainViewModel : ViewModelBase
                 LibraryId = v.LibraryId,
                 InstallStatus = v.InstallStatus,
                 Name = v.Name,
-                Genres = v.Genres,
                 Description = v.Description,
                 Icon = v.Icon,
                 Playtime = v.Playtime,
-                Developers = v.Developers,
-                Publishers = v.Publishers,
                 ReleaseDate = v.ReleaseDate
             }).ToImmutableList();
     }

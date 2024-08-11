@@ -10,12 +10,19 @@ using ValveKeyValue;
 
 namespace Gami.Scanner.Steam;
 
+public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
+{
+    public string InstallDir { get; set; }
+}
+
 public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
 {
+    public static readonly SteamScanner Instance = new();
+
     private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
                                   new SteamConfig();
 
-    private static string AppsPath => OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
+    public static readonly string AppsPath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
         ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library/Application Support/Steam/steamapps")
         : OperatingSystem.IsWindows()
             ? @"C:\Program Files (x86)\Steam\steamapps"
@@ -71,8 +78,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         return _cachedGames.Value;
     }
 
-
-    public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
+    private IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {
         var path = AppsPath;
 
@@ -84,13 +90,11 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         }
 
         Log.Debug("Scanning steam games in {Dir}", path);
-        var installedIds = new HashSet<long>();
         foreach (var partialPath in Directory.EnumerateFiles(path, @"appmanifest*"))
         {
             var manifestPath = Path.Combine(path, partialPath);
             Log.Debug("Mapping game manifest at {Path}", manifestPath);
             var mapped = MapGameManifest(manifestPath);
-            installedIds.Add(long.Parse(mapped.LibraryId));
             Log.Debug("Mapped game manifest at {Path}", manifestPath);
             var name = mapped.Name;
             if (name == "Steam Controller Configs" || name.StartsWith("Steam Linux") ||
@@ -99,9 +103,17 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
                 continue;
             yield return mapped;
         }
+    }
 
+    public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
+    {
         var ownedGames = await ScanOwned().ConfigureAwait(false);
+
+        var installedIds = new HashSet<long>();
         Log.Debug("Got owned games: {Total}", ownedGames.Length);
+        foreach (var lib in ScanInstalled())
+            installedIds.Add(long.Parse(lib.LibraryId));
+
 
         foreach (var game in ownedGames)
         {
@@ -123,7 +135,14 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         }
     }
 
-    private static ScannedGameLibraryMetadata MapGameManifest(string path)
+    public static SteamLocalLibraryMetadata ScanInstalledGame(string id)
+    {
+        var path = Path.Join(AppsPath, $"appmanifest_{id}.acf");
+        Log.Debug("ScanInstalledGame {Path} {Exists}", path, File.Exists(path));
+        return MapGameManifest(path);
+    }
+
+    private static SteamLocalLibraryMetadata MapGameManifest(string path)
     {
         Log.Debug("MapGameMan {Path}", path);
         var stream = File.OpenRead(path);
@@ -135,6 +154,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         var appId = data["appid"].ToString(CultureInfo.CurrentCulture);
         Log.Debug("Raw appId: {AppId}", appId);
         var name = data["name"].ToString(CultureInfo.CurrentCulture);
+        var installDir = data["installdir"].ToString(CultureInfo.CurrentCulture);
 
         Log.Debug("Raw name: {AppId}", name);
         var bytesToDl = data["BytesToDownload"].ToString(CultureInfo.InvariantCulture);
@@ -143,11 +163,13 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         var bytesDl = data["BytesDownloaded"].ToString(CultureInfo.InvariantCulture);
         Log.Debug("Raw BytesDownloaded: {AppId}", bytesDl);
 
-        var mapped = new ScannedGameLibraryMetadata()
+        var mapped = new SteamLocalLibraryMetadata()
         {
             LibraryType = SteamCommon.TypeName,
             LibraryId = appId,
             Name = name,
+            InstallDir = installDir,
+
             InstallStatus = bytesDl == bytesToDl
                 ? GameInstallStatus.Installed
                 : GameInstallStatus.Installing
