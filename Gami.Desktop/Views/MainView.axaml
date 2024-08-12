@@ -119,6 +119,9 @@
                         <fa:CommandBar HorizontalAlignment="Stretch"
                                        DefaultLabelPosition="Right">
                             <fa:CommandBar.PrimaryCommands>
+                                <fa:CommandBarButton IconSource="Stop"
+                                                     Command="{Binding #Root.((viewModels:MainViewModel)DataContext).ExitGame}"
+                                                     Label="Stop" />
                                 <fa:CommandBarButton IconSource="Play"
                                                      IsEnabled="{Binding SelectedGame.Installed}"
                                                      Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"

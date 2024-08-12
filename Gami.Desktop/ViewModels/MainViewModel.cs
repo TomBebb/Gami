@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -18,10 +19,14 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
     [Reactive] public string Search { get; set; }
     [Reactive] public MappedGame SelectedGame { get; set; } = null!;
 
     [Reactive] public Game? PlayingGame { get; set; }
+
+    [Reactive] public Process? Current { get; set; }
 
     public MainViewModel()
     {
@@ -32,13 +37,19 @@ public class MainViewModel : ViewModelBase
 
             PlayingGame = game;
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
-            var process = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
-            Log.Debug("Game open: {Open}", process != null);
-            if (process != null)
+            var start = DateTime.UtcNow;
+            while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
             {
-                process.EnableRaisingEvents = true;
-                process.Exited += (_, _) =>
+                await Task.Delay(LookupProcessInterval);
+                Current = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
+            }
+
+
+            Log.Debug("Game open: {Open}", Current != null);
+            if (Current != null)
+            {
+                Current.EnableRaisingEvents = true;
+                Current.Exited += (_, _) =>
                 {
                     PlayingGame = null;
                     Log.Debug("Game closed");
@@ -66,6 +77,7 @@ public class MainViewModel : ViewModelBase
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
+        ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
 
         this.WhenAnyValue(v => v.Search).ForEachAsync((_) => RefreshCache());
         RefreshCache();
@@ -99,6 +111,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
+    public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
 
 
     [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;
