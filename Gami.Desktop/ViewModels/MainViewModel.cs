@@ -69,15 +69,30 @@ public class MainViewModel : ViewModelBase
                 PlayingGame = null;
             }
         });
-        InstallGame = ReactiveCommand.Create((Game game) =>
+        InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             game.Install();
+            await using var db = new GamiContext();
+            game.InstallStatus = GameInstallStatus.Installed;
+            game.Id = $"{game.LibraryType}:{game.LibraryId}";
+
+            db.Games.Attach(game);
+            db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
+            await db.SaveChangesAsync();
+            RefreshCache();
         });
-        UninstallGame = ReactiveCommand.Create((Game game) =>
+        UninstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
+            await using var db = new GamiContext();
+            game.InstallStatus = GameInstallStatus.InLibrary;
+            game.Id = $"{game.LibraryType}:{game.LibraryId}";
+            db.Games.Attach(game);
+            db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
+            await db.SaveChangesAsync();
+            RefreshCache();
         });
         EditGame = ReactiveCommand.Create((MappedGame game) =>
         {

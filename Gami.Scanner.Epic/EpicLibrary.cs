@@ -82,6 +82,11 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         Process.Start("legendary", new[] { "uninstall", id, "-y" }).Start();
     }
 
+    public ValueTask<GameInstallStatus> CheckInstallStatus(string id) => ValueTask.FromResult(ScanInstalledData()
+        .ContainsKey(id)
+        ? GameInstallStatus.Installed
+        : GameInstallStatus.InLibrary);
+
     [GeneratedRegex(@" \* (.+) \(App name: (.+) \| Version: (.+)\)")]
     private static partial Regex MyRegex();
 }

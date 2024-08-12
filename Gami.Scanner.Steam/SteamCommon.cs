@@ -23,6 +23,10 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     public void Uninstall(string id) =>
         RunGameCmd("uninstall", id);
 
+    public ValueTask<GameInstallStatus> CheckInstallStatus(string id) =>
+        SteamScanner.CheckStatus(id);
+
+
     public string Type => "steam";
 
     public void Launch(string id) =>

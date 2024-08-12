@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Flurl;
 using Gami.Core;
@@ -78,6 +79,8 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         return _cachedGames.Value;
     }
 
+    public static async ValueTask<GameInstallStatus> CheckStatus(string id) => ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary;
+
     private IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {
         var path = AppsPath;
@@ -135,9 +138,11 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         }
     }
 
-    public static SteamLocalLibraryMetadata ScanInstalledGame(string id)
+    public static SteamLocalLibraryMetadata? ScanInstalledGame(string id)
     {
         var path = Path.Join(AppsPath, $"appmanifest_{id}.acf");
+        if (!Path.Exists(path))
+            return null;
         Log.Debug("ScanInstalledGame {Path} {Exists}", path, File.Exists(path));
         return MapGameManifest(path);
     }
