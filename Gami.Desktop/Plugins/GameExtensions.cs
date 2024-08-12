@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using Avalonia.Controls.Documents;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Scanner.Epic;
 using Serilog;
 
 namespace Gami.Desktop.Plugins;
@@ -19,7 +20,7 @@ public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        return Assembly.GetAssembly(typeof(SteamCommon));
+        return Assembly.GetAssembly(typeof(EpicLibrary));
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||
@@ -33,7 +34,7 @@ public static class GameExtensions
     }
 
 
-    private static TInterface GetMatching<TInterface>(Assembly assembly) where
+    private static TInterface? GetMatching<TInterface>(Assembly assembly) where
         TInterface : class
     {
         foreach (var type in assembly.GetTypes())
@@ -56,6 +57,8 @@ public static class GameExtensions
 
         var availableTypes =
             string.Join(",", assembly.GetTypes().Select(t => t.FullName));
+
+        return null;
         throw new ApplicationException(
             $"Can't find any type which implements   {typeof(TInterface).Name} in {assembly} from {assembly.Location}.\n" +
             $"Available types: {availableTypes}");
@@ -105,6 +108,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameLibraryManagement>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
 
@@ -114,6 +118,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameLibraryLauncher>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
     public static readonly FrozenDictionary<string, IGameLibraryScanner>
@@ -122,6 +127,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameLibraryScanner>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
     public static readonly FrozenDictionary<string, IGameAchievementScanner>
@@ -130,6 +136,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameAchievementScanner>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
     public static readonly FrozenDictionary<string, IGameIconLookup>
@@ -138,6 +145,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameIconLookup>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
 
@@ -147,6 +155,7 @@ public static class GameExtensions
                 var assembly = LoadPlugin(p);
                 return GetMatching<IGameMetadataScanner>(assembly);
             })
+            .Where(v => v != null)
             .ToFrozenDictionary(v => v.Type);
 
     public static readonly FrozenDictionary<string, PluginConfig>
