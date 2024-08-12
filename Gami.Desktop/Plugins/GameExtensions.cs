@@ -108,7 +108,7 @@ public static class GameExtensions
             .ToFrozenDictionary(v => v.Type);
 
 
-    private static readonly FrozenDictionary<string, IGameLibraryLauncher>
+    public static readonly FrozenDictionary<string, IGameLibraryLauncher>
         LaunchersByName = Plugins.Select(p =>
             {
                 var assembly = LoadPlugin(p);

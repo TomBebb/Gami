@@ -1,5 +1,10 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
+using F23.StringSimilarity;
 using Gami.Core;
+using Gami.Core.Models;
+using Serilog;
+using GlobExpressions;
 
 namespace Gami.Scanner.Steam;
 
@@ -22,6 +27,19 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
 
     public void Launch(string id) =>
         RunGameCmd("rungameid", id);
+
+    public async ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
+    {
+        var meta = SteamScanner.ScanInstalledGame(gameRef.LibraryId);
+        var appDir = Path.Join(SteamScanner.AppsPath, "common", meta.InstallDir);
+        var exes = Glob.Files(pattern: "**/*.exe", workingDirectory: appDir).ToImmutableHashSet();
+
+        Log.Debug("Steam CheckOpen: {Curr}; game executables: {Exes}", gameRef, exes);
+
+
+        return exes.SelectMany(exe => Process.GetProcessesByName(exe.Replace(".exe", "")))
+            .FirstOrDefault();
+    }
 
 
     private static void RunGameCmd(string cmd, string id)

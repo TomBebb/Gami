@@ -1,8 +1,11 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Models;
@@ -16,15 +19,46 @@ namespace Gami.Desktop.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
     [Reactive] public string Search { get; set; }
-    [Reactive] public MappedGame SelectedGame { get; set; } = null!;
+    [Reactive] public MappedGame? SelectedGame { get; set; } = null!;
+    [Reactive] public bool IsPlayingSelected { get; set; }
+
+    [Reactive] public Game? PlayingGame { get; set; }
+
+    [Reactive] public Process? Current { get; set; }
 
     public MainViewModel()
     {
-        PlayGame = ReactiveCommand.Create((Game game) =>
+        PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
             game.Launch();
+
+            PlayingGame = game;
+
+            var start = DateTime.UtcNow;
+            while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
+            {
+                await Task.Delay(LookupProcessInterval);
+                Current = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
+            }
+
+            Log.Debug("Game open: {Open}", Current != null);
+            if (Current != null)
+            {
+                Current.EnableRaisingEvents = true;
+                Current.Exited += (_, _) =>
+                {
+                    PlayingGame = null;
+                    Log.Debug("Game closed");
+                };
+            }
+            else
+            {
+                PlayingGame = null;
+            }
         });
         InstallGame = ReactiveCommand.Create((Game game) =>
         {
@@ -43,9 +77,14 @@ public class MainViewModel : ViewModelBase
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
+        ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
 
         this.WhenAnyValue(v => v.Search).ForEachAsync((_) => RefreshCache());
         RefreshCache();
+
+        this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
+            .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
+            .BindTo(this, x => x.IsPlayingSelected);
     }
 
     public void RefreshCache()
@@ -60,12 +99,9 @@ public class MainViewModel : ViewModelBase
                 LibraryId = v.LibraryId,
                 InstallStatus = v.InstallStatus,
                 Name = v.Name,
-                Genres = v.Genres,
                 Description = v.Description,
                 Icon = v.Icon,
                 Playtime = v.Playtime,
-                Developers = v.Developers,
-                Publishers = v.Publishers,
                 ReleaseDate = v.ReleaseDate
             }).ToImmutableList();
     }
@@ -79,6 +115,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
+    public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
 
 
     [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;
