@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Flurl;
 using Gami.Core;
@@ -11,17 +11,17 @@ using ValveKeyValue;
 
 namespace Gami.Scanner.Steam;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
 {
-    public string InstallDir { get; set; }
+    public string InstallDir { get; set; } = null!;
 }
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
 {
-    public static readonly SteamScanner Instance = new();
-
-    private SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
-                                  new SteamConfig();
+    private readonly SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
+                                           new SteamConfig();
 
     public static readonly string AppsPath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
         ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library/Application Support/Steam/steamapps")
@@ -71,7 +71,9 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         Log.Debug("Steam scanned player owned games: {Total}",
             res?.Response.Games.Length ?? 0);
         _cachedGames = res!.Response.Games;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(async () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         {
             await Task.Delay(TimeSpan.FromSeconds(20));
             _cachedGames = null;
@@ -81,7 +83,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
 
     public static async ValueTask<GameInstallStatus> CheckStatus(string id) => ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary;
 
-    private IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
+    private static IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {
         var path = AppsPath;
 
@@ -93,7 +95,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         }
 
         Log.Debug("Scanning steam games in {Dir}", path);
-        foreach (var partialPath in Directory.EnumerateFiles(path, @"appmanifest*"))
+        foreach (var partialPath in Directory.EnumerateFiles(path, "appmanifest*"))
         {
             var manifestPath = Path.Combine(path, partialPath);
             Log.Debug("Mapping game manifest at {Path}", manifestPath);
@@ -122,7 +124,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         {
             if (installedIds.Contains(game.AppId))
                 continue;
-            var gameRef = new ScannedGameLibraryMetadata()
+            var gameRef = new ScannedGameLibraryMetadata
             {
                 Playtime = TimeSpan.FromMinutes(game.PlaytimeForever),
                 InstallStatus = GameInstallStatus.InLibrary,
@@ -168,7 +170,7 @@ public sealed class SteamScanner : IGameLibraryScanner, IGameIconLookup
         var bytesDl = data["BytesDownloaded"].ToString(CultureInfo.InvariantCulture);
         Log.Debug("Raw BytesDownloaded: {AppId}", bytesDl);
 
-        var mapped = new SteamLocalLibraryMetadata()
+        var mapped = new SteamLocalLibraryMetadata
         {
             LibraryType = SteamCommon.TypeName,
             LibraryId = appId,

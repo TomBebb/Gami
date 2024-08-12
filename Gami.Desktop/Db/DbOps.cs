@@ -19,11 +19,11 @@ public static class DbOps
 
         foreach (var item in db.Games
                      .Where(g => g.Icon == null)
-                     .Select(g => new GameLibraryRef() { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
+                     .Select(g => new GameLibraryRef { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
         {
             var scanner = GameExtensions.IconLookupByName[item.LibraryType];
             var icon = await scanner.LookupIcon(item);
-            var mapped = new Game()
+            var mapped = new Game
             {
                 Id = $"{item.LibraryType}:{item.LibraryId}",
                 Icon = icon
@@ -35,6 +35,7 @@ public static class DbOps
         }
     }
 
+    // ReSharper disable once UnusedMember.Local
     private static async ValueTask ScanMissingAchievementsData()
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
@@ -47,7 +48,7 @@ public static class DbOps
                     ..db.Games
                         .Where(g => g.Achievements.Count == 0)
                         .Where(g => g.LibraryType == type)
-                        .Select(g => new GameLibraryRef()
+                        .Select(g => new GameLibraryRef
                         {
                             LibraryType = g.LibraryType,
                             LibraryId = g.LibraryId,
@@ -70,7 +71,7 @@ public static class DbOps
                     Log.Debug("Scanning achievements {Data}",
                         JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
                     await using var db = new GamiContext();
-                    await db.BulkInsertAsync(achievements.Select(a => new Achievement()
+                    await db.BulkInsertAsync(achievements.Select(a => new Achievement
                     {
                         LockedIcon = a.LockedIcon,
                         UnlockedIcon = a.UnlockedIcon,
@@ -85,11 +86,12 @@ public static class DbOps
     private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
     {
         var metadata = new GameMetadata();
-        foreach (var (_type, scanner) in GameExtensions.MetadataScannersByName)
+        foreach (var (_, scanner) in GameExtensions.MetadataScannersByName)
             metadata = metadata.Combine(await scanner.ScanMetadata(game));
         return metadata;
     }
 
+    // ReSharper disable once UnusedMember.Local
     private static async ValueTask<int> GetOrCreate<T>(this DbContext context, DbSet<T> set, string value) where T :
         NamedIdItem, new()
     {
@@ -102,7 +104,7 @@ public static class DbOps
         if (myId != null)
             return myId.Value;
 
-        var obj = new T() { Name = value };
+        var obj = new T { Name = value };
 
         await set.AddAsync(obj);
         await context.SaveChangesAsync();
@@ -121,22 +123,22 @@ public static class DbOps
         if (metadata.Description != null)
             curr.Description = metadata.Description;
         if (metadata.Genres != null)
-            curr.Genres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new Genre()
+            curr.Genres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new Genre
             {
                 Name = v
             }).ToList();
         if (metadata.Developers != null)
-            curr.Developers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new Developer()
+            curr.Developers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new Developer
             {
                 Name = v
             }).ToList();
         if (metadata.Publishers != null)
-            curr.Publishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new Publisher()
+            curr.Publishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new Publisher
             {
                 Name = v
             }).ToList();
         if (metadata.Series != null)
-            curr.Series = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new Series()
+            curr.Series = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new Series
             {
                 Name = v
             }).ToList();
@@ -145,6 +147,7 @@ public static class DbOps
         Log.Debug("Steam saved");
     }
 
+    // ReSharper disable once UnusedMember.Local
     private static async ValueTask ScanAchievementsProgress()
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)
@@ -152,14 +155,17 @@ public static class DbOps
             ImmutableArray<GameLibraryRef> gamesToScan;
             await using (var db = new GamiContext())
             {
-                gamesToScan = db.Games
-                    .Where(g => g.LibraryType == type)
-                    .Select(g => new GameLibraryRef()
-                    {
-                        LibraryType = g.LibraryType,
-                        LibraryId = g.LibraryId,
-                        Name = g.Name
-                    }).ToImmutableArray();
+                gamesToScan =
+                [
+                    ..db.Games
+                        .Where(g => g.LibraryType == type)
+                        .Select(g => new GameLibraryRef
+                        {
+                            LibraryType = g.LibraryType,
+                            LibraryId = g.LibraryId,
+                            Name = g.Name
+                        })
+                ];
             }
 
             await Task.WhenAll(
@@ -182,7 +188,7 @@ public static class DbOps
                 Log.Information("Scan {Name} apps", scanner.Key);
                 await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
                 {
-                    var mapped = new Game()
+                    var mapped = new Game
                     {
                         Id = $"{scanner.Key}:{item.LibraryId}",
                         Name = item.Name,
@@ -207,18 +213,18 @@ public static class DbOps
             }
         }
 
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
             Log.Debug("Scanning icons");
             await ScanMissingIcons();
             Log.Debug("Scanned icon");
         });
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
             Log.Debug("Scanning metadata");
             await using var db = new GamiContext();
 
-            await Task.WhenAll(db.Games.Select(v => new GameLibraryRef()
+            await Task.WhenAll(db.Games.Select(v => new GameLibraryRef
             {
                 LibraryId = v.LibraryId,
                 LibraryType = v.LibraryType,

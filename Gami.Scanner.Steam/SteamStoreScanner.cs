@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using Gami.Core;
 using Gami.Core.Models;
@@ -6,6 +7,8 @@ using Serilog;
 
 namespace Gami.Scanner.Steam;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class SteamStoreScanner : IGameMetadataScanner
 {
     public string Type => SteamCommon.TypeName;

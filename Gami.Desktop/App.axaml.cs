@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -23,40 +21,43 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        switch (ApplicationLifetime)
         {
-            if (!Design.IsDesignMode)
+            case IClassicDesktopStyleApplicationLifetime desktop:
             {
-                Log.Information("Ensure local app dir exists");
-                Directory.CreateDirectory(Consts.BasePluginDir);
-                using (DbContext context = new GamiContext())
+                if (!Design.IsDesignMode)
                 {
-                    Log.Information("Ensure DB created");
-                    context.Database.EnsureCreated();
-                }
+                    Log.Information("Ensure local app dir exists");
+                    Directory.CreateDirectory(Consts.BasePluginDir);
+                    using (DbContext context = new GamiContext())
+                    {
+                        Log.Information("Ensure DB created");
+                        context.Database.EnsureCreated();
+                    }
 
-                Log.Information("Save changes");
+                    Log.Information("Save changes");
 
-                DbOps.DoScan().GetAwaiter().GetResult();
-                /*Task.Run(() =>
+                    DbOps.DoScan().GetAwaiter().GetResult();
+                    /*Task.Run(() =>
                     DoScan().AsTask());
                 */
-                Log.Information("Saved changes");
-            }
+                    Log.Information("Saved changes");
+                }
 
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
-            if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
-                Directory.CreateDirectory(Consts.AppDir);
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-        {
-            singleViewPlatform.MainView = new MainView
-            {
-                DataContext = new MainViewModel()
-            };
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = new MainViewModel()
+                };
+                if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
+                    Directory.CreateDirectory(Consts.AppDir);
+                break;
+            }
+            case ISingleViewApplicationLifetime singleViewPlatform:
+                singleViewPlatform.MainView = new MainView
+                {
+                    DataContext = new MainViewModel()
+                };
+                break;
         }
 
         base.OnFrameworkInitializationCompleted();

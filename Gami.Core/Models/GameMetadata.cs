@@ -1,7 +1,10 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gami.Core.Models;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public record struct GameMetadata
 {
     public string? Description { get; set; }

@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Gami.Core.Models;
 
+[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 public interface IGameLibraryRef
 {
     public string Name { get; set; }

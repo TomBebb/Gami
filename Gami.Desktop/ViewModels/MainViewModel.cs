@@ -23,18 +23,21 @@ public class MainViewModel : ViewModelBase
 {
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
-    [Reactive] public string Search { get; set; }
-    [Reactive] public MappedGame? SelectedGame { get; set; } = null!;
+    [Reactive] public string Search { get; set; } = "";
+    [Reactive] public MappedGame? SelectedGame { get; set; }
     [Reactive] public bool IsPlayingSelected { get; set; }
 
-    [Reactive] public Game? PlayingGame { get; set; }
+    [Reactive] private Game? PlayingGame { get; set; }
 
-    [Reactive] public Process? Current { get; set; }
+    [Reactive] private Process? Current { get; set; }
 
-    public ImmutableArray<Wrapped<string>> SortFields { get; set; } = Enumerable.Range(0, (int)SortGameField.Max)
-        .Cast<SortGameField>()
-        .Select(v => new Wrapped<string>(v
-            .GetName())).ToImmutableArray();
+    public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
+    [
+        ..Enum.GetValues(typeof(SortGameField))
+            .Cast<SortGameField>()
+            .Select(v => new Wrapped<string>(v
+                .GetName()))
+    ];
 
     [Reactive] public int SortFieldIndex { get; set; }
 
@@ -73,8 +76,9 @@ public class MainViewModel : ViewModelBase
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             game.Install();
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
             await using var db = new GamiContext();
-            game.InstallStatus = GameInstallStatus.Installed;
+            game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
 
             db.Games.Attach(game);
@@ -86,8 +90,9 @@ public class MainViewModel : ViewModelBase
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
             await using var db = new GamiContext();
-            game.InstallStatus = GameInstallStatus.InLibrary;
+            game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
             db.Games.Attach(game);
             db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
@@ -103,7 +108,7 @@ public class MainViewModel : ViewModelBase
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
 
-        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync((_) => RefreshCache());
+        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync(_ => RefreshCache());
         RefreshCache();
 
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
@@ -112,7 +117,7 @@ public class MainViewModel : ViewModelBase
     }
 
 
-    public void RefreshCache()
+    private void RefreshCache()
     {
         var sort = (SortGameField)SortFieldIndex;
         Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}", Search, sort);
@@ -121,23 +126,16 @@ public class MainViewModel : ViewModelBase
         var games = db.Games
             .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));
 
-        switch (sort)
+        games = sort switch
         {
-            case SortGameField.Name:
-                games = games.Sort(v => v.Name, dir);
-                break;
-            case SortGameField.LibraryType:
-                games = games.Sort(v => v.LibraryType, dir);
-                break;
-            case SortGameField.ReleaseDate:
-                games = games.Sort(v => v.ReleaseDate, dir);
-                break;
-            case SortGameField.InstallStatus:
-                games = games.Sort(v => v.InstallStatus, dir);
-                break;
-        }
+            SortGameField.Name => games.Sort(v => v.Name, dir),
+            SortGameField.LibraryType => games.Sort(v => v.LibraryType, dir),
+            SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
+            SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
+            _ => games
+        };
 
-        Games = games.Select(v => new MappedGame()
+        Games = games.Select(v => new MappedGame
         {
             LibraryType = v.LibraryType,
             LibraryId = v.LibraryId,

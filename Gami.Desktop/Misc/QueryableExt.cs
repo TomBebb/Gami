@@ -10,12 +10,11 @@ public static class QueryableExt
 {
     public static IQueryable<T> Sort<T, TF>(this IQueryable<T> queryable, Expression<Func<T, TF>> field, SortDirection sortDirection)
     {
-        switch (sortDirection)
+        return sortDirection switch
         {
-            case SortDirection.Ascending: return queryable.OrderBy(field);
-            case SortDirection.Descending: return queryable.OrderByDescending(field);
-        }
-
-        throw new UnspecifiedIndexException(nameof(sortDirection));
+            SortDirection.Ascending => queryable.OrderBy(field),
+            SortDirection.Descending => queryable.OrderByDescending(field),
+            _ => throw new UnspecifiedIndexException(nameof(sortDirection))
+        };
     }
 }

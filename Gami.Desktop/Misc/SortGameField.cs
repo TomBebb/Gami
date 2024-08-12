@@ -8,8 +8,7 @@ public enum SortGameField
     LibraryType,
     ReleaseDate,
     InstallStatus,
-    LastPlayed,
-    Max = LastPlayed
+    LastPlayed
 }
 
 public static class SortGameFieldExt

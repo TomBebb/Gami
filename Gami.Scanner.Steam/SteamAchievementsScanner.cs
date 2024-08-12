@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Flurl;
@@ -9,6 +10,11 @@ using Serilog;
 
 namespace Gami.Scanner.Steam;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Local")]
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
 public sealed class SteamAchievementsScanner : IGameAchievementScanner
 {
     private sealed class PlayerAchievementItem
@@ -45,6 +51,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
     private sealed class GameSchemaAchievement
     {
+        // ReSharper disable once UnusedMember.Local
         public int Hidden { get; set; }
         public required string Name { get; set; }
         public required string DisplayName { get; set; }
@@ -52,7 +59,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         public required string IconGray { get; set; }
     }
 
-    private SteamConfig _config =
+    private readonly SteamConfig _config =
         PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
         throw new ApplicationException(
             "steam.json must be manually created for now");
@@ -80,10 +87,9 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         }
         catch (HttpRequestException)
         {
-            return new PlayerAchievementsResults()
+            return new PlayerAchievementsResults
             {
-                PlayerStats = new PlayerAchievements()
-                    { Achievements = ImmutableArray<PlayerAchievementItem>.Empty }
+                PlayerStats = new PlayerAchievements { Achievements = ImmutableArray<PlayerAchievementItem>.Empty }
             };
         }
     }
@@ -110,7 +116,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
         var res = new ConcurrentBag<Achievement>();
-        if (allAchievements.Game?.AvailableGameStats?.Achievements == null)
+        if (allAchievements.Game.AvailableGameStats.Achievements == null)
             return res;
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
@@ -121,14 +127,13 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                 achievement =>
             {
                 Log.Debug("Fetching icons for {Name}", achievement.DisplayName);
-                var icons = await Task.WhenAll(new[]
-                {
+                var icons = await Task.WhenAll([
                     client.GetByteArrayAsync(achievement.Icon),
                     client.GetByteArrayAsync(achievement.IconGray)
-                });
+                ]);
                 Log.Debug("Fetched icons for {Name}", achievement.DisplayName);
 
-                res.Add(new Achievement()
+                res.Add(new Achievement
                 {
                     Id =
                         $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
@@ -151,7 +156,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             playerAchievements.PlayerStats.Achievements?.Length ?? 0);
         foreach (var achievement in playerAchievements.PlayerStats.Achievements ??
                                     ImmutableArray<PlayerAchievementItem>.Empty)
-            res.Add(new AchievementProgress()
+            res.Add(new AchievementProgress
             {
                 AchievementId =
                     $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",

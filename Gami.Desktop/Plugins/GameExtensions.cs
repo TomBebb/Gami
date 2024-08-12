@@ -3,10 +3,8 @@ using System.Collections.Frozen;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Avalonia.Controls.Documents;
 using Gami.Core;
 using Gami.Core.Models;
 using Gami.Scanner.Epic;
@@ -14,13 +12,11 @@ using Serilog;
 
 namespace Gami.Desktop.Plugins;
 
-using Scanner.Steam;
-
 public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        return Assembly.GetAssembly(typeof(EpicLibrary));
+        return Assembly.GetAssembly(typeof(EpicLibrary))!;
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||
@@ -42,7 +38,7 @@ public static class GameExtensions
             {
                 Log.Debug("GetMatching: {Type} assignable from {Interface}", type.Name,
                     typeof(TInterface).Name);
-                var result = Activator.CreateInstance(type);
+                var result = Activator.CreateInstance(type)!;
                 return (TInterface)result;
             }
             else
@@ -58,18 +54,18 @@ public static class GameExtensions
         var availableTypes =
             string.Join(",", assembly.GetTypes().Select(t => t.FullName));
 
+        Log.Error("Can't find any type which implements   {InterfaceName} in {Assembly} from {AssemblyLocation}.\nAvailable types: {AvailableTypes}",
+            typeof(TInterface).Name, assembly.FullName, assembly.Location, availableTypes);
         return null;
-        throw new ApplicationException(
-            $"Can't find any type which implements   {typeof(TInterface).Name} in {assembly} from {assembly.Location}.\n" +
-            $"Available types: {availableTypes}");
     }
 
-    private static readonly string[] Plugins = new[]
-    {
-        "C:\\Users\\topha\\Code\\Gami\\Gami.Scanner.Steam\\bin\\Debug\\net8.0\\Gami.Scanner.Steam.dll"
-    };
+    // TODO
+    private static readonly string[] Plugins =
+    [
+        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll"
+    ];
 
-    private static JsonSerializerOptions _pluginOpts = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
     {
         Converters =
         {
@@ -88,7 +84,7 @@ public static class GameExtensions
         if (configStream == null)
             throw new ApplicationException($"Missing '{configPath}' in {assembly.FullName!}");
 
-        Log.Debug("Parse test: {Parse}", JsonSerializer.Deserialize<PluginSettingType>("\"string\"", _pluginOpts));
+        Log.Debug("Parse test: {Parse}", JsonSerializer.Deserialize<PluginSettingType>("\"string\"", PluginOpts));
 /*
         var configTextStream = new MemoryStream();
         configStream.CopyTo(configTextStream);
@@ -99,66 +95,38 @@ public static class GameExtensions
 
         Log.Debug("Config.json: {Content}; First: {First}", configText, configText[0]);
 */
-        return JsonSerializer.Deserialize<PluginConfig>(configStream, _pluginOpts);
+        return JsonSerializer.Deserialize<PluginConfig>(configStream, PluginOpts)!;
     }
 
-    private static readonly FrozenDictionary<string, IGameLibraryManagement>
-        InstallersByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameLibraryManagement>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
+    private static FrozenDictionary<string, T> PluginsByType<T>() where T : class, IBasePlugin => Plugins.Select(p =>
+        {
+            var assembly = LoadPlugin(p);
+            return GetMatching<T>(assembly);
+        })
+        .Where(v => v != null)
+        .ToFrozenDictionary(v => v!.Type)!;
 
+
+    public static readonly FrozenDictionary<string, IGameLibraryManagement>
+        InstallersByName = PluginsByType<IGameLibraryManagement>();
 
     public static readonly FrozenDictionary<string, IGameLibraryLauncher>
-        LaunchersByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameLibraryLauncher>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
+        LaunchersByName = PluginsByType<IGameLibraryLauncher>();
 
     public static readonly FrozenDictionary<string, IGameLibraryScanner>
-        ScannersByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameLibraryScanner>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
+        ScannersByName = PluginsByType<IGameLibraryScanner>();
 
     public static readonly FrozenDictionary<string, IGameAchievementScanner>
-        AchievementsByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameAchievementScanner>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
+        AchievementsByName = PluginsByType<IGameAchievementScanner>();
 
     public static readonly FrozenDictionary<string, IGameIconLookup>
-        IconLookupByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameIconLookup>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
-
+        IconLookupByName = PluginsByType<IGameIconLookup>();
 
     public static readonly FrozenDictionary<string, IGameMetadataScanner>
-        MetadataScannersByName = Plugins.Select(p =>
-            {
-                var assembly = LoadPlugin(p);
-                return GetMatching<IGameMetadataScanner>(assembly);
-            })
-            .Where(v => v != null)
-            .ToFrozenDictionary(v => v.Type);
+        MetadataScannersByName = PluginsByType<IGameMetadataScanner>();
 
     public static readonly FrozenDictionary<string, PluginConfig>
+        // ReSharper disable once UnusedMember.Global
         PluginConfigs = Plugins.Select(p =>
             {
                 var assembly = LoadPlugin(p);

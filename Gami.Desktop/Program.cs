@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using Serilog;
 
 namespace Gami.Desktop;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal sealed class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -25,7 +27,7 @@ internal sealed class Program
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp() =>
+    private static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()

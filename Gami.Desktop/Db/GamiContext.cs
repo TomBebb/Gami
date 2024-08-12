@@ -1,13 +1,16 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Gami.Core;
 using Gami.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gami.Desktop.Db;
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class GamiContext : DbContext
 {
-    public static readonly string DbPath = Path.Join(Consts.AppDir, "gami.db");
+    private static readonly string DbPath = Path.Join(Consts.AppDir, "gami.db");
     public DbSet<Achievement> Achievements { get; set; }
     public DbSet<AchievementProgress> AchievementsProgresses { get; set; }
     public DbSet<AgeRating> AgeRatings { get; set; }
@@ -28,7 +31,7 @@ public class GamiContext : DbContext
     {
         builder.Entity<Achievement>()
             .Property(g => g.GameId)
-            .HasComputedColumnSql(@"substr([Id], 0, instr([Id], '::'))");
+            .HasComputedColumnSql("substr([Id], 0, instr([Id], '::'))");
 
         builder.Entity<Achievement>()
             .HasKey(e => e.Id);
@@ -42,14 +45,14 @@ public class GamiContext : DbContext
 
         builder.Entity<Achievement>()
             .Property(g => g.LibraryId)
-            .HasComputedColumnSql(@"substr([Id], instr(id, '::')+1)");
+            .HasComputedColumnSql("substr([Id], instr(id, '::')+1)");
 
         builder.Entity<Game>()
             .Property(g => g.LibraryType)
-            .HasComputedColumnSql(@"substr([Id], 0, instr([Id], ':'))");
+            .HasComputedColumnSql("substr([Id], 0, instr([Id], ':'))");
 
         builder.Entity<Game>()
             .Property(g => g.LibraryId)
-            .HasComputedColumnSql(@"substr([Id], instr([id], ':')+1)");
+            .HasComputedColumnSql("substr([Id], instr([id], ':')+1)");
     }
 }

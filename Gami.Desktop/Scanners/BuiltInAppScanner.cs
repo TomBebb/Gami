@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Gami.Core.Models;
@@ -7,23 +8,11 @@ using IniParser.Parser;
 
 namespace Gami.Desktop.Scanners;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public static class BuiltInAppScanner
 {
     public static ImmutableList<IGameLibraryRef> ScanApps()
     {
-        IGameLibraryRef ParseDesktop(string iniDataString)
-        {
-            iniDataString = string.Join("\n", iniDataString.Split("\n").Where(line => !line.StartsWith("#")));
-            var parser = new IniDataParser();
-            var data = parser.Parse(iniDataString)["Desktop Entry"];
-            return new GameLibraryRef
-            {
-                Name = data["Name"],
-                LibraryId = Path.Join(data["Path"], data["Exec"]),
-                LibraryType = "exec"
-            };
-        }
-
         if (!OperatingSystem.IsWindows())
         {
             var desktopPaths = new[]
@@ -48,5 +37,18 @@ public static class BuiltInAppScanner
                 };
             })
             .Aggregate(ImmutableList<IGameLibraryRef>.Empty, (current, filePath) => current.Add(filePath));
+
+        IGameLibraryRef ParseDesktop(string iniDataString)
+        {
+            iniDataString = string.Join("\n", iniDataString.Split("\n").Where(line => !line.StartsWith('#')));
+            var parser = new IniDataParser();
+            var data = parser.Parse(iniDataString)["Desktop Entry"];
+            return new GameLibraryRef
+            {
+                Name = data["Name"],
+                LibraryId = Path.Join(data["Path"], data["Exec"]),
+                LibraryType = "exec"
+            };
+        }
     }
 }

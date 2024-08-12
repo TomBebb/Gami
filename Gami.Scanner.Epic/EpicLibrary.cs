@@ -12,6 +12,11 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
 {
     private static readonly Regex OutputReg = MyRegex();
 
+    private static readonly JsonSerializerOptions LegendaryJsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    };
+
     private static ImmutableDictionary<string, InstallationData> ScanInstalledData()
     {
         var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config/legendary/installed.json");
@@ -19,10 +24,7 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
             return ImmutableDictionary<string, InstallationData>.Empty;
 
         var stream = File.OpenRead(path);
-        return JsonSerializer.Deserialize<ImmutableDictionary<string, InstallationData>>(stream, new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        }) ?? ImmutableDictionary<string, InstallationData>.Empty;
+        return JsonSerializer.Deserialize<ImmutableDictionary<string, InstallationData>>(stream, LegendaryJsonSerializerOptions) ?? ImmutableDictionary<string, InstallationData>.Empty;
     }
 
     public string Type => "epic";
@@ -31,9 +33,9 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
     {
         var installData = ScanInstalledData();
 
-        var proc = new Process()
+        var proc = new Process
         {
-            StartInfo = new ProcessStartInfo()
+            StartInfo = new ProcessStartInfo
             {
                 FileName = "legendary",
                 Arguments = "list",
@@ -51,7 +53,7 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         {
             var id = match.Groups[2].Value;
             Log.Debug("Scanned match groups {Groups}", match.Groups);
-            yield return new ScannedGameLibraryMetadata()
+            yield return new ScannedGameLibraryMetadata
             {
                 LibraryType = Type,
                 Name = match.Groups[1].Value,

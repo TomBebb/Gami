@@ -1,11 +1,14 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using SixLabors.ImageSharp;
 
 namespace Gami.Core.Models;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class Game : ReactiveObject, IGameLibraryRef
 {
     [Key] public string Id { get; set; } = null!;

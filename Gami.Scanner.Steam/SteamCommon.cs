@@ -1,17 +1,14 @@
-using System.Collections.Immutable;
 using System.Diagnostics;
-using F23.StringSimilarity;
+using System.Diagnostics.CodeAnalysis;
 using Gami.Core;
 using Gami.Core.Models;
-using Serilog;
-using GlobExpressions;
 
 namespace Gami.Scanner.Steam;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
 {
     public const string TypeName = "steam";
-    public static readonly SteamCommon Instance = new();
 
     // TODO: Support flatpak, read from registry on windows
     private static readonly string SteamPath =
@@ -35,6 +32,8 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     public async ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
     {
         var meta = SteamScanner.ScanInstalledGame(gameRef.LibraryId);
+        if (meta == null)
+            return null;
         var appDir = Path.Join(SteamScanner.AppsPath, "common", meta.InstallDir);
         return appDir.ResolveMatchingProcess();
     }
