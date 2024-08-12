@@ -22,7 +22,8 @@ public class MainViewModel : ViewModelBase
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
     [Reactive] public string Search { get; set; }
-    [Reactive] public MappedGame SelectedGame { get; set; } = null!;
+    [Reactive] public MappedGame? SelectedGame { get; set; } = null!;
+    [Reactive] public bool IsPlayingSelected { get; set; }
 
     [Reactive] public Game? PlayingGame { get; set; }
 
@@ -43,7 +44,6 @@ public class MainViewModel : ViewModelBase
                 await Task.Delay(LookupProcessInterval);
                 Current = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
             }
-
 
             Log.Debug("Game open: {Open}", Current != null);
             if (Current != null)
@@ -81,6 +81,10 @@ public class MainViewModel : ViewModelBase
 
         this.WhenAnyValue(v => v.Search).ForEachAsync((_) => RefreshCache());
         RefreshCache();
+
+        this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
+            .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
+            .BindTo(this, x => x.IsPlayingSelected);
     }
 
     public void RefreshCache()

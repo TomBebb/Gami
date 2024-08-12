@@ -120,22 +120,23 @@
                                        DefaultLabelPosition="Right">
                             <fa:CommandBar.PrimaryCommands>
                                 <fa:CommandBarButton IconSource="Stop"
+                                                     IsVisible="{Binding #Root.((viewModels:MainViewModel)DataContext).IsPlayingSelected}"
                                                      Command="{Binding #Root.((viewModels:MainViewModel)DataContext).ExitGame}"
                                                      Label="Stop" />
                                 <fa:CommandBarButton IconSource="Play"
-                                                     IsEnabled="{Binding SelectedGame.Installed}"
+                                                     IsVisible="{Binding SelectedGame.Installed}"
                                                      Command="{Binding #Root.((viewModels:MainViewModel)DataContext).PlayGame}"
                                                      CommandParameter="{Binding SelectedGame}"
                                                      Label="Play" />
                                 <fa:CommandBarButton IconSource="Add"
                                                      Background="Green"
-                                                     IsEnabled="{Binding !SelectedGame.Installed}"
+                                                     IsVisible="{Binding !SelectedGame.Installed}"
                                                      Command="{Binding #Root.((viewModels:MainViewModel)DataContext).InstallGame}"
                                                      CommandParameter="{Binding SelectedGame}"
                                                      Label="Install" />
                                 <fa:CommandBarButton IconSource="Delete"
                                                      Background="Red"
-                                                     IsEnabled="{Binding SelectedGame.Installed}"
+                                                     IsVisible="{Binding SelectedGame.Installed}"
                                                      Command="{Binding #Root.((viewModels:MainViewModel)DataContext).UninstallGame}"
                                                      CommandParameter="{Binding SelectedGame}"
                                                      Label="Delete" />
