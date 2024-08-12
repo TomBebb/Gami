@@ -32,13 +32,7 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     {
         var meta = SteamScanner.ScanInstalledGame(gameRef.LibraryId);
         var appDir = Path.Join(SteamScanner.AppsPath, "common", meta.InstallDir);
-        var exes = Glob.Files(pattern: "**/*.exe", workingDirectory: appDir).ToImmutableHashSet();
-
-        Log.Debug("Steam CheckOpen: {Curr}; game executables: {Exes}", gameRef, exes);
-
-
-        return exes.SelectMany(exe => Process.GetProcessesByName(exe.Replace(".exe", "")))
-            .FirstOrDefault();
+        return appDir.ResolveMatchingProcess();
     }
 
 
