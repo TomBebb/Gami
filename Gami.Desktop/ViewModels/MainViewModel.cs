@@ -6,8 +6,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DynamicData.Binding;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
+using Gami.Desktop.MIsc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,13 @@ public class MainViewModel : ViewModelBase
     [Reactive] public Game? PlayingGame { get; set; }
 
     [Reactive] public Process? Current { get; set; }
+
+    public ImmutableArray<Wrapped<string>> SortFields { get; set; } = Enumerable.Range(0, (int)SortGameField.Max)
+        .Cast<SortGameField>()
+        .Select(v => new Wrapped<string>(v
+            .GetName())).ToImmutableArray();
+
+    [Reactive] public int SortFieldIndex { get; set; }
 
     public MainViewModel()
     {
@@ -79,7 +88,7 @@ public class MainViewModel : ViewModelBase
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
 
-        this.WhenAnyValue(v => v.Search).ForEachAsync((_) => RefreshCache());
+        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync((_) => RefreshCache());
         RefreshCache();
 
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
@@ -87,23 +96,43 @@ public class MainViewModel : ViewModelBase
             .BindTo(this, x => x.IsPlayingSelected);
     }
 
+
     public void RefreshCache()
     {
-        Log.Debug("Refresh cache - Search: {Search}", Search);
+        var sort = (SortGameField)SortFieldIndex;
+        Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}", Search, sort);
+        var dir = SortDirection.Ascending;
         using var db = new GamiContext();
-        Games = db.Games
-            .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"))
-            .Select(v => new MappedGame()
-            {
-                LibraryType = v.LibraryType,
-                LibraryId = v.LibraryId,
-                InstallStatus = v.InstallStatus,
-                Name = v.Name,
-                Description = v.Description,
-                Icon = v.Icon,
-                Playtime = v.Playtime,
-                ReleaseDate = v.ReleaseDate
-            }).ToImmutableList();
+        var games = db.Games
+            .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));
+
+        switch (sort)
+        {
+            case SortGameField.Name:
+                games = games.Sort(v => v.Name, dir);
+                break;
+            case SortGameField.LibraryType:
+                games = games.Sort(v => v.LibraryType, dir);
+                break;
+            case SortGameField.ReleaseDate:
+                games = games.Sort(v => v.ReleaseDate, dir);
+                break;
+            case SortGameField.InstallStatus:
+                games = games.Sort(v => v.InstallStatus, dir);
+                break;
+        }
+
+        Games = games.Select(v => new MappedGame()
+        {
+            LibraryType = v.LibraryType,
+            LibraryId = v.LibraryId,
+            InstallStatus = v.InstallStatus,
+            Name = v.Name,
+            Description = v.Description,
+            Icon = v.Icon,
+            Playtime = v.Playtime,
+            ReleaseDate = v.ReleaseDate
+        }).ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
 

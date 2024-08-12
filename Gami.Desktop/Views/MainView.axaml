@@ -25,15 +25,35 @@
         <fa:NavigationView.Content>
             <Grid RowDefinitions="Auto,Auto,*">
                 <Border BorderBrush="Aqua" BorderThickness="1">
-                    <fa:CommandBar
-                        DefaultLabelPosition="Right">
-                        <fa:CommandBar.PrimaryCommands>
-                            <fa:CommandBarButton IconSource="Refresh"
-                                                 Command="{Binding Refresh}"
-                                                 Label="Refresh" />
-                        </fa:CommandBar.PrimaryCommands>
-                    </fa:CommandBar>
+                    <StackPanel Orientation="Horizontal">
 
+                        <fa:CommandBar
+                            DefaultLabelPosition="Right">
+                            <fa:CommandBar.PrimaryCommands>
+                                <fa:CommandBarButton IconSource="Refresh"
+                                                     Command="{Binding Refresh}"
+                                                     Label="Refresh" />
+                            </fa:CommandBar.PrimaryCommands>
+                        </fa:CommandBar>
+
+                        <Border BorderBrush="Teal" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Label VerticalAlignment="Center">Sort:</Label>
+
+                                <ComboBox SelectedIndex="{Binding SortFieldIndex}"
+
+                                          VerticalAlignment="Center"
+                                          ItemsSource="{Binding SortFields}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <ComboBoxItem Content="{Binding Data}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
                 </Border>
 
                 <Grid Grid.Row="1"
