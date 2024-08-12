@@ -94,7 +94,7 @@
 
                 </Grid>
 
-                <Grid Grid.Row="2" ColumnDefinitions="2* 7*" RowDefinitions="Auto *">
+                <Grid Grid.Row="2" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
                     <Grid ColumnDefinitions="* Auto">
                         <TextBox Text="{Binding Search}" Watermark="Enter search" />
                         <Button Grid.Column="1"
@@ -130,7 +130,9 @@
                             </ListBox>
                         </StackPanel>
                     </ScrollViewer>
-                    <StackPanel Grid.Row="1" Grid.Column="1"
+
+                    <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
+                    <StackPanel Grid.Row="1" Grid.Column="2"
                                 IsVisible="{Binding SelectedGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}">
                         <fa:CommandBar HorizontalAlignment="Stretch"
