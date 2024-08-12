@@ -74,28 +74,25 @@
 
                 </Grid>
 
-                <Grid Grid.Row="2" ColumnDefinitions="2* 7*">
-                    <StackPanel>
+                <Grid Grid.Row="2" ColumnDefinitions="2* 7*" RowDefinitions="Auto *">
+                    <Grid ColumnDefinitions="* Auto">
+                        <TextBox Text="{Binding Search}" Watermark="Enter search" />
+                        <Button Grid.Column="1"
+                                Command="{Binding ClearSearch}"
+                                IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 
-                        <Grid ColumnDefinitions="* Auto">
-                            <TextBox Text="{Binding Search}" Watermark="Enter search" />
-                            <Button Grid.Column="1"
-                                    Command="{Binding ClearSearch}"
-                                    IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-
-                                <fa:FontIcon Name="FontIcon"
-                                             Glyph="Xsaa"
-                                             FontSize="18" />
-                            </Button>
-                        </Grid>
-                        <ScrollViewer>
-
+                            <fa:FontIcon Name="FontIcon"
+                                         Glyph="Xsaa"
+                                         FontSize="18" />
+                        </Button>
+                    </Grid>
+                    <ScrollViewer Grid.Row="1" Grid.Column="0">
+                        <StackPanel>
                             <ListBox ItemsSource="{Binding Games}"
                                      SelectedItem="{Binding 
                 SelectedGame}">
 
                                 <ListBox.ItemTemplate>
-
                                     <DataTemplate DataType="models:MappedGame">
                                         <Grid ColumnDefinitions="*, 10*,Auto, *">
                                             <Image Grid.Column="0"
@@ -111,9 +108,9 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                        </ScrollViewer>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1"
+                        </StackPanel>
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="1" Grid.Column="1"
                                 IsVisible="{Binding SelectedGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}">
                         <fa:CommandBar HorizontalAlignment="Stretch"
