@@ -52,7 +52,6 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
     private async ValueTask<Stream> GetAuthStream(HttpClient client, Uri uri)
     {
         var res = await GetAuth(client, uri).ConfigureAwait(false);
-        ;
         Log.Debug("GOG fetches response {Uri}", uri);
         return await res.Content.ReadAsStreamAsync();
     }
@@ -215,7 +214,7 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
             outStream.Close();
 
             Log.Debug("Downloaded file to {Path}", outPath);
-            paths.Append(outPath);
+            paths.Add(outPath);
         }
 
         Process.Start(paths[0]);
