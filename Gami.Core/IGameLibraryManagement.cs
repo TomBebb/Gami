@@ -7,5 +7,5 @@ public interface IGameLibraryManagement : IBasePlugin
     public ValueTask Install(string id);
     public void Uninstall(string id);
 
-    public ValueTask<GameInstallStatus> CheckInstallStatus(string id);
+    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game);
 }

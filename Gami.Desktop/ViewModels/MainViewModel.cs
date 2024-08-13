@@ -82,8 +82,8 @@ public class MainViewModel : ViewModelBase
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
-            game.Install();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
+            await game.Install();
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
@@ -97,7 +97,7 @@ public class MainViewModel : ViewModelBase
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";

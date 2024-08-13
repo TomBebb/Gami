@@ -15,6 +15,7 @@ namespace Gami.Library.Gog;
 
 public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLibraryManagement
 {
+    private static string GamesRoot = "C:/GOG Games";
     private const string ClientId = "46899977096215655";
     private const string ClientSecret = "9d85c43b1482497dbbce61f6e4aa173a433796eeae2ca8c5f6129f2dc4de46d9";
     private const string RedirectUri = "https://embed.gog.com/on_login_success?origin=client";
@@ -95,7 +96,12 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
                 Name = game.Title,
                 Playtime = TimeSpan.Zero,
                 LibraryId = gameId,
-                InstallStatus = _config.InstalledGames.ContainsKey(gameIdLong) ? GameInstallStatus.Installed : GameInstallStatus.InLibrary
+                InstallStatus = await CheckInstallStatus(new GameLibraryRef()
+                {
+                    LibraryType = Type, LibraryId =
+                        gameId,
+                    Name = game.Title
+                })
             };
         }
     }
@@ -225,8 +231,14 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
         throw new NotImplementedException();
     }
 
-    public ValueTask<GameInstallStatus> CheckInstallStatus(string id) => ValueTask.FromResult(_config.InstalledGames
-        .ContainsKey(long.Parse(id))
-        ? GameInstallStatus.Installed
-        : GameInstallStatus.InLibrary);
+    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game)
+    {
+        var checkDir = Path.Join
+            (GamesRoot, game.Name.Replace(":", ""));
+        Log.Debug("Check gog installed: {Name}", checkDir);
+        return ValueTask.FromResult(Directory
+            .Exists(checkDir)
+            ? GameInstallStatus.Installed
+            : GameInstallStatus.InLibrary);
+    }
 }

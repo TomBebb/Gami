@@ -84,8 +84,8 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         Process.Start("legendary", new[] { "uninstall", id, "-y" }).Start();
     }
 
-    public ValueTask<GameInstallStatus> CheckInstallStatus(string id) => ValueTask.FromResult(ScanInstalledData()
-        .ContainsKey(id)
+    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) => ValueTask.FromResult(ScanInstalledData()
+        .ContainsKey(game.LibraryId)
         ? GameInstallStatus.Installed
         : GameInstallStatus.InLibrary);
 
