@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -13,9 +12,9 @@ using TupleAsJsonArray;
 
 namespace Gami.Library.Gog;
 
-public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLibraryManagement
+public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLibraryManagement, IGameLibraryLauncher
 {
-    private static string GamesRoot = "C:/GOG Games";
+    private static readonly string GamesRoot = "C:/GOG Games";
     private const string ClientId = "46899977096215655";
     private const string ClientSecret = "9d85c43b1482497dbbce61f6e4aa173a433796eeae2ca8c5f6129f2dc4de46d9";
     private const string RedirectUri = "https://embed.gog.com/on_login_success?origin=client";
@@ -176,9 +175,9 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
 
     public string AuthUrl() => "https://auth.gog.com/auth?client_id=46899977096215655&redirect_uri=https%3A%2F%2Fembed.gog.com%2Fon_login_success%3Forigin%3Dclient&response_type=code&layout=client2";
 
-    public async ValueTask Install(string id)
+    public async ValueTask Install(IGameLibraryRef gameLibraryRef)
     {
-        var details = await GetGameDetails(id);
+        var details = await GetGameDetails(gameLibraryRef.LibraryId);
         Log.Debug("Game details {Json}", JsonSerializer.Serialize(details, SerializerOptions));
         var dlDir = Path.Join(Consts.AppDir, "gog/dls");
         Directory.CreateDirectory(dlDir);
@@ -226,19 +225,31 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
         Process.Start(paths[0]);
     }
 
-    public void Uninstall(string id)
-    {
-        throw new NotImplementedException();
-    }
+    public void Uninstall(IGameLibraryRef game) => Process.Start(Path.Join(GetInstallDir(game), "unins000.exe"));
+
+    private string GetInstallDir(IGameLibraryRef game) => Path.Join
+        (GamesRoot, game.Name.Replace(":", ""));
 
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game)
     {
-        var checkDir = Path.Join
-            (GamesRoot, game.Name.Replace(":", ""));
+        var checkDir = GetInstallDir(game);
         Log.Debug("Check gog installed: {Name}", checkDir);
         return ValueTask.FromResult(Directory
             .Exists(checkDir)
             ? GameInstallStatus.Installed
             : GameInstallStatus.InLibrary);
     }
+
+    public void Launch(IGameLibraryRef gameRef)
+    {
+        var data = Directory.EnumerateFiles(GetInstallDir(gameRef), "*.lnk").Select(Lnk.Lnk.LoadFile).FirstOrDefault();
+
+
+        if (data == null)
+            throw new ApplicationException("Unable to launch GOG game " + gameRef.Name + "; no lnk shortcut found");
+
+        Process.Start(data.LocalPath);
+    }
+
+    public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef) => throw new NotImplementedException();
 }

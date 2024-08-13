@@ -14,11 +14,11 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     private static readonly string SteamPath =
         OperatingSystem.IsWindows() ? "C:/Program Files (x86)/Steam/steam.exe" : "steam";
 
-    public async ValueTask Install(string id) =>
-        await Task.Run(() => RunGameCmd("install", id));
+    public async ValueTask Install(IGameLibraryRef gameRef) =>
+        await Task.Run(() => RunGameCmd("install", gameRef.LibraryId));
 
-    public void Uninstall(string id) =>
-        RunGameCmd("uninstall", id);
+    public void Uninstall(IGameLibraryRef gameRef) =>
+        RunGameCmd("uninstall", gameRef.LibraryId);
 
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) =>
         SteamScanner.CheckStatus(game.LibraryId);
@@ -26,8 +26,8 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
 
     public string Type => "steam";
 
-    public void Launch(string id) =>
-        RunGameCmd("rungameid", id);
+    public void Launch(IGameLibraryRef gameRef) =>
+        RunGameCmd("rungameid", gameRef.LibraryId);
 
     public async ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
     {

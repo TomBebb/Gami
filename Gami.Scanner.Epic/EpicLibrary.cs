@@ -63,8 +63,9 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         }
     }
 
-    public void Launch(string id)
+    public void Launch(IGameLibraryRef gameRef)
     {
+        var id = gameRef.LibraryId;
         var datas = ScanInstalledData();
         var fullExe = Path.Join(datas[id].InstallPath, datas[id].Executable);
 
@@ -74,14 +75,17 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
     public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef) =>
         ValueTask.FromResult(ScanInstalledData()[gameRef.LibraryId].InstallPath.ResolveMatchingProcess());
 
-    public async ValueTask Install(string id)
-        => await Task.Run(() =>
+    public async ValueTask Install(IGameLibraryRef gameRef)
+    {
+        var id = gameRef.LibraryId;
+        await Task.Run(() =>
             Process.Start("legendary", new[] { "install", id, "-y" }).Start()
         );
+    }
 
-    public void Uninstall(string id)
+    public void Uninstall(IGameLibraryRef gameRef)
     {
-        Process.Start("legendary", new[] { "uninstall", id, "-y" }).Start();
+        Process.Start("legendary", new[] { "uninstall", gameRef.LibraryId, "-y" }).Start();
     }
 
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) => ValueTask.FromResult(ScanInstalledData()

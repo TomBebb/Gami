@@ -147,16 +147,16 @@ public static class GameExtensions
 
     public static void Launch(this Game game)
     {
-        LaunchersByName.GetLauncher(game.LibraryType).Launch(game.LibraryId);
+        LaunchersByName.GetLauncher(game.LibraryType).Launch(game);
     }
 
     public static ValueTask Install(this Game game)
         =>
-            InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
+            InstallersByName.GetLauncher(game.LibraryType).Install(game);
 
 
     public static void Uninstall(this Game game)
     {
-        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game.LibraryId);
+        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game);
     }
 }
