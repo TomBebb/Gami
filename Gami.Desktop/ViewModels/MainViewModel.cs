@@ -108,10 +108,14 @@ public class MainViewModel : ViewModelBase
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
         });
-        ShowDialog = ReactiveCommand.CreateFromTask(async () =>
+        ShowDialog = ReactiveCommand.CreateFromTask(async (string? initialUrl) =>
         {
+            if (initialUrl != null)
+                CurrentUrl = initialUrl;
+            if (CurrentUrl == null)
+                return;
             var webview = new WebView() { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
-            webview.Loaded += (sender, args) => { Log.Debug("Loaded new page: {Args}", webview.Url); };
+            webview.NavigationStarting += (_, arg) => CurrentUrl = arg.Url?.ToString() ?? CurrentUrl;
             var dialog = new ContentDialog()
             {
                 Title = "My Dialog Title",
@@ -123,7 +127,6 @@ public class MainViewModel : ViewModelBase
         Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
-
         this.WhenAnyValue(v => v.CurrentUrl).ForEachAsync(v => Task.Run(() => Log.Debug("URL changed: {Url}", v)));
         this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync(_ => RefreshCache());
         RefreshCache();
@@ -175,7 +178,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
-    public ReactiveCommand<Unit, Unit> ShowDialog { get; set; }
+    public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
 
     [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;
