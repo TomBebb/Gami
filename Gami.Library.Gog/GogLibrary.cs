@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
@@ -33,9 +34,9 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
 
     private ValueTask<T> GetAuthJson<T>(string uri) => GetAuthJson<T>(new Uri(uri));
 
-    private async ValueTask<T> GetAuthJson<T>(Uri uri)
+    private async ValueTask<HttpResponseMessage> GetAuth(HttpClient client, Uri uri)
     {
-        await AutoRefreshToken();
+        await AutoRefreshToken().ConfigureAwait(false);
         var request = new HttpRequestMessage()
         {
             RequestUri = uri,
@@ -43,19 +44,24 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
         };
         request.Headers.Add("Authorization", $"Bearer {_config.AccessToken}");
         Log.Debug("GOG fetching {Uri}", uri);
-        var res = await HttpClient.SendAsync(request).ConfigureAwait(false);
+        var res = await client.SendAsync(request).ConfigureAwait(false);
         Log.Debug("GOG fetched {Uri}", uri);
-        var stream = await res.Content.ReadAsStreamAsync();
+        return res;
+    }
+
+    private async ValueTask<Stream> GetAuthStream(HttpClient client, Uri uri)
+    {
+        var res = await GetAuth(client, uri).ConfigureAwait(false);
+        ;
+        Log.Debug("GOG fetches response {Uri}", uri);
+        return await res.Content.ReadAsStreamAsync();
+    }
+
+    private async ValueTask<T> GetAuthJson<T>(Uri uri)
+    {
+        var stream = await GetAuthStream(HttpClient, uri).ConfigureAwait(false);
         Log.Debug("GOG fetched as stream {Uri}", uri);
 
-        var demo = new GameDetails()
-        {
-            Downloads = ImmutableArray<(string, ImmutableDictionary<string, ImmutableArray<Download>>)>.Empty
-                .Add(("English", ImmutableDictionary<string, ImmutableArray<Download>>.Empty.Add("windows",
-                    ImmutableArray.Create<Download>().Add(new Download { })
-                )))
-        };
-        Log.Debug("Download demo {Demo}", JsonSerializer.Serialize(demo, SerializerOptions));
         var data = await JsonSerializer.DeserializeAsync<T>(stream, SerializerOptions);
         Log.Debug("GOG deserialized {Uri}", uri);
         return data!;
@@ -179,24 +185,40 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
         var dls = osMap["windows"];
         Log.Debug("Mapped URLs {Json}", JsonSerializer.Serialize(dls, SerializerOptions));
 
-        string ResolveDlPath(Download dl) => Path.Join(dlDir, Path.GetFileName(dl.ManualUrl) + ".exe");
+        var baseUri = new Uri("https://embed.gog.com");
+        var paths = new List<string>();
+
         foreach (var currDl in dls)
         {
             Log.Debug("Get url {Url}", currDl.ManualUrl);
 
-            var outPath = ResolveDlPath(currDl);
-            Log.Debug("Saving to {Out}", outPath);
-            await using var dlStream = await HttpClient.GetStreamAsync("https://embed.gog.com" + currDl.ManualUrl);
+            var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
 
+            var uri = new Uri(baseUri, currDl.ManualUrl);
+            var res = await GetAuth(httpClient, uri).ConfigureAwait(false);
+
+            while (res.StatusCode == HttpStatusCode.Found)
+            {
+                var oldUri = uri;
+                uri = new Uri(baseUri, res.Headers.Location!);
+
+                Log.Debug("Redirect: {From} => {To}", oldUri, uri);
+                res = await GetAuth(httpClient, uri).ConfigureAwait(false);
+            }
+
+            var outPath = Path.Join(dlDir, Path.GetFileName(uri.LocalPath));
+            Log.Debug("Saving to {Out}", outPath);
+            await using var dlStream = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
             Log.Debug("Opened dl stream {Out}", outPath);
             await using var outStream = File.OpenWrite(outPath);
             await dlStream.CopyToAsync(outStream);
             outStream.Close();
 
             Log.Debug("Downloaded file to {Path}", outPath);
+            paths.Append(outPath);
         }
 
-        Process.Start(ResolveDlPath(dls[0]));
+        Process.Start(paths[0]);
     }
 
     public void Uninstall(string id)
