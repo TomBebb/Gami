@@ -201,7 +201,6 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
 
         var osMap = details.Downloads.FirstOrDefault(v => v.Item1 == "English").Item2;
 
-
         Log.Debug("OS Map {Json}", JsonSerializer.Serialize(osMap, SerializerOptions));
         var dls = osMap["windows"];
         Log.Debug("Mapped URLs {Json}", JsonSerializer.Serialize(dls, SerializerOptions));
@@ -214,7 +213,6 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
             Log.Debug("Get url {Url}", currDl.ManualUrl);
 
             var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
-
 
             var uri = new Uri(baseUri, currDl.ManualUrl);
             uri = await ResolveAuthFinalLocation(httpClient, baseUri, uri);
@@ -246,7 +244,6 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game)
     {
         var checkDir = GetInstallDir(game);
-        Log.Debug("Check gog installed: {Name}", checkDir);
         return ValueTask.FromResult(Directory
             .Exists(checkDir)
             ? GameInstallStatus.Installed
@@ -256,8 +253,6 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
     public void Launch(IGameLibraryRef gameRef)
     {
         var data = Directory.EnumerateFiles(GetInstallDir(gameRef), "*.lnk").Select(Lnk.Lnk.LoadFile).FirstOrDefault();
-
-
         if (data == null)
             throw new ApplicationException("Unable to launch GOG game " + gameRef.Name + "; no lnk shortcut found");
 
