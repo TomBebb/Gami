@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Library.Gog;
 using Gami.Scanner.Epic;
 using Serilog;
 
@@ -16,7 +17,7 @@ public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        return Assembly.GetAssembly(typeof(EpicLibrary))!;
+        return Assembly.GetAssembly(typeof(GogLibrary))!;
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||

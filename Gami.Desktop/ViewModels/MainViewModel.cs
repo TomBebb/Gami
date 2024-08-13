@@ -127,12 +127,12 @@ public class MainViewModel : ViewModelBase
             };
             await dialog.ShowAsync();
             this.WhenAnyValue(v => v.CurrentUrl)
-                .Subscribe(v =>
+                .Subscribe(async v =>
                 {
                     Log.Debug("weebbview URL changed: {Url}", v);
-                    if (v == null)
+                    if (v == null || Auth == null)
                         return;
-                    if (Auth?.CurrUrlChange(v) ?? false) dialog?.Hide(ContentDialogResult.Primary);
+                    if (await Auth!.CurrUrlChange(v)) dialog?.Hide(ContentDialogResult.Primary);
                 });
         });
         Refresh = ReactiveCommand.Create(RefreshCache);
