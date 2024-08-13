@@ -6,7 +6,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using AvaloniaWebView;
 using DynamicData.Binding;
+using FluentAvalonia.UI.Controls;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.MIsc;
@@ -30,6 +33,7 @@ public class MainViewModel : ViewModelBase
     [Reactive] private Game? PlayingGame { get; set; }
 
     [Reactive] private Process? Current { get; set; }
+    [Reactive] public string? CurrentUrl { get; set; } = "https://login.gog.com/auth?client_id=46899977096215655&layout=client2&redirect_uri=https%3A%2F%2Fembed.gog.com%2Fon_login_success%3Forigin%3Dclient&response_type=code";
 
     public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
     [
@@ -104,10 +108,23 @@ public class MainViewModel : ViewModelBase
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
         });
+        ShowDialog = ReactiveCommand.CreateFromTask(async () =>
+        {
+            var webview = new WebView() { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
+            webview.Loaded += (sender, args) => { Log.Debug("Loaded new page: {Args}", webview.Url); };
+            var dialog = new ContentDialog()
+            {
+                Title = "My Dialog Title",
+                CloseButtonText = "Close",
+                Content = webview
+            };
+            await dialog.ShowAsync();
+        });
         Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
 
+        this.WhenAnyValue(v => v.CurrentUrl).ForEachAsync(v => Task.Run(() => Log.Debug("URL changed: {Url}", v)));
         this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync(_ => RefreshCache());
         RefreshCache();
 
@@ -158,6 +175,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
+    public ReactiveCommand<Unit, Unit> ShowDialog { get; set; }
 
 
     [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;

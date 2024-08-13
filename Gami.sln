@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami.Deskto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Scanner.Epic", "Gami.Scanner.Epic\Gami.Scanner.Epic.csproj", "{D446018A-5063-48C9-BAF0-39FCB436D411}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Library.Gog", "Gami.Library.Gog\Gami.Library.Gog.csproj", "{630A5527-B96B-49EE-ABD5-57567A4BBF32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{D446018A-5063-48C9-BAF0-39FCB436D411}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D446018A-5063-48C9-BAF0-39FCB436D411}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D446018A-5063-48C9-BAF0-39FCB436D411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{630A5527-B96B-49EE-ABD5-57567A4BBF32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{630A5527-B96B-49EE-ABD5-57567A4BBF32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{630A5527-B96B-49EE-ABD5-57567A4BBF32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{630A5527-B96B-49EE-ABD5-57567A4BBF32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

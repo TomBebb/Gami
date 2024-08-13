@@ -16,15 +16,17 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <viewModels:MainViewModel />
     </Design.DataContext>
-
     <fa:NavigationView PaneDisplayMode="Left" IsSettingsVisible="True">
         <fa:NavigationView.MenuItems>
             <fa:NavigationViewItem Content="Library" Tag="Library"
                                    IconSource="Library" />
         </fa:NavigationView.MenuItems>
         <fa:NavigationView.Content>
-            <Grid RowDefinitions="Auto,Auto,*">
-                <Border BorderBrush="Aqua" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto,*">
+                <Button Command="{Binding ShowDialog}">
+                    Show dialog
+                </Button>
+                <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
                     <StackPanel Orientation="Horizontal">
 
                         <fa:CommandBar
@@ -56,7 +58,7 @@
                     </StackPanel>
                 </Border>
 
-                <Grid Grid.Row="1"
+                <Grid Grid.Row="2"
                       IsVisible="{Binding EditingGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}"
                       RowDefinitions="*,*,*,*,*,Auto"
@@ -94,7 +96,7 @@
 
                 </Grid>
 
-                <Grid Grid.Row="2" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
+                <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
                     <Grid ColumnDefinitions="* Auto">
                         <TextBox Text="{Binding Search}" Watermark="Enter search" />
                         <Button Grid.Column="1"

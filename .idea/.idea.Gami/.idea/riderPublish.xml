@@ -4,6 +4,7 @@
     <option name="locations">
       <list>
         <option value="$PROJECT_DIR$/Gami/Gami.Desktop/publish" />
+        <option value="$PROJECT_DIR$/.bin" />
       </list>
     </option>
   </component>
