@@ -34,24 +34,41 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
 
     private ValueTask<T> GetAuthJson<T>(string uri) => GetAuthJson<T>(new Uri(uri));
 
-    private async ValueTask<HttpResponseMessage> GetAuth(HttpClient client, Uri uri)
+    private async ValueTask<HttpResponseMessage> SendAuth(HttpClient client, Uri uri, HttpMethod? method = null)
     {
+        method = method ?? HttpMethod.Get;
         await AutoRefreshToken().ConfigureAwait(false);
         var request = new HttpRequestMessage()
         {
             RequestUri = uri,
-            Method = HttpMethod.Get
+            Method = method !
         };
         request.Headers.Add("Authorization", $"Bearer {_config.AccessToken}");
-        Log.Debug("GOG fetching {Uri}", uri);
+        Log.Debug("GOG {Method} fetching {Uri}", method!.Method, uri);
         var res = await client.SendAsync(request).ConfigureAwait(false);
-        Log.Debug("GOG fetched {Uri}", uri);
+        Log.Debug("GOG {Method} fetched {Uri}", method.Method, uri);
         return res;
+    }
+
+    private async ValueTask<Uri> ResolveAuthFinalLocation(HttpClient httpClient, Uri baseUri, Uri uri)
+    {
+        var res = await SendAuth(httpClient, uri, HttpMethod.Head).ConfigureAwait(false);
+
+        while (res.StatusCode == HttpStatusCode.Found)
+        {
+            var oldUri = uri;
+            uri = new Uri(baseUri, res.Headers.Location!);
+
+            Log.Debug("Redirect: {From} => {To}", oldUri, uri);
+            res = await SendAuth(httpClient, uri, HttpMethod.Head).ConfigureAwait(false);
+        }
+
+        return uri;
     }
 
     private async ValueTask<Stream> GetAuthStream(HttpClient client, Uri uri)
     {
-        var res = await GetAuth(client, uri).ConfigureAwait(false);
+        var res = await SendAuth(client, uri).ConfigureAwait(false);
         Log.Debug("GOG fetches response {Uri}", uri);
         return await res.Content.ReadAsStreamAsync();
     }
@@ -198,20 +215,12 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
 
             var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
 
+
             var uri = new Uri(baseUri, currDl.ManualUrl);
-            var res = await GetAuth(httpClient, uri).ConfigureAwait(false);
-
-            while (res.StatusCode == HttpStatusCode.Found)
-            {
-                var oldUri = uri;
-                uri = new Uri(baseUri, res.Headers.Location!);
-
-                Log.Debug("Redirect: {From} => {To}", oldUri, uri);
-                res = await GetAuth(httpClient, uri).ConfigureAwait(false);
-            }
-
+            uri = await ResolveAuthFinalLocation(httpClient, baseUri, uri);
             var outPath = Path.Join(dlDir, Path.GetFileName(uri.LocalPath));
             Log.Debug("Saving to {Out}", outPath);
+            var res = await SendAuth(httpClient, uri).ConfigureAwait(false);
             await using var dlStream = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
             Log.Debug("Opened dl stream {Out}", outPath);
             await using var outStream = File.OpenWrite(outPath);
