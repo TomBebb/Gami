@@ -82,6 +82,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Gami.Core\Gami.Core.csproj"/>
+        <ProjectReference Include="..\Gami.Library.Gog\Gami.Library.Gog.csproj"/>
         <ProjectReference Include="..\Gami.Scanner.Epic\Gami.Scanner.Epic.csproj"/>
         <ProjectReference Include="..\Gami.Scanner.Steam\Gami.Scanner.Steam.csproj"/>
     </ItemGroup>
