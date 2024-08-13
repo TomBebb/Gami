@@ -14,8 +14,8 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     private static readonly string SteamPath =
         OperatingSystem.IsWindows() ? "C:/Program Files (x86)/Steam/steam.exe" : "steam";
 
-    public void Install(string id) =>
-        RunGameCmd("install", id);
+    public async ValueTask Install(string id) =>
+        await Task.Run(() => RunGameCmd("install", id));
 
     public void Uninstall(string id) =>
         RunGameCmd("uninstall", id);

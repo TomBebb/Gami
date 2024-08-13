@@ -13,6 +13,7 @@
     <ItemGroup>
         <PackageReference Include="Flurl" Version="4.0.0"/>
         <PackageReference Include="Serilog" Version="4.0.1"/>
+        <PackageReference Include="TupleAsJsonArray.Redux" Version="1.1.0"/>
     </ItemGroup>
 
     <ItemGroup>

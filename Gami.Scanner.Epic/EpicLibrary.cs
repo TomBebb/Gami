@@ -74,10 +74,10 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
     public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef) =>
         ValueTask.FromResult(ScanInstalledData()[gameRef.LibraryId].InstallPath.ResolveMatchingProcess());
 
-    public void Install(string id)
-    {
-        Process.Start("legendary", new[] { "install", id, "-y" }).Start();
-    }
+    public async ValueTask Install(string id)
+        => await Task.Run(() =>
+            Process.Start("legendary", new[] { "install", id, "-y" }).Start()
+        );
 
     public void Uninstall(string id)
     {

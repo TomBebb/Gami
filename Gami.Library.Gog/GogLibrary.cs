@@ -1,5 +1,6 @@
-﻿using System.Net.Http.Json;
-using System.Security.Authentication;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
 using Flurl;
@@ -7,16 +8,20 @@ using Gami.Core;
 using Gami.Core.Models;
 using Gami.Library.Gog.Models;
 using Serilog;
+using TupleAsJsonArray;
 
 namespace Gami.Library.Gog;
 
-public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner
+public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLibraryManagement
 {
     private const string ClientId = "46899977096215655";
     private const string ClientSecret = "9d85c43b1482497dbbce61f6e4aa173a433796eeae2ca8c5f6129f2dc4de46d9";
     private const string RedirectUri = "https://embed.gog.com/on_login_success?origin=client";
 
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new TupleConverterFactory() }
+    };
 
     private static readonly JsonSerializerOptions AuthSerializerOptions = new(JsonSerializerDefaults.General)
     {
@@ -43,6 +48,14 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner
         var stream = await res.Content.ReadAsStreamAsync();
         Log.Debug("GOG fetched as stream {Uri}", uri);
 
+        var demo = new GameDetails()
+        {
+            Downloads = ImmutableArray<(string, ImmutableDictionary<string, ImmutableArray<Download>>)>.Empty
+                .Add(("English", ImmutableDictionary<string, ImmutableArray<Download>>.Empty.Add("windows",
+                    ImmutableArray.Create<Download>().Add(new Download { })
+                )))
+        };
+        Log.Debug("Download demo {Demo}", JsonSerializer.Serialize(demo, SerializerOptions));
         var data = await JsonSerializer.DeserializeAsync<T>(stream, SerializerOptions);
         Log.Debug("GOG deserialized {Uri}", uri);
         return data!;
@@ -151,4 +164,48 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner
     }
 
     public string AuthUrl() => "https://auth.gog.com/auth?client_id=46899977096215655&redirect_uri=https%3A%2F%2Fembed.gog.com%2Fon_login_success%3Forigin%3Dclient&response_type=code&layout=client2";
+
+    public async ValueTask Install(string id)
+    {
+        var details = await GetGameDetails(id);
+        Log.Debug("Game details {Json}", JsonSerializer.Serialize(details, SerializerOptions));
+        var dlDir = Path.Join(Consts.AppDir, "gog/dls");
+        Directory.CreateDirectory(dlDir);
+
+        var osMap = details.Downloads.FirstOrDefault(v => v.Item1 == "English").Item2;
+
+
+        Log.Debug("OS Map {Json}", JsonSerializer.Serialize(osMap, SerializerOptions));
+        var dls = osMap["windows"];
+        Log.Debug("Mapped URLs {Json}", JsonSerializer.Serialize(dls, SerializerOptions));
+
+        string ResolveDlPath(Download dl) => Path.Join(dlDir, Path.GetFileName(dl.ManualUrl) + ".exe");
+        foreach (var currDl in dls)
+        {
+            Log.Debug("Get url {Url}", currDl.ManualUrl);
+
+            var outPath = ResolveDlPath(currDl);
+            Log.Debug("Saving to {Out}", outPath);
+            await using var dlStream = await HttpClient.GetStreamAsync("https://embed.gog.com" + currDl.ManualUrl);
+
+            Log.Debug("Opened dl stream {Out}", outPath);
+            await using var outStream = File.OpenWrite(outPath);
+            await dlStream.CopyToAsync(outStream);
+            outStream.Close();
+
+            Log.Debug("Downloaded file to {Path}", outPath);
+        }
+
+        Process.Start(ResolveDlPath(dls[0]));
+    }
+
+    public void Uninstall(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<GameInstallStatus> CheckInstallStatus(string id) => ValueTask.FromResult(_config.InstalledGames
+        .ContainsKey(long.Parse(id))
+        ? GameInstallStatus.Installed
+        : GameInstallStatus.InLibrary);
 }

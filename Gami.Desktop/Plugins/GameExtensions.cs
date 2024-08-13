@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
 using Gami.Library.Gog;
@@ -149,10 +150,10 @@ public static class GameExtensions
         LaunchersByName.GetLauncher(game.LibraryType).Launch(game.LibraryId);
     }
 
-    public static void Install(this Game game)
-    {
-        InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
-    }
+    public static ValueTask Install(this Game game)
+        =>
+            InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
+
 
     public static void Uninstall(this Game game)
     {
