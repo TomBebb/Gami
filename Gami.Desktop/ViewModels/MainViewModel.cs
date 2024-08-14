@@ -6,12 +6,16 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AvaloniaWebView;
 using DynamicData.Binding;
+using FluentAvalonia.UI.Controls;
+using Gami.Core;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.MIsc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Plugins;
+using Gami.Library.Gog;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -30,6 +34,9 @@ public class MainViewModel : ViewModelBase
     [Reactive] private Game? PlayingGame { get; set; }
 
     [Reactive] private Process? Current { get; set; }
+
+    [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
+    [Reactive] public string? CurrentUrl { get; set; }
 
     public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
     [
@@ -75,8 +82,8 @@ public class MainViewModel : ViewModelBase
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
-            game.Install();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
+            await game.Install();
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
@@ -90,7 +97,7 @@ public class MainViewModel : ViewModelBase
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game.LibraryId);
+            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
@@ -104,13 +111,42 @@ public class MainViewModel : ViewModelBase
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
         });
+        ShowDialog = ReactiveCommand.CreateFromTask(async (string? initialUrl) =>
+        {
+            if (initialUrl != null)
+                CurrentUrl = initialUrl;
+            if (CurrentUrl == null)
+                return;
+            var webview = new WebView() { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
+            webview.NavigationStarting += (_, arg) => CurrentUrl = arg.Url?.ToString() ?? CurrentUrl;
+            var dialog = new ContentDialog()
+            {
+                Title = "My Dialog Title",
+                CloseButtonText = "Close",
+                Content = webview
+            };
+            await dialog.ShowAsync();
+            this.WhenAnyValue(v => v.CurrentUrl)
+                .Subscribe(async v =>
+                {
+                    Log.Debug("weebbview URL changed: {Url}", v);
+                    if (v == null || Auth == null)
+                        return;
+                    if (await Auth!.CurrUrlChange(v)) dialog?.Hide(ContentDialogResult.Primary);
+                });
+        });
         Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
-
-        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex).ForEachAsync(_ => RefreshCache());
+        this.WhenAnyValue(v => v.CurrentUrl)
+            .Subscribe(v => Log.Debug("URL changed: {Url}", v));
+        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex)
+            .Subscribe(_ => RefreshCache());
         RefreshCache();
 
+        this.WhenAnyValue(v => v.Auth)
+            .Select(v => v?.AuthUrl())
+            .BindTo(this, v => v.CurrentUrl);
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
@@ -158,6 +194,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
+    public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
 
     [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;

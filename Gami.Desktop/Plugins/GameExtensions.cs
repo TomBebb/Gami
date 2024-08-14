@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Library.Gog;
 using Gami.Scanner.Epic;
 using Serilog;
 
@@ -16,7 +18,7 @@ public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        return Assembly.GetAssembly(typeof(EpicLibrary))!;
+        return Assembly.GetAssembly(typeof(GogLibrary))!;
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||
@@ -145,16 +147,16 @@ public static class GameExtensions
 
     public static void Launch(this Game game)
     {
-        LaunchersByName.GetLauncher(game.LibraryType).Launch(game.LibraryId);
+        LaunchersByName.GetLauncher(game.LibraryType).Launch(game);
     }
 
-    public static void Install(this Game game)
-    {
-        InstallersByName.GetLauncher(game.LibraryType).Install(game.LibraryId);
-    }
+    public static ValueTask Install(this Game game)
+        =>
+            InstallersByName.GetLauncher(game.LibraryType).Install(game);
+
 
     public static void Uninstall(this Game game)
     {
-        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game.LibraryId);
+        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game);
     }
 }

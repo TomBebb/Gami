@@ -3,6 +3,7 @@
              xmlns:desktop="clr-namespace:Gami.Desktop"
              x:Class="Gami.Desktop.App"
              xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
 
              RequestedThemeVariant="Default">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
@@ -15,6 +16,7 @@
         <FluentTheme />
         <sty:FluentAvaloniaTheme />
 
+        <dialogHostAvalonia:DialogHostStyles />
 
     </Application.Styles>
 </Application>

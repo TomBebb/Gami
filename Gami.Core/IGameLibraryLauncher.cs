@@ -5,7 +5,7 @@ namespace Gami.Core;
 
 public interface IGameLibraryLauncher : IBasePlugin
 {
-    public void Launch(string id);
+    public void Launch(IGameLibraryRef gameRef);
 
     public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef);
 }

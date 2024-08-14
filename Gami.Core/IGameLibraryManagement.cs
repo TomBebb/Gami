@@ -4,8 +4,8 @@ namespace Gami.Core;
 
 public interface IGameLibraryManagement : IBasePlugin
 {
-    public void Install(string id);
-    public void Uninstall(string id);
+    public ValueTask Install(IGameLibraryRef game);
+    public void Uninstall(IGameLibraryRef game);
 
-    public ValueTask<GameInstallStatus> CheckInstallStatus(string id);
+    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game);
 }
