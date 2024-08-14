@@ -10,6 +10,10 @@ public static class Consts
         Path.Join(AppDir,
             "proton");
 
+    public static readonly string ProtonPrefixDir =
+        Path.Join(AppDir,
+            "prefix");
+
     public static readonly string ProtonDlDir =
         Path.Join(ProtonDir,
             "dl");

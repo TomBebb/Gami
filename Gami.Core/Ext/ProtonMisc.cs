@@ -8,6 +8,8 @@ public static class ProtonMisc
     private static readonly HttpClient Client = new();
     private static readonly GitHubClient GitHub = new(new ProductHeaderValue("Gami Games launcher"));
 
+    public static string ResolveProtonPrefix(this IGameLibraryRef gameRef) => Path.Join(Consts.ProtonPrefixDir, gameRef.Name);
+
     public static async ValueTask Download(Release release)
     {
         var matching = release.Assets.FirstOrDefault(a => a.Name.EndsWith(".tar.gz"))!;

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Web;
 using Flurl;
 using Gami.Core;
+using Gami.Core.Ext;
 using Gami.Core.Models;
 using Gami.Library.Gog.Models;
 using Serilog;
@@ -231,10 +232,10 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
             Log.Debug("Downloaded file to {Path}", outPath);
         }
 
-        Process.Start(paths[0]);
+        await paths[0].AutoRunExeAsync(gameLibraryRef);
     }
 
-    public void Uninstall(IGameLibraryRef game) => Process.Start(Path.Join(GetInstallDir(game), "unins000.exe"));
+    public void Uninstall(IGameLibraryRef game) => Path.Join(GetInstallDir(game), "unins000.exe").AutoRun(game);
 
     private string GetInstallDir(IGameLibraryRef game) => Path.Join
         (GamesRoot, game.Name.Replace(":", ""));
@@ -254,7 +255,7 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
         if (data == null)
             throw new ApplicationException("Unable to launch GOG game " + gameRef.Name + "; no lnk shortcut found");
 
-        Process.Start(data.LocalPath);
+        data.LocalPath.AutoRun(gameRef);
     }
 
     public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef) => throw new NotImplementedException();
