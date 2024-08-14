@@ -217,20 +217,18 @@ public sealed class GogLibrary : IGameLibraryAuth, IGameLibraryScanner, IGameLib
             var uri = new Uri(baseUri, currDl.ManualUrl);
             uri = await ResolveAuthFinalLocation(httpClient, baseUri, uri);
             var outPath = Path.Join(dlDir, Path.GetFileName(uri.LocalPath));
-            if (!File.Exists(outPath))
-            {
-                Log.Debug("Saving to {Out}", outPath);
-                var res = await SendAuth(httpClient, uri).ConfigureAwait(false);
-                await using var dlStream = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                Log.Debug("Opened dl stream {Out}", outPath);
-                await using var outStream = File.OpenWrite(outPath);
-                await dlStream.CopyToAsync(outStream);
-                outStream.Close();
-
-                Log.Debug("Downloaded file to {Path}", outPath);
-            }
-
             paths.Add(outPath);
+            if (File.Exists(outPath))
+                continue;
+            Log.Debug("Saving to {Out}", outPath);
+            var res = await SendAuth(httpClient, uri).ConfigureAwait(false);
+            await using var dlStream = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            Log.Debug("Opened dl stream {Out}", outPath);
+            await using var outStream = File.OpenWrite(outPath);
+            await dlStream.CopyToAsync(outStream);
+            outStream.Close();
+
+            Log.Debug("Downloaded file to {Path}", outPath);
         }
 
         Process.Start(paths[0]);
