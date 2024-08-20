@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
+using Gami.Desktop.MIsc;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -189,6 +190,11 @@ public static class DbOps
                 Log.Information("Scan {Name} apps", scanner.Key);
                 await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
                 {
+                    Lazy<string> WithPrefix(string name)
+                    {
+                        return new Lazy<string>(() => $"{item.LibraryType}_{item.LibraryId}_{name}");
+                    }
+
                     var mapped = new Game
                     {
                         Id = $"{scanner.Key}:{item.LibraryId}",
@@ -196,10 +202,10 @@ public static class DbOps
                         InstallStatus = item.InstallStatus,
                         Description = "",
                         Playtime = item.Playtime,
-                        IconUrl = item.IconUrl,
-                        HeaderUrl = item.HeaderUrl,
-                        LogoUrl = item.LogoUrl,
-                        HeroUrl = item.HeroUrl,
+                        IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),
+                        HeaderUrl = await item.HeaderUrl.AutoDownloadUriOpt(WithPrefix("header")),
+                        LogoUrl = await item.LogoUrl.AutoDownloadUriOpt(WithPrefix("logo")),
+                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero")),
                     };
                     if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                     {
