@@ -25,23 +25,14 @@ public static class UriExt
 
         Directory.CreateDirectory(Consts.ImagesDir);
 
-        using var client = new HttpClient();
-
         var uriPath = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
         var ext = Path.GetExtension(uriPath);
-        var destPath = Path.Join(Consts.ImagesDir, $"{name}.{ext}");
-        Log.Debug("Downloading icon to {Payload}", destPath);
+        var destPath = Path.Join(Consts.ImagesDir, $"{name.Value}.{ext}");
 
+        using var client = new HttpClient();
         var stream = await client.GetStreamAsync(uri);
-
         var outStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.Read);
-
         await stream.CopyToAsync(outStream);
-        var uriBuilder = new UriBuilder
-        {
-            Scheme = "file",
-            Path = destPath
-        };
-        return uriBuilder.Uri;
+        return new Uri(destPath);
     }
 }
