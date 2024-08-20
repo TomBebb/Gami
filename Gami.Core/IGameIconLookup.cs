@@ -4,5 +4,5 @@ namespace Gami.Core;
 
 public interface IGameIconLookup : IBasePlugin
 {
-    public ValueTask<byte[]?> LookupIcon(IGameLibraryRef id);
+    public ValueTask<Uri?> LookupIcon(IGameLibraryRef id);
 }

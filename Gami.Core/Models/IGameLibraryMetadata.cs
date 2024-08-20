@@ -1,9 +1,17 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Gami.Core.Models;
-
 [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
-public interface IGameLibraryMetadata : IGameLibraryRef
+public interface IGameImages
+{
+    public Uri? IconUrl { get; set; }
+    public Uri? HeaderUrl { get; set; }
+    public Uri? HeroUrl { get; set; }
+    public Uri? LogoUrl { get; set; }
+    
+}
+[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+public interface IGameLibraryMetadata : IGameLibraryRef, IGameImages
 {
     public GameInstallStatus InstallStatus { get; set; }
     public TimeSpan Playtime { get; set; }

@@ -18,18 +18,19 @@ public static class DbOps
         await using var db = new GamiContext();
 
         foreach (var item in db.Games
-                     .Where(g => g.Icon == null)
-                     .Select(g => new GameLibraryRef { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
+                     .Where(g => g.IconUrl == null)
+                     .Select(g => new GameLibraryRef
+                         { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
         {
             var scanner = GameExtensions.IconLookupByName[item.LibraryType];
             var icon = await scanner.LookupIcon(item);
             var mapped = new Game
             {
                 Id = $"{item.LibraryType}:{item.LibraryId}",
-                Icon = icon
+                IconUrl = icon
             };
             db.Games.Attach(mapped);
-            db.Entry(mapped).Property(x => x.Icon).IsModified = true;
+            db.Entry(mapped).Property(x => x.IconUrl).IsModified = true;
 
             await db.SaveChangesAsync();
         }
@@ -194,7 +195,11 @@ public static class DbOps
                         Name = item.Name,
                         InstallStatus = item.InstallStatus,
                         Description = "",
-                        Playtime = item.Playtime
+                        Playtime = item.Playtime,
+                        IconUrl = item.IconUrl,
+                        HeaderUrl = item.HeaderUrl,
+                        LogoUrl = item.LogoUrl,
+                        HeroUrl = item.HeroUrl,
                     };
                     if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                     {

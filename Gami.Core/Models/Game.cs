@@ -9,14 +9,17 @@ namespace Gami.Core.Models;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public class Game : ReactiveObject, IGameLibraryRef
+public class Game : ReactiveObject, IGameLibraryMetadata
 {
     [Key] public string Id { get; set; } = null!;
     public bool Installed => InstallStatus == GameInstallStatus.Installed;
     [Reactive] public DateTime ReleaseDate { get; set; }
     [Reactive] public string Description { get; set; } = null!;
 
-    public byte[]? Icon { get; set; }
+    public Uri? IconUrl { get; set; }
+    public Uri? HeaderUrl { get; set; }
+    public Uri? HeroUrl { get; set; }
+    public Uri? LogoUrl { get; set; }
 
     public List<Achievement> Achievements { get; set; } = null!;
 
