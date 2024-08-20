@@ -27,12 +27,20 @@ public static class UriExt
 
         var uriPath = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
         var ext = Path.GetExtension(uriPath);
-        var destPath = Path.Join(Consts.ImagesDir, $"{name.Value}.{ext}");
+        var destPath = Path.Join(Consts.ImagesDir, $"{name.Value}.webp");
 
         using var client = new HttpClient();
         var stream = await client.GetStreamAsync(uri);
         var outStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.Read);
-        await stream.CopyToAsync(outStream);
+        if (ext == ".webp")
+        {
+            await stream.CopyToAsync(outStream);
+        }
+        else
+        {
+            await stream.CompressWebp(outStream);
+        }
+
         return new Uri(destPath);
     }
 }
