@@ -207,6 +207,10 @@ public static class DbOps
                         db.Entry(mapped).Property(x => x.Name).IsModified = true;
                         db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
                         db.Entry(mapped).Property(x => x.Playtime).IsModified = true;
+                        db.Entry(mapped).Property(x => x.IconUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.HeroUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.HeaderUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.LogoUrl).IsModified = true;
                     }
                     else
                     {
