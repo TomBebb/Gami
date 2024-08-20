@@ -8,7 +8,8 @@ namespace Gami.Desktop.MIsc;
 
 public static class QueryableExt
 {
-    public static IQueryable<T> Sort<T, TF>(this IQueryable<T> queryable, Expression<Func<T, TF>> field, SortDirection sortDirection)
+    public static IQueryable<T> Sort<T, TF>(this IQueryable<T> queryable, Expression<Func<T, TF>> field,
+        SortDirection sortDirection)
     {
         return sortDirection switch
         {

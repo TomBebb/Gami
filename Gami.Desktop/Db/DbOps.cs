@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
+using Gami.Desktop.MIsc;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -18,18 +19,19 @@ public static class DbOps
         await using var db = new GamiContext();
 
         foreach (var item in db.Games
-                     .Where(g => g.Icon == null)
-                     .Select(g => new GameLibraryRef { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
+                     .Where(g => g.IconUrl == null)
+                     .Select(g => new GameLibraryRef
+                         { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
         {
             var scanner = GameExtensions.IconLookupByName[item.LibraryType];
             var icon = await scanner.LookupIcon(item);
             var mapped = new Game
             {
                 Id = $"{item.LibraryType}:{item.LibraryId}",
-                Icon = icon
+                IconUrl = icon
             };
             db.Games.Attach(mapped);
-            db.Entry(mapped).Property(x => x.Icon).IsModified = true;
+            db.Entry(mapped).Property(x => x.IconUrl).IsModified = true;
 
             await db.SaveChangesAsync();
         }
@@ -188,13 +190,22 @@ public static class DbOps
                 Log.Information("Scan {Name} apps", scanner.Key);
                 await foreach (var item in scanner.Value.Scan().ConfigureAwait(false))
                 {
+                    Lazy<string> WithPrefix(string name)
+                    {
+                        return new Lazy<string>(() => $"{item.LibraryType}_{item.LibraryId}_{name}");
+                    }
+
                     var mapped = new Game
                     {
                         Id = $"{scanner.Key}:{item.LibraryId}",
                         Name = item.Name,
                         InstallStatus = item.InstallStatus,
                         Description = "",
-                        Playtime = item.Playtime
+                        Playtime = item.Playtime,
+                        IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),
+                        HeaderUrl = await item.HeaderUrl.AutoDownloadUriOpt(WithPrefix("header")),
+                        LogoUrl = await item.LogoUrl.AutoDownloadUriOpt(WithPrefix("logo")),
+                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero")),
                     };
                     if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                     {
@@ -202,6 +213,10 @@ public static class DbOps
                         db.Entry(mapped).Property(x => x.Name).IsModified = true;
                         db.Entry(mapped).Property(x => x.InstallStatus).IsModified = true;
                         db.Entry(mapped).Property(x => x.Playtime).IsModified = true;
+                        db.Entry(mapped).Property(x => x.IconUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.HeroUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.HeaderUrl).IsModified = true;
+                        db.Entry(mapped).Property(x => x.LogoUrl).IsModified = true;
                     }
                     else
                     {

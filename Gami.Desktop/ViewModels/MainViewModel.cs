@@ -28,7 +28,7 @@ public class MainViewModel : ViewModelBase
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
     [Reactive] public string Search { get; set; } = "";
-    [Reactive] public MappedGame? SelectedGame { get; set; }
+    [Reactive] public Game? SelectedGame { get; set; }
     [Reactive] public bool IsPlayingSelected { get; set; }
 
     [Reactive] private Game? PlayingGame { get; set; }
@@ -106,7 +106,7 @@ public class MainViewModel : ViewModelBase
             await db.SaveChangesAsync();
             RefreshCache();
         });
-        EditGame = ReactiveCommand.Create((MappedGame game) =>
+        EditGame = ReactiveCommand.Create((Game game) =>
         {
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
@@ -171,25 +171,16 @@ public class MainViewModel : ViewModelBase
             _ => games
         };
 
-        Games = games.Select(v => new MappedGame
-        {
-            LibraryType = v.LibraryType,
-            LibraryId = v.LibraryId,
-            InstallStatus = v.InstallStatus,
-            Name = v.Name,
-            Description = v.Description,
-            Icon = v.Icon,
-            Playtime = v.Playtime,
-            ReleaseDate = v.ReleaseDate
-        }).ToImmutableList();
+        Games = games
+            .ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
 
-    [Reactive] public MappedGame? EditingGame { get; set; }
+    [Reactive] public Game? EditingGame { get; set; }
 
     public ReactiveCommand<Unit, Unit> ClearSearch { get; }
     public ReactiveCommand<Game, Unit> PlayGame { get; }
-    public ReactiveCommand<MappedGame, Unit> EditGame { get; set; }
+    public ReactiveCommand<Game, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Unit, Unit> Refresh { get; set; }
@@ -197,7 +188,7 @@ public class MainViewModel : ViewModelBase
     public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
 
-    [Reactive] public ImmutableList<MappedGame> Games { get; private set; } = ImmutableList<MappedGame>.Empty;
+    [Reactive] public ImmutableList<Game> Games { get; private set; } = ImmutableList<Game>.Empty;
 
 #pragma warning restore CA1822 // Mark members as static
 }

@@ -3,21 +3,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:Gami.Core.Models;assembly=Gami.Core"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="models:Game"
              x:Class="Gami.Desktop.Views.GameDetails">
     <Design.DataContext>
         <models:Game />
     </Design.DataContext>
-    <Grid ColumnDefinitions="3*, 11*" RowDefinitions="5*, *, *,*,*,*">
+    <Grid ColumnDefinitions="3*, 11*" RowDefinitions="Auto, 5*, *, *,*,*,*">
 
-        <TextBlock Grid.ColumnSpan="2" Text="{Binding Description}" TextWrapping="Wrap" />
-        <Label Grid.Row="1" Grid.Column="0">Played for:</Label>
-        <Label Grid.Row="1" Grid.Column="1" Content="{Binding Playtime}" />
-        <Label Grid.Row="2" Grid.Column="0">Release date:</Label>
-        <Label Grid.Row="2" Grid.Column="1" Content="{Binding ReleaseDate}" />
-        <Label Grid.Row="3" Grid.Column="0">Genre:</Label>
-        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2">
+            <Image
+                Stretch="UniformToFill"
+                MaxHeight="400"
+
+                asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" TextWrapping="Wrap" />
+        <Label Grid.Row="2" Grid.Column="0">Played for:</Label>
+        <Label Grid.Row="2" Grid.Column="1" Content="{Binding Playtime}" />
+        <Label Grid.Row="3" Grid.Column="0">Release date:</Label>
+        <Label Grid.Row="3" Grid.Column="1" Content="{Binding ReleaseDate}" />
+        <Label Grid.Row="4" Grid.Column="0">Genre:</Label>
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding Genres}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -26,8 +35,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Label Grid.Row="4" Grid.Column="0">Developer:</Label>
-        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+        <Label Grid.Row="5" Grid.Column="0">Developer:</Label>
+        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding Developers}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -36,8 +45,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Label Grid.Row="5" Grid.Column="0">Publisher:</Label>
-        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+        <Label Grid.Row="6" Grid.Column="0">Publisher:</Label>
+        <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding Publishers}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

@@ -6,6 +6,10 @@ public static class Consts
         Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "gami");
 
+    public static readonly string ImagesDir =
+        Path.Join(AppDir,
+            "images");
+
     public static readonly string ProtonDir =
         Path.Join(AppDir,
             "proton");

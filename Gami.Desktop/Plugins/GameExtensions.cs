@@ -10,6 +10,7 @@ using Gami.Core;
 using Gami.Core.Models;
 using Gami.Library.Gog;
 using Gami.Scanner.Epic;
+using Gami.Scanner.Steam;
 using Serilog;
 
 namespace Gami.Desktop.Plugins;
@@ -18,7 +19,17 @@ public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        return Assembly.GetAssembly(typeof(GogLibrary))!;
+        if (pluginLocation.Contains("gog"))
+        {
+            return Assembly.GetAssembly(typeof(GogLibrary))!;
+        }
+
+        if (pluginLocation.Contains("epic"))
+        {
+            return Assembly.GetAssembly(typeof(EpicLibrary))!;
+        }
+
+        return Assembly.GetAssembly(typeof(SteamCommon))!;
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||
@@ -56,7 +67,8 @@ public static class GameExtensions
         var availableTypes =
             string.Join(",", assembly.GetTypes().Select(t => t.FullName));
 
-        Log.Error("Can't find any type which implements   {InterfaceName} in {Assembly} from {AssemblyLocation}.\nAvailable types: {AvailableTypes}",
+        Log.Error(
+            "Can't find any type which implements   {InterfaceName} in {Assembly} from {AssemblyLocation}.\nAvailable types: {AvailableTypes}",
             typeof(TInterface).Name, assembly.FullName, assembly.Location, availableTypes);
         return null;
     }
@@ -64,7 +76,7 @@ public static class GameExtensions
     // TODO
     private static readonly string[] Plugins =
     [
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll"
+        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll",
     ];
 
     private static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)

@@ -12,7 +12,7 @@ namespace Gami.Desktop;
 public static class CompressImageUtils
 {
     public static async ValueTask<byte[]> CompressImage(this byte[] bytes,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         var currUnlockedIconBytes = bytes.Length;
 
@@ -28,5 +28,13 @@ public static class CompressImageUtils
             currUnlockedIconBytes, webpBytes.Length);
 
         return webpBytes;
+    }
+
+    public static async ValueTask CompressWebp(this Stream rawStream, Stream outStream,
+        CancellationToken cancellationToken = default)
+    {
+        var unlockedImage = await Image.LoadAsync(rawStream, cancellationToken);
+        await unlockedImage.SaveAsWebpAsync(outStream,
+            cancellationToken);
     }
 }
