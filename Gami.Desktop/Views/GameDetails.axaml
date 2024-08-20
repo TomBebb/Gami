@@ -10,51 +10,58 @@
     <Design.DataContext>
         <models:Game />
     </Design.DataContext>
-    <Grid ColumnDefinitions="3*, 11*" RowDefinitions="Auto, 5*, *, *,*,*,*">
+    <Grid RowDefinitions="Auto,*">
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2">
             <Image
                 Stretch="UniformToFill"
-                MaxHeight="400"
+                MaxHeight="350"
 
                 asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
         </StackPanel>
+        <ScrollViewer Grid.Row="1">
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" TextWrapping="Wrap" />
-        <Label Grid.Row="2" Grid.Column="0">Played for:</Label>
-        <Label Grid.Row="2" Grid.Column="1" Content="{Binding Playtime}" />
-        <Label Grid.Row="3" Grid.Column="0">Release date:</Label>
-        <Label Grid.Row="3" Grid.Column="1" Content="{Binding ReleaseDate}" />
-        <Label Grid.Row="4" Grid.Column="0">Genre:</Label>
-        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-            <ItemsControl ItemsSource="{Binding Genres}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding Name}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-        <Label Grid.Row="5" Grid.Column="0">Developer:</Label>
-        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
-            <ItemsControl ItemsSource="{Binding Developers}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding Name}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-        <Label Grid.Row="6" Grid.Column="0">Publisher:</Label>
-        <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
-            <ItemsControl ItemsSource="{Binding Publishers}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding Name}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+            <Grid ColumnDefinitions="3*, 11*" RowDefinitions="Auto, 5*, *, *,*,*,*">
+
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}"
+                           TextWrapping="Wrap" />
+                <Label Grid.Row="2" Grid.Column="0">Played for:</Label>
+                <Label Grid.Row="2" Grid.Column="1" Content="{Binding Playtime}" />
+                <Label Grid.Row="3" Grid.Column="0">Release date:</Label>
+                <Label Grid.Row="3" Grid.Column="1" Content="{Binding ReleaseDate}" />
+                <Label Grid.Row="4" Grid.Column="0">Genre:</Label>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                    <ItemsControl ItemsSource="{Binding Genres}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding Name}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <Label Grid.Row="5" Grid.Column="0">Developer:</Label>
+                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                    <ItemsControl ItemsSource="{Binding Developers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding Name}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <Label Grid.Row="6" Grid.Column="0">Publisher:</Label>
+                <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+                    <ItemsControl ItemsSource="{Binding Publishers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding Name}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 
 </UserControl>

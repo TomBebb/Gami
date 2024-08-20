@@ -134,8 +134,9 @@
                     </ScrollViewer>
 
                     <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
-                    <StackPanel Grid.Row="1" Grid.Column="2"
-                                IsVisible="{Binding SelectedGame, 
+                    <Grid Grid.Row="1" Grid.Column="2"
+                          RowDefinitions="Auto,*"
+                          IsVisible="{Binding SelectedGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}">
                         <fa:CommandBar HorizontalAlignment="Stretch"
                                        DefaultLabelPosition="Right">
@@ -171,8 +172,8 @@
 
                         </fa:CommandBar>
 
-                        <views:GameDetails DataContext="{Binding SelectedGame}" />
-                    </StackPanel>
+                        <views:GameDetails Grid.Row="1" DataContext="{Binding SelectedGame}" />
+                    </Grid>
                 </Grid>
             </Grid>
         </fa:NavigationView.Content>
