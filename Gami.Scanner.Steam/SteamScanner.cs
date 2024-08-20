@@ -108,10 +108,10 @@ public sealed class SteamScanner : IGameLibraryScanner
     {
         var ownedGames = await ScanOwned().ConfigureAwait(false);
 
-        var installedIds = new HashSet<long>();
+        var installed = new Dictionary<long, GameInstallStatus>();
         Log.Debug("Got owned games: {Total}", ownedGames.Length);
         foreach (var lib in ScanInstalled())
-            installedIds.Add(long.Parse(lib.LibraryId));
+            installed.Add(long.Parse(lib.LibraryId), lib.InstallStatus);
 
         Uri? AutoMapPathUrl(string path)
         {
@@ -121,12 +121,10 @@ public sealed class SteamScanner : IGameLibraryScanner
 
         foreach (var game in ownedGames)
         {
-            if (installedIds.Contains(game.AppId))
-                continue;
             var gameRef = new ScannedGameLibraryMetadata
             {
                 Playtime = TimeSpan.FromMinutes(game.PlaytimeForever),
-                InstallStatus = GameInstallStatus.InLibrary,
+                InstallStatus = installed.GetValueOrDefault(game.AppId, GameInstallStatus.InLibrary),
                 LibraryId = game.AppId.ToString(),
                 LibraryType = Type,
                 Name = game.Name,
