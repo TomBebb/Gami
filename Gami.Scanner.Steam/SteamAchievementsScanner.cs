@@ -6,6 +6,7 @@ using System.Text.Json;
 using Flurl;
 using Gami.Core;
 using Gami.Core.Models;
+using Nito.AsyncEx;
 using Serilog;
 
 namespace Gami.Scanner.Steam;
@@ -59,21 +60,20 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         public required string IconGray { get; set; }
     }
 
-    private readonly SteamConfig _config =
-        PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
-        throw new ApplicationException(
-            "steam.json must be manually created for now");
+    private readonly  AsyncLazy<SteamConfig> _config = new AsyncLazy<SteamConfig>(async () =>
+        await PluginJson.LoadOrErrorAsync< SteamConfig > (SteamCommon.TypeName));
 
     public string Type => SteamCommon.TypeName;
 
     private async ValueTask<PlayerAchievementsResults> GetPlayerAchievements
         (IGameLibraryRef game)
     {
+        var config = await _config.Task;
         var url =
             "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/"
                 .AppendQueryParam("appid", game.LibraryId)
-                .AppendQueryParam("key", _config.ApiKey)
-                .AppendQueryParam("steamid", _config.SteamId);
+                .AppendQueryParam("key", config.ApiKey)
+                .AppendQueryParam("steamid", config.SteamId);
 
         Log.Debug("Fetch playerachievements for {GameId}", url);
         try
@@ -97,10 +97,11 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     private async ValueTask<GameSchemaResult> GetGameAchievements
         (IGameLibraryRef game)
     {
+        var config = await _config.Task;
         var url =
             "https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/"
                 .AppendQueryParam("appid", game.LibraryId)
-                .AppendQueryParam("key", _config.ApiKey);
+                .AppendQueryParam("key", config.ApiKey);
 
         Log.Debug("Fetch game aachievements for {GameId}", url);
 

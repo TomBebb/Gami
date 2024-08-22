@@ -6,6 +6,7 @@ using System.Text.Json;
 using Flurl;
 using Gami.Core;
 using Gami.Core.Models;
+using Nito.AsyncEx;
 using Serilog;
 using ValveKeyValue;
 
@@ -20,8 +21,7 @@ public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamScanner : IGameLibraryScanner
 {
-    private readonly SteamConfig _config = PluginJson.Load<SteamConfig>(SteamCommon.TypeName) ??
-                                           new SteamConfig();
+    private readonly AsyncLazy<SteamConfig> _config = new AsyncLazy<SteamConfig>(() => PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
 
     private static readonly string BasePath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
         ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -46,11 +46,13 @@ public sealed class SteamScanner : IGameLibraryScanner
     {
         if (_cachedGames.HasValue && !forceRefresh)
             return _cachedGames.Value;
-
+        Log.Debug("Scan owned steam games: get conf");
+        var config = await _config.Task.ConfigureAwait(false);
+        Log.Debug("Scan owned steam games: got cnof");
         var client = HttpConsts.HttpClient;
         var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
-            .SetQueryParam("key", _config.ApiKey)
-            .SetQueryParam("steamid", _config.SteamId)
+            .SetQueryParam("key", config.ApiKey)
+            .SetQueryParam("steamid", config.SteamId)
             .SetQueryParam("include_appinfo", 1)
             .SetQueryParam("format", "json");
         Log.Debug("Steam scanning player owned games: {Url}", url);
@@ -71,6 +73,7 @@ public sealed class SteamScanner : IGameLibraryScanner
             await Task.Delay(TimeSpan.FromSeconds(20));
             _cachedGames = null;
         });
+        Log.Debug("Scanned owned steam games");
         return _cachedGames.Value;
     }
 
@@ -79,6 +82,7 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     private static IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {
+        Log.Debug("Scan installed steam games");
         var path = AppsPath;
 
         Log.Debug("Scan steam path {Path}", path);
@@ -102,6 +106,7 @@ public sealed class SteamScanner : IGameLibraryScanner
                 continue;
             yield return mapped;
         }
+        Log.Debug("Scanned installed steam games");
     }
 
     public async IAsyncEnumerable<IGameLibraryMetadata> Scan()

@@ -10,3 +10,6 @@ FodyWavers.xsd
 /Gami.Core/FodyWeavers.xml
 /Gami.Core/FodyWeavers.xsd
 .bin
+.vs
+FolderProfile.pubxml*
+*.csproj.user
