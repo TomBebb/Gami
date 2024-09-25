@@ -23,7 +23,7 @@ using Serilog;
 
 namespace Gami.Desktop.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public class LibraryViewModel : ViewModelBase
 {
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
@@ -48,7 +48,7 @@ public class MainViewModel : ViewModelBase
 
     [Reactive] public int SortFieldIndex { get; set; }
 
-    public MainViewModel()
+    public LibraryViewModel()
     {
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {

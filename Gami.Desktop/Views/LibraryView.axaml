@@ -8,13 +8,13 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="viewModels:MainViewModel"
+             x:DataType="viewModels:LibraryViewModel"
              x:Class="Gami.Desktop.Views.LibraryView">
    
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <viewModels:MainViewModel />
+        <viewModels:LibraryViewModel />
     </Design.DataContext>
             <Grid RowDefinitions="Auto,Auto,Auto,*">
                 <Button Command="{Binding ShowDialog}">

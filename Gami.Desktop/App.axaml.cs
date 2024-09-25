@@ -55,7 +55,7 @@ public class App : Application
 
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainViewModel()
+                    DataContext = new LibraryViewModel()
                 };
                 if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
                     Directory.CreateDirectory(Consts.AppDir);
@@ -64,7 +64,7 @@ public class App : Application
             case ISingleViewApplicationLifetime singleViewPlatform:
                 singleViewPlatform.MainView = new MainView
                 {
-                    DataContext = new MainViewModel()
+                    DataContext = new LibraryViewModel()
                 };
                 break;
         }
