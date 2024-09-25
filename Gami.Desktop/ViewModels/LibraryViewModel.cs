@@ -6,6 +6,9 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using AvaloniaWebView;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
@@ -27,26 +30,6 @@ public class LibraryViewModel : ViewModelBase
 {
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
-    [Reactive] public string Search { get; set; } = "";
-    [Reactive] public Game? SelectedGame { get; set; }
-    [Reactive] public bool IsPlayingSelected { get; set; }
-
-    [Reactive] private Game? PlayingGame { get; set; }
-
-    [Reactive] private Process? Current { get; set; }
-
-    [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
-    [Reactive] public string? CurrentUrl { get; set; }
-
-    public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
-    [
-        ..Enum.GetValues(typeof(SortGameField))
-            .Cast<SortGameField>()
-            .Select(v => new Wrapped<string>(v
-                .GetName()))
-    ];
-
-    [Reactive] public int SortFieldIndex { get; set; }
 
     public LibraryViewModel()
     {
@@ -77,6 +60,24 @@ public class LibraryViewModel : ViewModelBase
             else
             {
                 PlayingGame = null;
+            }
+
+            var mainWindow = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                ? desktop.MainWindow
+                : null;
+            var settings = MySettings.Load();
+            Log.Debug("Main window: {MainWindow}, settings: {Settings}", mainWindow, settings);
+            switch (settings.GameLaunchWindowBehavior)
+            {
+                case GameLaunchBehavior.DoNothing:
+                    break;
+                case GameLaunchBehavior.Close:
+                    mainWindow.Close();
+                    break;
+
+                case GameLaunchBehavior.Minimize:
+                    mainWindow.WindowState = WindowState.Minimized;
+                    break;
             }
         });
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
@@ -117,9 +118,9 @@ public class LibraryViewModel : ViewModelBase
                 CurrentUrl = initialUrl;
             if (CurrentUrl == null)
                 return;
-            var webview = new WebView() { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
+            var webview = new WebView { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
             webview.NavigationStarting += (_, arg) => CurrentUrl = arg.Url?.ToString() ?? CurrentUrl;
-            var dialog = new ContentDialog()
+            var dialog = new ContentDialog
             {
                 Title = "My Dialog Title",
                 CloseButtonText = "Close",
@@ -151,6 +152,28 @@ public class LibraryViewModel : ViewModelBase
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
     }
+
+    [Reactive] public string Search { get; set; } = "";
+    [Reactive] public Game? SelectedGame { get; set; }
+    [Reactive] public bool IsPlayingSelected { get; set; }
+
+    [Reactive] private Game? PlayingGame { get; set; }
+
+    [Reactive] private Process? Current { get; set; }
+
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+    [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
+    [Reactive] public string? CurrentUrl { get; set; }
+
+    public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
+    [
+        ..Enum.GetValues(typeof(SortGameField))
+            .Cast<SortGameField>()
+            .Select(v => new Wrapped<string>(v
+                .GetName()))
+    ];
+
+    [Reactive] public int SortFieldIndex { get; set; }
 
 
     private void RefreshCache()
