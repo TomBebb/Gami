@@ -32,10 +32,12 @@ public class MainViewModel : ViewModelBase
             CurrObject = value switch
             {
                 "Library" => new LibraryViewModel(),
+                "Settings" => new SettingsViewModel(),
                 _ => null
             };
+#if DEBUG
             Log.Debug("CurrObject: {Data}", JsonSerializer.Serialize(CurrObject, JsonSerializerOptions.Default));
-
+#endif
             CurrView = value switch
             {
                 "Library" => new LibraryView { DataContext = CurrObject },
