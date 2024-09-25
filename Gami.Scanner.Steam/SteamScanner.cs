@@ -21,7 +21,7 @@ public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamScanner : IGameLibraryScanner
 {
-    private readonly AsyncLazy<SteamConfig> _config = new AsyncLazy<SteamConfig>(() => PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
+    private readonly AsyncLazy<SteamConfig> _config = new(() => PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
 
     private static readonly string BasePath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
         ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),

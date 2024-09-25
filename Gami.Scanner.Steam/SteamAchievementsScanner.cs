@@ -60,7 +60,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         public required string IconGray { get; set; }
     }
 
-    private readonly  AsyncLazy<SteamConfig> _config = new AsyncLazy<SteamConfig>(async () =>
+    private readonly AsyncLazy<SteamConfig> _config = new(async () =>
         await PluginJson.LoadOrErrorAsync< SteamConfig > (SteamCommon.TypeName));
 
     public string Type => SteamCommon.TypeName;
