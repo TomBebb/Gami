@@ -5,6 +5,7 @@
       <map>
         <entry key="Gami.Desktop/App.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/GameDetails.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
+        <entry key="Gami.Desktop/Views/LibraryView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/MainView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/MainWindow.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/WebAuthWindow.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
