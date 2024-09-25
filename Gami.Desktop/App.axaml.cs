@@ -55,7 +55,7 @@ public class App : Application
 
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new LibraryViewModel()
+                    DataContext = new MainViewModel()
                 };
                 if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
                     Directory.CreateDirectory(Consts.AppDir);
