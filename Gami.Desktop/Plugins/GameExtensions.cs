@@ -19,17 +19,6 @@ public static class GameExtensions
 {
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        if (pluginLocation.Contains("gog"))
-        {
-            return Assembly.GetAssembly(typeof(GogLibrary))!;
-        }
-
-        if (pluginLocation.Contains("epic"))
-        {
-            return Assembly.GetAssembly(typeof(EpicLibrary))!;
-        }
-
-        return Assembly.GetAssembly(typeof(SteamCommon))!;
         foreach (var assemblyName in Assembly.GetExecutingAssembly()
                      .GetReferencedAssemblies())
             if (assemblyName.FullName.Contains("Gami") ||
@@ -73,7 +62,6 @@ public static class GameExtensions
         return null;
     }
 
-    // TODO
     private static readonly string[] Plugins =
     [
         @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll",
