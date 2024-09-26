@@ -18,6 +18,8 @@ public class SettingsViewModel : ViewModelBase
         });
     }
 
+    [Reactive] public string CurrentSource { get; set; }
+
     [Reactive] public MySettings Settings { get; set; } = MySettings.Load();
 
     public ReactiveCommand<Unit, Unit> SaveCommand { get; }

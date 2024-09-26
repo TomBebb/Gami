@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
+             xmlns:models="clr-namespace:Gami.Desktop.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Desktop.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
@@ -11,26 +12,21 @@
         <vm:SettingsViewModel />
     </Design.DataContext>
     <Grid RowDefinitions="*,Auto">
-        <ScrollViewer>
-            <StackPanel Orientation="Vertical">
+        <TabControl>
+            <TabItem Header="General">
 
-                <StackPanel Orientation="Horizontal">
-                    <Label>After game launch:</Label>
-                    <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
-
-                        <ComboBoxItem>Minimize</ComboBoxItem>
-                        <ComboBoxItem>Close</ComboBoxItem>
-                        <ComboBoxItem>Do Nothing</ComboBoxItem>
-                    </ComboBox>
-                </StackPanel>
-
-                <Expander>
-                    <Expander.Header>
-                        System tray
-                    </Expander.Header>
-
+                <ScrollViewer>
                     <StackPanel Orientation="Vertical">
 
+                        <StackPanel Orientation="Horizontal">
+                            <Label>After game launch:</Label>
+                            <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
+
+                                <ComboBoxItem>Minimize</ComboBoxItem>
+                                <ComboBoxItem>Close</ComboBoxItem>
+                                <ComboBoxItem>Do Nothing</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.ShowSystemTrayIcon}" />
                             <Label>Show system tray icon</Label>
@@ -44,21 +40,34 @@
                             <Label>Minimize to system tray on close</Label>
                         </StackPanel>
                     </StackPanel>
-                </Expander>
-                <StackPanel Orientation="Horizontal">
-                    <Label>After game launch:</Label>
-                    <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Metadata">
+                <ScrollViewer>
 
-                        <ComboBoxItem>Minimize</ComboBoxItem>
-                        <ComboBoxItem>Close</ComboBoxItem>
-                        <ComboBoxItem>Do Nothing</ComboBoxItem>
-                    </ComboBox>
-                </StackPanel>
-            </StackPanel>
+                    <Grid ColumnDefinitions="10*, *, 10*" RowDefinitions="*,*,*,*,*">
+                        <Label Grid.Row="0" Grid.Column="0">
+                            Name
+                        </Label>
+                        <CheckBox Grid.Row="0" Grid.Column="1" />
 
-        </ScrollViewer>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Background="Red">
+                            <ItemsControl ItemsSource="{Binding Settings.MappedMetadataNameSources}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="models:WrappedText">
+                                        <Label Content="{Binding Data }" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button>Add</Button>
+                        </StackPanel>
 
-        <Button Grid.Row="1" Grid.Column="0" IsEnabled="True" Grid.ColumnSpan="2" Command="{Binding SaveCommand}"
+
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Button Grid.Row="1" Grid.Column="0" IsEnabled="True" MinWidth="200" Command="{Binding SaveCommand}"
                 Background="Green">
             Save
         </Button>

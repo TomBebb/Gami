@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gami.Core;
 using Gami.Core.Models;
 using Gami.Desktop.Plugins;
@@ -17,6 +20,17 @@ public class MySettings : Settings
     [Reactive] public bool ShowSystemTrayIcon { get; set; } = true;
     [Reactive] public bool MinimizeToSystemTray { get; set; }
     [Reactive] public bool MinimizeToSystemTrayOnClose { get; set; }
+
+    [Reactive]
+    public ImmutableSortedSet<string> MetadataNameSources { get; set; } =
+        ImmutableSortedSet<string>.Empty.Add("Matching");
+
+    [JsonIgnore]
+    public ImmutableArray<WrappedText> MappedMetadataNameSources
+    {
+        get => MetadataNameSources.Select(v => new WrappedText(v)).ToImmutableArray();
+        set => MetadataNameSources = value.Select(v => v.Data).ToImmutableSortedSet();
+    }
 
     public static MySettings Load()
     {
