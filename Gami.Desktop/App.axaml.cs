@@ -80,12 +80,13 @@ public class App : Application
         Log.Information("App Window: {window}", window);
 
         var settings = new SettingsViewModel();
-        settings.Watch();
 
+        settings.Watch();
         Log.Information("Got settings: {DAta}",
             JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
         var trayIcon = new TrayIcon
         {
+            IsVisible = settings.Settings.ShowSystemTrayIcon,
             ToolTipText = "Gami",
             Icon = new WindowIcon(new Bitmap("C:\\Users\\topha\\Code\\Gami\\Gami.Desktop\\Assets\\avalonia-logo.ico")),
             Menu =
@@ -94,11 +95,11 @@ public class App : Application
                 new NativeMenuItem("Exit Gami") { Command = ReactiveCommand.Create(Close) }
             ]
         };
-        settings.SettingsChanged += () =>
+        SettingsViewModel.SettingsChanged += settings =>
         {
             Log.Information("SettingsChanged");
             Dispatcher.UIThread.Post(() =>
-                trayIcon.IsVisible = settings.Settings.ShowSystemTrayIcon);
+                trayIcon.IsVisible = settings.ShowSystemTrayIcon);
         };
         return;
         var trayIcons = new TrayIcons
@@ -113,7 +114,6 @@ public class App : Application
         Log.Debug("Opening on click");
         var window = WindowUtil.GetMainWindow()!;
         window.WindowState = WindowState.Normal;
-        window.Hide();
         window.Show();
 
         //window.Activate();
