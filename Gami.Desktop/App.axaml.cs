@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -83,14 +84,23 @@ public class App : Application
         settings.Watch();
         window.LostFocus += async (_, args) =>
         {
-            Log.Information("Lost focus: {Ev}; state: {State}", args, window.WindowState);
+            Log.Debug("Lost focus: {Ev}; state: {State}", args, window.WindowState);
             await Task.Delay(10);
-            Log.Information("Lost focus: {Ev}; state: {State}", args, window.WindowState);
+            Log.Debug("Lost focus: {Ev}; state: {State}", args, window.WindowState);
             if (window.WindowState == WindowState.Minimized)
             {
                 Log.Information("Minimized");
                 if (settings.Settings.MinimizeToSystemTray) window.Hide();
             }
+        };
+
+        window.Closing += (_, args) =>
+        {
+            Log.Information("Closing window: {Ev}; state: {State}", args, window.WindowState);
+
+            if (!settings.Settings.MinimizeToSystemTrayOnClose) return;
+            args.Cancel = true;
+            window.Hide();
         };
 
         Log.Information("Got settings: {DAta}",
@@ -132,6 +142,6 @@ public class App : Application
 
     private void Close()
     {
-        WindowUtil.GetMainWindow()?.Close();
+        Environment.Exit(0);
     }
 }
