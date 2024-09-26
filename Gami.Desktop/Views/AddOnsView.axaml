@@ -15,7 +15,11 @@
             <ItemsControl ItemsSource="{Binding Installed}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="plugins:PluginConfig">
-                        <Label Content="{Binding Name}" />
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox />
+                            <Label VerticalAlignment="Center" Content="{Binding Name}" />
+
+                        </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

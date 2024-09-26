@@ -1,4 +1,10 @@
 ﻿{
   "key": "gog",
-  "name": "GOG Games"
+  "name": "GOG Games",
+  "settings": [
+    {
+      "key": "refreshToken",
+      "name": "Refresh Token"
+    }
+  ]
 }

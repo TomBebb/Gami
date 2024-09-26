@@ -16,7 +16,8 @@ public static class GameExtensions
 {
     private static readonly string[] Plugins =
     [
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll"
+        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll",
+        @"C:\Users\topha\Code\Gami\Gami.Scanner.Epic\bin\Debug\net8.0\Gami.Scanner.Epic.dll"
     ];
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
