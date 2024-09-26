@@ -2,7 +2,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
+             xmlns:plugins="clr-namespace:Gami.Desktop.Plugins"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:AddonsViewModel"
              x:Class="Gami.Desktop.Views.AddOnsView">
-    <Label>Addons!</Label>
+    <Design.DataContext>
+        <vm:AddonsViewModel />
+    </Design.DataContext>
+    <TabControl>
+        <TabItem Header="Installed">
+            <ItemsControl ItemsSource="{Binding Installed}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="plugins:PluginConfig">
+                        <Label Content="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </TabItem>
+        <TabItem Header="Browse">
+            <Label>TODO: Addon browsing</Label>
+        </TabItem>
+    </TabControl>
 </UserControl>

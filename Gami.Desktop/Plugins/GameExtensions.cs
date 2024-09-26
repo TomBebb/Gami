@@ -111,17 +111,7 @@ public static class GameExtensions
         if (configStream == null)
             throw new ApplicationException($"Missing '{configPath}' in {assembly.FullName!}");
 
-        Log.Debug("Parse test: {Parse}", JsonSerializer.Deserialize<PluginSettingType>("\"string\"", PluginOpts));
-/*
-        var configTextStream = new MemoryStream();
-        configStream.CopyTo(configTextStream);
 
-        var configText = Encoding.UTF8.GetString(configTextStream.GetBuffer());
-        if (configText[0] == '?')
-            configText = configText.Substring(1);
-
-        Log.Debug("Config.json: {Content}; First: {First}", configText, configText[0]);
-*/
         return JsonSerializer.Deserialize<PluginConfig>(configStream, PluginOpts)!;
     }
 
