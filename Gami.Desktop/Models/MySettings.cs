@@ -14,6 +14,9 @@ public class MySettings : Settings
 
     [Reactive] public GameLaunchBehavior GameLaunchWindowBehavior { get; set; } = GameLaunchBehavior.Minimize;
 
+    [Reactive] public bool ShowSystemTrayIcon { get; set; } = true;
+    [Reactive] public bool MinimizeToSystemTray { get; set; }
+    [Reactive] public bool MinimizeToSystemTrayOnClose { get; set; }
 
     public static MySettings Load()
     {

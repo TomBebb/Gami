@@ -10,14 +10,53 @@
     <Design.DataContext>
         <vm:SettingsViewModel />
     </Design.DataContext>
-    <Grid RowDefinitions="*, Auto" ColumnDefinitions="*, 5*">
-        <Label>After game launch:</Label>
-        <ComboBox Grid.Column="1" Grid.Row="0" SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollViewer>
+            <StackPanel Orientation="Vertical">
 
-            <ComboBoxItem>Minimize</ComboBoxItem>
-            <ComboBoxItem>Close</ComboBoxItem>
-            <ComboBoxItem>Do Nothing</ComboBoxItem>
-        </ComboBox>
+                <StackPanel Orientation="Horizontal">
+                    <Label>After game launch:</Label>
+                    <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
+
+                        <ComboBoxItem>Minimize</ComboBoxItem>
+                        <ComboBoxItem>Close</ComboBoxItem>
+                        <ComboBoxItem>Do Nothing</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+
+                <Expander>
+                    <Expander.Header>
+                        System tray
+                    </Expander.Header>
+
+                    <StackPanel Orientation="Vertical">
+
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.ShowSystemTrayIcon}" />
+                            <Label>Show system tray icon</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.MinimizeToSystemTray}" />
+                            <Label>Minimize to system tray</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.MinimizeToSystemTrayOnClose}" />
+                            <Label>Minimize to system tray on close</Label>
+                        </StackPanel>
+                    </StackPanel>
+                </Expander>
+                <StackPanel Orientation="Horizontal">
+                    <Label>After game launch:</Label>
+                    <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
+
+                        <ComboBoxItem>Minimize</ComboBoxItem>
+                        <ComboBoxItem>Close</ComboBoxItem>
+                        <ComboBoxItem>Do Nothing</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+
+        </ScrollViewer>
 
         <Button Grid.Row="1" Grid.Column="0" IsEnabled="True" Grid.ColumnSpan="2" Command="{Binding SaveCommand}"
                 Background="Green">

@@ -4,21 +4,7 @@
              x:Class="Gami.Desktop.App"
              xmlns:sty="using:FluentAvalonia.Styling"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
-
              RequestedThemeVariant="Default">
-    <TrayIcon.Icons>
-        <TrayIcons>
-            <TrayIcon Icon="/Assets/avalonia-logo.ico"
-                      ToolTipText="Avalonia Tray Icon ToolTip">
-                <TrayIcon.Menu>
-                    <NativeMenu>
-                        <NativeMenuItem Header="Open Gami" Click="OpenOnClick" />
-                        <NativeMenuItem Header="Exit Gami" Click="Close" />
-                    </NativeMenu>
-                </TrayIcon.Menu>
-            </TrayIcon>
-        </TrayIcons>
-    </TrayIcon.Icons>
     <Application.DataTemplates>
         <desktop:ViewLocator />
     </Application.DataTemplates>

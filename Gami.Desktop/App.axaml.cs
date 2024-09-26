@@ -1,9 +1,11 @@
-using System;
 using System.IO;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using AvaloniaWebView;
 using Gami.Core;
 using Gami.Desktop.Db;
@@ -11,6 +13,7 @@ using Gami.Desktop.MIsc;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
+using ReactiveUI;
 using Serilog;
 
 namespace Gami.Desktop;
@@ -72,9 +75,40 @@ public class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+
+        var window = WindowUtil.GetMainWindow();
+        Log.Information("App Window: {window}", window);
+
+        var settings = new SettingsViewModel();
+        settings.Watch();
+
+        Log.Information("Got settings: {DAta}",
+            JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+        var trayIcon = new TrayIcon
+        {
+            ToolTipText = "Gami",
+            Icon = new WindowIcon(new Bitmap("C:\\Users\\topha\\Code\\Gami\\Gami.Desktop\\Assets\\avalonia-logo.ico")),
+            Menu = new NativeMenu
+            {
+                new NativeMenuItem("Open Gami") { Command = ReactiveCommand.Create(OpenOnClick) },
+                new NativeMenuItem("Exit Gami") { Command = ReactiveCommand.Create(Close) }
+            }
+        };
+        settings.SettingsChanged += () =>
+        {
+            Log.Information("SettingsChanged");
+            Dispatcher.UIThread.Post(() =>
+                trayIcon.IsVisible = settings.Settings.ShowSystemTrayIcon);
+        };
+        return;
+        var trayIcons = new TrayIcons
+        {
+            trayIcon
+        };
+        SetValue(TrayIcon.IconsProperty, settings.Settings.ShowSystemTrayIcon ? trayIcons : null);
     }
 
-    private void OpenOnClick(object? sender, EventArgs e)
+    private void OpenOnClick()
     {
         Log.Debug("Opening on click");
         var window = WindowUtil.GetMainWindow()!;
@@ -85,7 +119,7 @@ public class App : Application
         //window.Activate();
     }
 
-    private void Close(object? sender, EventArgs e)
+    private void Close()
     {
         WindowUtil.GetMainWindow()?.Close();
     }
