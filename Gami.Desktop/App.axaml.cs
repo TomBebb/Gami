@@ -88,11 +88,11 @@ public class App : Application
         {
             ToolTipText = "Gami",
             Icon = new WindowIcon(new Bitmap("C:\\Users\\topha\\Code\\Gami\\Gami.Desktop\\Assets\\avalonia-logo.ico")),
-            Menu = new NativeMenu
-            {
+            Menu =
+            [
                 new NativeMenuItem("Open Gami") { Command = ReactiveCommand.Create(OpenOnClick) },
                 new NativeMenuItem("Exit Gami") { Command = ReactiveCommand.Create(Close) }
-            }
+            ]
         };
         settings.SettingsChanged += () =>
         {

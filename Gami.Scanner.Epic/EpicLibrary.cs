@@ -79,13 +79,13 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
     {
         var id = gameRef.LibraryId;
         await Task.Run(() =>
-            Process.Start("legendary", new[] { "install", id, "-y" }).Start()
+            Process.Start("legendary", ["install", id, "-y"]).Start()
         );
     }
 
     public void Uninstall(IGameLibraryRef gameRef)
     {
-        Process.Start("legendary", new[] { "uninstall", gameRef.LibraryId, "-y" }).Start();
+        Process.Start("legendary", ["uninstall", gameRef.LibraryId, "-y"]).Start();
     }
 
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) => ValueTask.FromResult(ScanInstalledData()
