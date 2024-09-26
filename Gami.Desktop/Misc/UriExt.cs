@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Gami.Core;
-using Serilog;
 
 namespace Gami.Desktop.MIsc;
 

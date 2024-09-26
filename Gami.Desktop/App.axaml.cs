@@ -31,7 +31,6 @@ public class App : Application
     {
         base.RegisterServices();
 
-        // if you use only WebView  
         AvaloniaWebViewBuilder.Initialize(default);
     }
 
@@ -52,6 +51,7 @@ public class App : Application
                     }
 
                     Log.Information("Save changes");
+
 
                     DbOps.DoScan().GetAwaiter().GetResult();
                     /*Task.Run(() =>
@@ -79,6 +79,8 @@ public class App : Application
         base.OnFrameworkInitializationCompleted();
 
         var window = WindowUtil.GetMainWindow();
+        if (window == null)
+            return;
         Log.Information("App Window: {window}", window);
         var settings = new SettingsViewModel();
         settings.Watch();
