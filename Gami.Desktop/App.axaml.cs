@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,6 +7,7 @@ using Avalonia.Markup.Xaml;
 using AvaloniaWebView;
 using Gami.Core;
 using Gami.Desktop.Db;
+using Gami.Desktop.MIsc;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
@@ -70,5 +72,21 @@ public class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void OpenOnClick(object? sender, EventArgs e)
+    {
+        Log.Debug("Opening on click");
+        var window = WindowUtil.GetMainWindow()!;
+        window.WindowState = WindowState.Normal;
+        window.Hide();
+        window.Show();
+
+        //window.Activate();
+    }
+
+    private void Close(object? sender, EventArgs e)
+    {
+        WindowUtil.GetMainWindow()?.Close();
     }
 }

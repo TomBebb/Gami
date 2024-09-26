@@ -6,8 +6,19 @@
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
 
              RequestedThemeVariant="Default">
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/avalonia-logo.ico"
+                      ToolTipText="Avalonia Tray Icon ToolTip">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Open Gami" Click="OpenOnClick" />
+                        <NativeMenuItem Header="Exit Gami" Click="Close" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
     <Application.DataTemplates>
         <desktop:ViewLocator />
     </Application.DataTemplates>

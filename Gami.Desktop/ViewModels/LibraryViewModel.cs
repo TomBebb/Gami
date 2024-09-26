@@ -6,9 +6,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using AvaloniaWebView;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
@@ -62,11 +60,11 @@ public class LibraryViewModel : ViewModelBase
                 PlayingGame = null;
             }
 
-            var mainWindow = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-                ? desktop.MainWindow
-                : null;
+            var mainWindow = WindowUtil.GetMainWindow();
             var settings = MySettings.Load();
             Log.Debug("Main window: {MainWindow}, settings: {Settings}", mainWindow, settings);
+            if (mainWindow == null)
+                throw new NullReferenceException("Main window is null");
             switch (settings.GameLaunchWindowBehavior)
             {
                 case GameLaunchBehavior.DoNothing:
