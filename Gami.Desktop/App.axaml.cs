@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -78,10 +79,20 @@ public class App : Application
 
         var window = WindowUtil.GetMainWindow();
         Log.Information("App Window: {window}", window);
-
         var settings = new SettingsViewModel();
-
         settings.Watch();
+        window.LostFocus += async (_, args) =>
+        {
+            Log.Information("Lost focus: {Ev}; state: {State}", args, window.WindowState);
+            await Task.Delay(10);
+            Log.Information("Lost focus: {Ev}; state: {State}", args, window.WindowState);
+            if (window.WindowState == WindowState.Minimized)
+            {
+                Log.Information("Minimized");
+                if (settings.Settings.MinimizeToSystemTray) window.Hide();
+            }
+        };
+
         Log.Information("Got settings: {DAta}",
             JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
         var trayIcon = new TrayIcon
