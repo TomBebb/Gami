@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using Avalonia.Controls;
 using Gami.Desktop.Views;
 using ReactiveUI;
@@ -41,6 +40,7 @@ public class MainViewModel : ViewModelBase
 #endif
             CurrView = value switch
             {
+                "Achievements" => new AchievementsView { DataContext = CurrObject },
                 "Library" => new LibraryView { DataContext = CurrObject },
                 "Settings" => new SettingsView { DataContext = CurrObject },
                 "Add-Ons" => new AddOnsView { DataContext = CurrObject },

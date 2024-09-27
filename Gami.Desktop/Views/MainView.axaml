@@ -35,13 +35,15 @@
                        Content="{Binding CurrView}"
                        IsSettingsVisible="True">
         <fa:NavigationView.MenuItems>
-            <fa:NavigationViewItem Content="Library" Tag="Library"
+            <fa:NavigationViewItem Content="Library"
                                    IconSource="Library" />
+            <fa:NavigationViewItem Content="Achievements"
+                                   IconSource="Alert" />
         </fa:NavigationView.MenuItems>
         <fa:NavigationView.FooterMenuItems>
             <fa:NavigationViewItem Content="Add-Ons"
 
-                                   IconSource="" />
+                                   IconSource="Admin" />
         </fa:NavigationView.FooterMenuItems>
 
     </fa:NavigationView>
