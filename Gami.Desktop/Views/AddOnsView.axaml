@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:plugins="clr-namespace:Gami.Desktop.Plugins"
+             xmlns:html="clr-namespace:TheArtOfDev.HtmlRenderer.Avalonia;assembly=Avalonia.HtmlRenderer"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:AddonsViewModel"
              x:Class="Gami.Desktop.Views.AddOnsView">
@@ -26,14 +27,19 @@
                 <ScrollViewer Grid.Column="1">
                     <StackPanel Orientation="Vertical">
 
-                        <Label Content="{Binding  SelectedAddon.Name}" FontWeight="Bold" />
+                        <Label Content="{Binding  SelectedAddon.Name}"
+                               FontWeight="Bold" />
                         <ItemsControl ItemsSource="{Binding SelectedAddon.MappedSettings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="plugins:MappedPluginConfigSetting">
 
                                     <Grid ColumnDefinitions="*,3*">
                                         <Label Content="{Binding Name }" />
-                                        <TextBox Grid.Column="1" Text="{Binding Value }" />
+                                        <StackPanel Grid.Column="1" Orientation="Vertical">
+
+                                            <html:HtmlLabel Text="{Binding Hint }" />
+                                            <TextBox Text="{Binding Value }" />
+                                        </StackPanel>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

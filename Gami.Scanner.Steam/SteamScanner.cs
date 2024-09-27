@@ -21,26 +21,65 @@ public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamScanner : IGameLibraryScanner
 {
-    private readonly AsyncLazy<SteamConfig> _config = new(() => PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
-
     private static readonly string BasePath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
         ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             "Library/Application Support/Steam")
-        : OperatingSystem.IsWindows()
-            ? @"C:\Program Files (x86)\Steam"
-            : Path.Join(
+        : OperatingSystem.IsLinux()
+            ? Path.Join(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Steam");
+                "Steam")
+            : @"C:\Program Files (x86)\Steam";
 
 
     public static readonly string AppsPath = Path.Join(BasePath, "steamapps");
 
     public static readonly string AppsImageCachePath = Path.Join(BasePath, "appcache/librarycache");
 
+    private readonly AsyncLazy<SteamConfig> _config = new(() =>
+        PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
+
+    private ImmutableArray<OwnedGame>? _cachedGames;
+
 
     public string Type => "steam";
 
-    private ImmutableArray<OwnedGame>? _cachedGames;
+    public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
+    {
+        var ownedGames = await ScanOwned().ConfigureAwait(false);
+
+        var installed = new Dictionary<long, GameInstallStatus>();
+        Log.Debug("Got owned games: {Total}", ownedGames.Length);
+        foreach (var lib in ScanInstalled())
+            installed.Add(long.Parse(lib.LibraryId), lib.InstallStatus);
+
+        Uri? AutoMapPathUrl(string path)
+        {
+            path = Path.Join(AppsImageCachePath, "/" + path);
+            Log.Information("Check path: {Path}; exists: {Exists}", path, File.Exists(path));
+            return File.Exists(path) ? new Uri(path) : null;
+        }
+
+        foreach (var game in ownedGames)
+        {
+            var gameRef = new ScannedGameLibraryMetadata
+            {
+                Playtime = TimeSpan.FromMinutes(game.PlaytimeForever),
+                InstallStatus = installed.GetValueOrDefault(game.AppId, GameInstallStatus.InLibrary),
+                LibraryId = game.AppId.ToString(),
+                LibraryType = Type,
+                Name = game.Name,
+                IconUrl = AutoMapPathUrl($"{game.AppId}_icon.jpg"),
+                LogoUrl = AutoMapPathUrl($"{game.AppId}_logo.png"),
+                HeaderUrl = AutoMapPathUrl($"{game.AppId}_header.jpg"),
+                HeroUrl = AutoMapPathUrl($"{game.AppId}_library_hero.jpg")
+            };
+#if DEBUG
+            Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
+#endif
+
+            yield return gameRef;
+        }
+    }
 
     private async ValueTask<ImmutableArray<OwnedGame>> ScanOwned(bool forceRefresh = false)
     {
@@ -77,8 +116,10 @@ public sealed class SteamScanner : IGameLibraryScanner
         return _cachedGames.Value;
     }
 
-    public static async ValueTask<GameInstallStatus> CheckStatus(string id) =>
-        ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary;
+    public static async ValueTask<GameInstallStatus> CheckStatus(string id)
+    {
+        return ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary;
+    }
 
     private static IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {
@@ -106,44 +147,8 @@ public sealed class SteamScanner : IGameLibraryScanner
                 continue;
             yield return mapped;
         }
+
         Log.Debug("Scanned installed steam games");
-    }
-
-    public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
-    {
-        var ownedGames = await ScanOwned().ConfigureAwait(false);
-
-        var installed = new Dictionary<long, GameInstallStatus>();
-        Log.Debug("Got owned games: {Total}", ownedGames.Length);
-        foreach (var lib in ScanInstalled())
-            installed.Add(long.Parse(lib.LibraryId), lib.InstallStatus);
-
-        Uri? AutoMapPathUrl(string path)
-        {
-            path = Path.Join(AppsImageCachePath, path);
-            return File.Exists(path) ? new Uri(path) : null;
-        }
-
-        foreach (var game in ownedGames)
-        {
-            var gameRef = new ScannedGameLibraryMetadata
-            {
-                Playtime = TimeSpan.FromMinutes(game.PlaytimeForever),
-                InstallStatus = installed.GetValueOrDefault(game.AppId, GameInstallStatus.InLibrary),
-                LibraryId = game.AppId.ToString(),
-                LibraryType = Type,
-                Name = game.Name,
-                IconUrl = new Uri(Path.Join(AppsImageCachePath, $"{game.AppId}_icon.jpg")),
-                LogoUrl = AutoMapPathUrl($"{game.AppId}_logo.png"),
-                HeaderUrl = AutoMapPathUrl($"{game.AppId}_header.jpg"),
-                HeroUrl = AutoMapPathUrl($"{game.AppId}_library_hero.jpg"),
-            };
-#if DEBUG
-            Log.Debug("Yield {Game}", JsonSerializer.Serialize(game));
-#endif
-
-            yield return gameRef;
-        }
     }
 
     public static SteamLocalLibraryMetadata? ScanInstalledGame(string id)
@@ -185,9 +190,9 @@ public sealed class SteamScanner : IGameLibraryScanner
 
             InstallStatus = bytesDl == null
                 ? GameInstallStatus.Queued
-                : (bytesDl == bytesToDl
+                : bytesDl == bytesToDl
                     ? GameInstallStatus.Installed
-                    : GameInstallStatus.Installing)
+                    : GameInstallStatus.Installing
         };
 
         Log.Debug("Mapped bytes: {Mapped}", JsonSerializer.Serialize(mapped));

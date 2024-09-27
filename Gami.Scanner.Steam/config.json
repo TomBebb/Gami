@@ -4,7 +4,13 @@
   "settings": [
     {
       "name": "Steam API key",
-      "key": "apiKey"
+      "key": "apiKey",
+      "hint": "Obtain from <a href=\"https://steamcommunity.com/dev/apikey\">Steam API Key page</a>"
+    },
+    {
+      "name": "SteamID",
+      "key": "steamId",
+      "hint": "In decimal format. Obtain from <a href='https://www.steamidfinder.com'>an online tool</a>"
     }
   ]
 }
