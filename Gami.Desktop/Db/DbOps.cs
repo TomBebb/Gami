@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
-using Gami.Desktop.MIsc;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -76,15 +75,7 @@ public static class DbOps
 #endif
                     await using var db = new GamiContext();
                     Log.Information("Inserting achievements for {Game}", g.Name);
-                    await db.BulkInsertAsync(achievements.Select(a => new Achievement
-                    {
-                        
-                        LockedIcon = a.LockedIcon,
-                        UnlockedIcon = a.UnlockedIcon,
-                        Id = $"{type}:{g.LibraryId}::{a.LibraryId}",
-                        Name = a.Name,
-                        LibraryId = a.LibraryId
-                    }));
+                    await db.BulkInsertOrUpdateAsync(achievements);
 
 
                     Log.Information("Inserted achievements for {Game}", g.Name);

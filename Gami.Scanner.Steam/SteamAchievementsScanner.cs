@@ -18,52 +18,75 @@ namespace Gami.Scanner.Steam;
 [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
 public sealed class SteamAchievementsScanner : IGameAchievementScanner
 {
-    private sealed class PlayerAchievementItem
-    {
-        public required string ApiName { get; set; }
-        public byte Achieved { get; set; }
-        public long UnlockTime { get; set; }
-    }
-
-    private sealed class PlayerAchievements
-    {
-        public ImmutableArray<PlayerAchievementItem>? Achievements { get; set; }
-    }
-
-    private sealed class PlayerAchievementsResults
-    {
-        public required PlayerAchievements PlayerStats { get; set; }
-    }
-
-    private sealed class GameSchemaGameStats
-    {
-        public ImmutableArray<GameSchemaAchievement> Achievements { get; set; }
-    }
-
-    private sealed class GameSchema
-    {
-        public GameSchemaGameStats AvailableGameStats { get; set; } = null!;
-    }
-
-    private sealed class GameSchemaResult
-    {
-        public GameSchema Game { get; set; } = null!;
-    }
-
-    private sealed class GameSchemaAchievement
-    {
-        // ReSharper disable once UnusedMember.Local
-        public int Hidden { get; set; }
-        public required string Name { get; set; }
-        public required string DisplayName { get; set; }
-        public required string Icon { get; set; }
-        public required string IconGray { get; set; }
-    }
-
     private readonly AsyncLazy<SteamConfig> _config = new(async () =>
-        await PluginJson.LoadOrErrorAsync< SteamConfig > (SteamCommon.TypeName));
+        await PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName));
 
     public string Type => SteamCommon.TypeName;
+
+    public async ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game)
+    {
+        var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
+        var res = new ConcurrentBag<Achievement>();
+        if (allAchievements.Game.AvailableGameStats.Achievements == null)
+            return res;
+        Log.Debug("Game achievements: {Game}",
+            allAchievements.Game.AvailableGameStats.Achievements.Length);
+
+        var client = HttpConsts.HttpClient;
+
+        Lazy<string> WithPrefix(string name)
+        {
+            return new Lazy<string>(() => $"{game.LibraryType}_{game.LibraryId}_{name}");
+        }
+
+        await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
+            async
+                achievement =>
+            {
+                Log.Debug("Fetching icons for {Name}", achievement.DisplayName);
+
+
+                var icons = await Task.WhenAll([
+                    client.GetByteArrayAsync(achievement.Icon.aUT)),
+                    client.GetByteArrayAsync(achievement.IconGray)
+                ]);
+                Log.Debug("Fetched icons for {Name}", achievement.DisplayName);
+
+                res.Add(new Achievement
+                {
+                    Id =
+                        $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
+                    Name = achievement.DisplayName,
+                    LibraryId = achievement.Name,
+                    LockedIcon = icons[0],
+                    UnlockedIcon = icons[1]
+                });
+            }));
+        return res;
+    }
+
+    public async ValueTask<ConcurrentBag<AchievementProgress>> ScanProgress(
+        IGameLibraryRef game)
+    {
+        var res = new ConcurrentBag<AchievementProgress>();
+        var playerAchievements =
+            await GetPlayerAchievements(game).ConfigureAwait(false);
+        Log.Debug("Player Achievements: {Achievements}",
+            playerAchievements.PlayerStats.Achievements?.Length ?? 0);
+        foreach (var achievement in playerAchievements.PlayerStats.Achievements ??
+                                    ImmutableArray<PlayerAchievementItem>.Empty)
+            res.Add(new AchievementProgress
+            {
+                AchievementId =
+                    $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",
+                UnlockTime = achievement.UnlockTime == 0
+                    ? null
+                    : DateTime.UnixEpoch.AddSeconds
+                        (achievement.UnlockTime),
+                Unlocked = achievement.Achieved == 1
+            });
+        return res;
+    }
 
     private async ValueTask<PlayerAchievementsResults> GetPlayerAchievements
         (IGameLibraryRef game)
@@ -113,60 +136,45 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         return res!;
     }
 
-    public async ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game)
+    private sealed class PlayerAchievementItem
     {
-        var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
-        var res = new ConcurrentBag<Achievement>();
-        if (allAchievements.Game.AvailableGameStats.Achievements == null)
-            return res;
-        Log.Debug("Game achievements: {Game}",
-            allAchievements.Game.AvailableGameStats.Achievements.Length);
-
-        var client = HttpConsts.HttpClient;
-        await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
-            async
-                achievement =>
-            {
-                Log.Debug("Fetching icons for {Name}", achievement.DisplayName);
-                var icons = await Task.WhenAll([
-                    client.GetByteArrayAsync(achievement.Icon),
-                    client.GetByteArrayAsync(achievement.IconGray)
-                ]);
-                Log.Debug("Fetched icons for {Name}", achievement.DisplayName);
-
-                res.Add(new Achievement
-                {
-                    Id =
-                        $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
-                    Name = achievement.DisplayName,
-                    LibraryId = achievement.Name,
-                    LockedIcon = icons[0],
-                    UnlockedIcon = icons[1]
-                });
-            }));
-        return res;
+        public required string ApiName { get; set; }
+        public byte Achieved { get; set; }
+        public long UnlockTime { get; set; }
     }
 
-    public async ValueTask<ConcurrentBag<AchievementProgress>> ScanProgress(
-        IGameLibraryRef game)
+    private sealed class PlayerAchievements
     {
-        var res = new ConcurrentBag<AchievementProgress>();
-        var playerAchievements =
-            await GetPlayerAchievements(game).ConfigureAwait(false);
-        Log.Debug("Player Achievements: {Achievements}",
-            playerAchievements.PlayerStats.Achievements?.Length ?? 0);
-        foreach (var achievement in playerAchievements.PlayerStats.Achievements ??
-                                    ImmutableArray<PlayerAchievementItem>.Empty)
-            res.Add(new AchievementProgress
-            {
-                AchievementId =
-                    $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",
-                UnlockTime = achievement.UnlockTime == 0
-                    ? null
-                    : DateTime.UnixEpoch.AddSeconds
-                        (achievement.UnlockTime),
-                Unlocked = achievement.Achieved == 1
-            });
-        return res;
+        public ImmutableArray<PlayerAchievementItem>? Achievements { get; set; }
+    }
+
+    private sealed class PlayerAchievementsResults
+    {
+        public required PlayerAchievements PlayerStats { get; set; }
+    }
+
+    private sealed class GameSchemaGameStats
+    {
+        public ImmutableArray<GameSchemaAchievement> Achievements { get; set; }
+    }
+
+    private sealed class GameSchema
+    {
+        public GameSchemaGameStats AvailableGameStats { get; set; } = null!;
+    }
+
+    private sealed class GameSchemaResult
+    {
+        public GameSchema Game { get; set; } = null!;
+    }
+
+    private sealed class GameSchemaAchievement
+    {
+        // ReSharper disable once UnusedMember.Local
+        public int Hidden { get; set; }
+        public required string Name { get; set; }
+        public required string DisplayName { get; set; }
+        public required string Icon { get; set; }
+        public required string IconGray { get; set; }
     }
 }

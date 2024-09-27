@@ -7,16 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="config.json" />
-        <PackageReference Include="F23.StringSimilarity" Version="6.0.0" />
+        <EmbeddedResource Include="config.json"/>
+        <PackageReference Include="F23.StringSimilarity" Version="6.0.0"/>
 
-        <PackageReference Include="Flurl" Version="4.0.0" />
+        <PackageReference Include="Flurl" Version="4.0.0"/>
 
-        <PackageReference Include="Gami.Core" Version="0.1.0" />
+        <PackageReference Include="Gami.Core" Version="0.3.0" />
 
-        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-        <PackageReference Include="Serilog" Version="4.0.1" />
-        <PackageReference Include="ValveKeyValue" Version="0.11.0.378" />
+        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2"/>
+        <PackageReference Include="Serilog" Version="4.0.1"/>
+        <PackageReference Include="ValveKeyValue" Version="0.11.0.378"/>
     </ItemGroup>
 
 </Project>
