@@ -6,8 +6,7 @@ namespace Gami.Desktop.Plugins;
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public class PluginConfigSetting
+public class MappedPluginConfigSetting : PluginConfigSetting
 {
-    [Reactive] public required string Key { get; set; }
-    [Reactive] public required string Name { get; set; }
+    [Reactive] public object? Value { get; set; }
 }

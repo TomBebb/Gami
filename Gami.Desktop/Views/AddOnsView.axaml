@@ -27,12 +27,13 @@
                     <StackPanel Orientation="Vertical">
 
                         <Label Content="{Binding  SelectedAddon.Name}" FontWeight="Bold" />
-                        <ItemsControl ItemsSource="{Binding SelectedAddon.Settings}">
+                        <ItemsControl ItemsSource="{Binding SelectedAddon.MappedSettings}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="plugins:PluginConfigSetting">
+                                <DataTemplate DataType="plugins:MappedPluginConfigSetting">
 
-                                    <Grid ColumnDefinitions="*,*">
+                                    <Grid ColumnDefinitions="*,3*">
                                         <Label Content="{Binding Name }" />
+                                        <TextBox Grid.Column="1" Text="{Binding Value }" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
