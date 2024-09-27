@@ -1,5 +1,5 @@
 
-name: Deploy DotNet package
+name: Publish release
 
 on:
   release:
@@ -10,6 +10,7 @@ env:
 
 jobs:
   build-and-deploy:
+    permissions: write-all
     runs-on: ubuntu-latest # For Linux, use ubuntu-latest
     environment: dev
     steps:
