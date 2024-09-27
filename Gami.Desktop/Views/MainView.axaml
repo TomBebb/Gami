@@ -13,6 +13,24 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <viewModels:MainViewModel />
     </Design.DataContext>
+    <UserControl.Styles>
+        <Style Selector="ListBox.RadioButtonListBox">
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.RadioButtonListBox ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border Background="Transparent">
+                            <RadioButton Content="{TemplateBinding ContentPresenter.Content}"
+                                         VerticalAlignment="Center"
+                                         IsChecked="{Binding Path=IsSelected,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
     <fa:NavigationView SelectionChanged="NavigationView_OnSelectionChanged" PaneDisplayMode="Left"
                        Content="{Binding CurrView}"
                        IsSettingsVisible="True">
