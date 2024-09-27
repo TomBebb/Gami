@@ -24,7 +24,7 @@
                 MaxHeight="300"
 
                 asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
-            <Grid ColumnDefinitions="5*, 10*">
+            <Grid ColumnDefinitions="5*, 2, 10*">
 
                 <Grid RowDefinitions="*,8*">
 
@@ -69,7 +69,8 @@
                     </Grid>
                 </Grid>
 
-                <av:HtmlLabel Grid.Column="1" Text="{Binding Description}" />
+                <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+                <av:HtmlLabel Grid.Column="2" Text="{Binding Description}" />
             </Grid>
         </StackPanel>
     </ScrollViewer>
