@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Models;
@@ -70,17 +69,25 @@ public static class DbOps
                         Log.Debug("Process {Id}", id);
                     }
 
-                    Log.Debug("Scanning achievements {Data}",
+#if DEBUG
+                    Log.Debug("Got achievements {Data}",
                         JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
+
+#endif
                     await using var db = new GamiContext();
+                    Log.Information("Inserting achievements for {Game}", g.Name);
                     await db.BulkInsertAsync(achievements.Select(a => new Achievement
                     {
+                        
                         LockedIcon = a.LockedIcon,
                         UnlockedIcon = a.UnlockedIcon,
                         Id = $"{type}:{g.LibraryId}::{a.LibraryId}",
                         Name = a.Name,
                         LibraryId = a.LibraryId
                     }));
+
+
+                    Log.Information("Inserted achievements for {Game}", g.Name);
                 }));
         }
     }
@@ -205,7 +212,7 @@ public static class DbOps
                         IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),
                         HeaderUrl = await item.HeaderUrl.AutoDownloadUriOpt(WithPrefix("header")),
                         LogoUrl = await item.LogoUrl.AutoDownloadUriOpt(WithPrefix("logo")),
-                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero")),
+                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero"))
                     };
                     if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                     {
@@ -233,6 +240,12 @@ public static class DbOps
             Log.Debug("Scanning icons");
             await ScanMissingIcons();
             Log.Debug("Scanned icon");
+        });
+        _ = Task.Run(async () =>
+        {
+            Log.Debug("Scanning achievements");
+            await ScanMissingAchievementsData();
+            Log.Debug("Scanned achievements");
         });
         _ = Task.Run(async () =>
         {
