@@ -30,6 +30,7 @@ public class MainViewModel : ViewModelBase
             this.RaiseAndSetIfChanged(ref _curr, value);
             CurrObject = value switch
             {
+                "Achievements" => new AchievementsViewModel(),
                 "Library" => new LibraryViewModel(),
                 "Settings" => new SettingsViewModel(),
                 "Add-Ons" => new AddonsViewModel(),
