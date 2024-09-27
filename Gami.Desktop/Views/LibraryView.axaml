@@ -46,7 +46,7 @@
                                   ItemsSource="{Binding SortFields}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <ComboBoxItem Content="{Binding Data}" />
+                                    <ComboBoxItem Content="{Binding }" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
