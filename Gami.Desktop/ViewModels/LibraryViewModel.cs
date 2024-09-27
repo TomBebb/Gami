@@ -163,12 +163,12 @@ public class LibraryViewModel : ViewModelBase
     [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
     [Reactive] public string? CurrentUrl { get; set; }
 
-    public ImmutableArray<Wrapped<string>> SortFields { get; set; } =
+    public ImmutableArray<string> SortFields { get; set; } =
     [
         ..Enum.GetValues(typeof(SortGameField))
             .Cast<SortGameField>()
-            .Select(v => new Wrapped<string>(v
-                .GetName()))
+            .Select(v => v
+                .GetName())
     ];
 
     [Reactive] public int SortFieldIndex { get; set; }

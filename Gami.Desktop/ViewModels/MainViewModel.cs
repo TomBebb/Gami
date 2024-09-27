@@ -33,6 +33,7 @@ public class MainViewModel : ViewModelBase
             {
                 "Library" => new LibraryViewModel(),
                 "Settings" => new SettingsViewModel(),
+                "Add-Ons" => new AddonsViewModel(),
                 _ => null
             };
 #if DEBUG

@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
-             xmlns:models="clr-namespace:Gami.Desktop.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Desktop.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
@@ -52,10 +51,10 @@
                         <CheckBox Grid.Row="0" Grid.Column="1" />
 
                         <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Background="Red">
-                            <ItemsControl ItemsSource="{Binding Settings.MappedMetadataNameSources}">
+                            <ItemsControl ItemsSource="{Binding Settings.MetadataNameSources}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="models:WrappedText">
-                                        <Label Content="{Binding Data }" />
+                                    <DataTemplate>
+                                        <Label Content="{Binding  }" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
