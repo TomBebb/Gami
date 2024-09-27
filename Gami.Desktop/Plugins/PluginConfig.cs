@@ -38,7 +38,8 @@ public class PluginConfig : ReactiveObject
             {
                 Key = s.Key,
                 Name = s.Name,
-                Value = vals[s.Key]
+                Value = vals[s.Key],
+                Hint = s.Hint
             }).ToImmutableArray();
         }
         set { MySettings = value.ToImmutableDictionary(v => v.Key, v => v.Value)!; }

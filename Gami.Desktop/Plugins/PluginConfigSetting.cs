@@ -10,4 +10,6 @@ public class PluginConfigSetting
 {
     [Reactive] public required string Key { get; set; }
     [Reactive] public required string Name { get; set; }
+
+    [Reactive] public string? Hint { get; set; }
 }
