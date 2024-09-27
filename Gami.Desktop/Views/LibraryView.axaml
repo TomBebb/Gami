@@ -7,6 +7,7 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
+             xmlns:conv="clr-namespace:Gami.Desktop.Conv"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Class="Gami.Desktop.Views.LibraryView">
@@ -16,6 +17,9 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <viewModels:LibraryViewModel />
     </Design.DataContext>
+    <UserControl.Resources>
+        <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
+    </UserControl.Resources>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
         <Button Command="{Binding ShowDialog}">
             Show dialog
@@ -110,7 +114,7 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="models:Game">
-                                <Grid ColumnDefinitions="*, 10*,Auto, *">
+                                <Grid ColumnDefinitions="*, 10*,Auto, Auto">
                                     <Image Grid.Column="0"
                                            IsVisible="{Binding IconUrl, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -118,8 +122,9 @@
                                     <Label Grid.Column="1"
                                            VerticalAlignment="Center"
                                            Content="{Binding Name}" />
-                                    <Label Grid.Column="2"
-                                           Content="{Binding InstallStatus}" />
+                                    <fa:SymbolIcon
+                                        Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
+                                        Grid.Column="2" />
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
