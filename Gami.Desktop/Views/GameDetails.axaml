@@ -13,7 +13,7 @@
         <models:Game />
     </Design.DataContext>
     <UserControl.Resources>
-        <conv:TimeSpanDisplayConverter x:Key="myConverter" />
+        <conv:TimeSpanDisplayConverter x:Key="TimeSpanDisplayConverter" />
     </UserControl.Resources>
 
     <Grid RowDefinitions="Auto,*">
@@ -30,11 +30,10 @@
             <Grid ColumnDefinitions="3*, 11*" RowDefinitions="Auto, 5*, *, *,*,*,*">
 
 
-                <av:HtmlLabel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}"
-                           />
+                <av:HtmlLabel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Description}" />
                 <Label Grid.Row="2" Grid.Column="0">Played for:</Label>
                 <Label Grid.Row="2" Grid.Column="1"
-                       Content="{Binding Playtime, Converter={StaticResource myConverter}}" />
+                       Content="{Binding Playtime, Converter={StaticResource TimeSpanDisplayConverter}}" />
                 <Label Grid.Row="3" Grid.Column="0">Release date:</Label>
                 <Label Grid.Row="3" Grid.Column="1" Content="{Binding ReleaseDate}" />
                 <Label Grid.Row="4" Grid.Column="0">Genre:</Label>
