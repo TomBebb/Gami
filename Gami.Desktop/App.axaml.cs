@@ -107,14 +107,17 @@ public class App : Application
 
         Log.Information("Got settings: {DAta}",
             JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+
+        var open = ReactiveCommand.Create(OpenOnClick);
         var trayIcon = new TrayIcon
         {
             IsVisible = settings.Settings.ShowSystemTrayIcon,
             ToolTipText = "Gami",
             Icon = new WindowIcon(new Bitmap("C:\\Users\\topha\\Code\\Gami\\Gami.Desktop\\Assets\\avalonia-logo.ico")),
+            Command = open,
             Menu =
             [
-                new NativeMenuItem("Open Gami") { Command = ReactiveCommand.Create(OpenOnClick) },
+                new NativeMenuItem("Open Gami") { Command = open },
                 new NativeMenuItem("Exit Gami") { Command = ReactiveCommand.Create(Close) }
             ]
         };
