@@ -26,12 +26,12 @@
                     <DataTemplate>
                         <Border>
                             <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding Progress.Unlocked}" IsEnabled="False" />
                                 <Image
 
                                     asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"
                                     MaxHeight="20" />
                                 <Label Content="{Binding Achievement.Name}" />
-                                <Label Content="{Binding Achievement.Progress}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

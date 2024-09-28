@@ -33,7 +33,7 @@ public class AchievementsViewModel : ViewModelBase
             using var db = new GamiContext();
 
             Achievements = db.Achievements.AsQueryable().Where(a => a.GameId == value.Id)
-                .Select(a => new AchievementData(a, new AchievementProgress()))
+                .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
                 .ToImmutableArray();
             Log.Debug("Selected game changed! Fetched achievements");
 
