@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using AvaloniaWebView;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using Gami.Core;
@@ -21,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
+using WebView = AvaloniaWebView.WebView;
 
 namespace Gami.Desktop.ViewModels;
 
@@ -28,6 +28,7 @@ public class LibraryViewModel : ViewModelBase
 {
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
+
 
     public LibraryViewModel()
     {
@@ -134,7 +135,6 @@ public class LibraryViewModel : ViewModelBase
                     if (await Auth!.CurrUrlChange(v)) dialog?.Hide(ContentDialogResult.Primary);
                 });
         });
-        Refresh = ReactiveCommand.Create(RefreshCache);
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
         this.WhenAnyValue(v => v.CurrentUrl)
@@ -149,7 +149,20 @@ public class LibraryViewModel : ViewModelBase
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
+
+        RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask());
     }
+
+    public ImmutableArray<PluginConfig> Plugins =>
+    [
+        new()
+        {
+            Key = "all",
+            Name = "All",
+            Settings = ImmutableArray<PluginConfigSetting>.Empty
+        },
+        ..GameExtensions.PluginConfigs.Values.Where(v => GameExtensions.ScannersByName.ContainsKey(v.Key))
+    ];
 
     [Reactive] public string Search { get; set; } = "";
     [Reactive] public Game? SelectedGame { get; set; }
@@ -162,6 +175,7 @@ public class LibraryViewModel : ViewModelBase
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
     [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
     [Reactive] public string? CurrentUrl { get; set; }
+    public ReactiveCommand<string?, Unit> RefreshGame { get; }
 
     public ImmutableArray<string> SortFields { get; set; } =
     [
@@ -173,6 +187,21 @@ public class LibraryViewModel : ViewModelBase
 
     [Reactive] public int SortFieldIndex { get; set; }
 
+    private async ValueTask Refresh(string key)
+    {
+        Log.Information("Refresh: {Name}", key);
+        if (key == "all")
+        {
+            await DbOps.ScanAllLibraries();
+        }
+        else
+        {
+            var scanner = GameExtensions.ScannersByName[key];
+            await DbOps.ScanLibrary(scanner);
+        }
+
+        RefreshCache();
+    }
 
     private void RefreshCache()
     {
@@ -204,7 +233,6 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
-    public ReactiveCommand<Unit, Unit> Refresh { get; set; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
     public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
