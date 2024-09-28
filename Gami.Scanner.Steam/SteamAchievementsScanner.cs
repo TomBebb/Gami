@@ -5,7 +5,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Flurl;
 using Gami.Core;
-using Gami.Core.Ext;
 using Gami.Core.Models;
 using Nito.AsyncEx;
 using Serilog;
@@ -33,32 +32,18 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
-        var client = HttpConsts.HttpClient;
-
-        Lazy<string> WithPrefix(string name)
-        {
-            return new Lazy<string>(() => $"{game.LibraryType}_{game.LibraryId}_{name}");
-        }
-
         await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
             async
                 achievement =>
             {
-                Log.Debug("Fetching icons for {Name}", achievement.DisplayName);
-
-                var iconUris = await Task.WhenAll(achievement.Icon.AutoDownloadUriOpt(WithPrefix("icon")).AsTask(),
-                    achievement.IconGray.AutoDownloadUriOpt(WithPrefix("icon_gray")).AsTask());
-
-                Log.Debug("Fetched icons for {Name}", achievement.DisplayName);
-
                 res.Add(new Achievement
                 {
                     Id =
                         $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
                     Name = achievement.DisplayName,
                     LibraryId = achievement.Name,
-                    LockedIconUrl = iconUris[0].ToString(),
-                    UnlockedIconUrl = iconUris[1].ToString()
+                    LockedIconUrl = achievement.Icon,
+                    UnlockedIconUrl = achievement.IconGray
                 });
             }));
         return res;
