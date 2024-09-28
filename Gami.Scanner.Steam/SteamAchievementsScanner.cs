@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Flurl;
 using Gami.Core;
 using Gami.Core.Models;
@@ -32,6 +33,13 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
+        Log.Debug("Load game percents");
+        var globalPercents = await GetPercents(game).ConfigureAwait(false);
+
+        Log.Debug("Loaded game percents");
+
+        var globalPercentsByName =
+            globalPercents.AchievementPercentages.Achievements.ToImmutableDictionary(v => v.Name, v => v.Percent);
         await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
             async
                 achievement =>
@@ -43,7 +51,8 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                     Name = achievement.DisplayName,
                     LibraryId = achievement.Name,
                     LockedIconUrl = achievement.Icon,
-                    UnlockedIconUrl = achievement.IconGray
+                    UnlockedIconUrl = achievement.IconGray,
+                    GlobalPercent = globalPercentsByName.GetValueOrDefault(achievement.Name)
                 });
             }));
         return res;
@@ -101,6 +110,16 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         }
     }
 
+    private static async ValueTask<GlobalPercentAchievementsResults> GetPercents(IGameLibraryRef game)
+    {
+        var url = "https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/"
+            .AppendQueryParam("gameid", game.LibraryId);
+        Log.Debug("Fetch global percents for {GameId}", url);
+
+        return (await HttpConsts.HttpClient.GetFromJsonAsync<GlobalPercentAchievementsResults>(url,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+    }
+
     private async ValueTask<GameSchemaResult> GetGameAchievements
         (IGameLibraryRef game)
     {
@@ -110,7 +129,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                 .AppendQueryParam("appid", game.LibraryId)
                 .AppendQueryParam("key", config.ApiKey);
 
-        Log.Debug("Fetch game aachievements for {GameId}", url);
+        Log.Debug("Fetch game achievements for {GameId}", url);
 
 
         var res = await HttpConsts.HttpClient.GetFromJsonAsync<GameSchemaResult>(url,
@@ -146,6 +165,14 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     {
         public GameSchemaGameStats AvailableGameStats { get; set; } = null!;
     }
+
+    private sealed record GlobalPercentAchievement(string Name, float Percent);
+
+    private sealed record GlobalPercentAchievements(ImmutableArray<GlobalPercentAchievement> Achievements);
+
+    private sealed record GlobalPercentAchievementsResults(
+        [property: JsonPropertyName("achievementpercentages")]
+        GlobalPercentAchievements AchievementPercentages);
 
     private sealed class GameSchemaResult
     {
