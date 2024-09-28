@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using FluentAvalonia.UI.Data;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Models;
@@ -23,14 +24,19 @@ public class AchievementsViewModel : ViewModelBase
             SelectedGame = Games.FirstOrDefault();
         }
 
-        this.WhenAnyValue(v => v.Filter).Subscribe(v => { ReloadAchievements(); });
+        this.WhenAnyValue(v => v.Filter).Subscribe(_ => { ReloadAchievements(); });
+        this.WhenAnyValue(v => v.Sort).Subscribe(_ => { ReloadAchievements(); });
+        this.WhenAnyValue(v => v.SortDirection).Subscribe(_ => { ReloadAchievements(); });
     }
 
     [Reactive] public ImmutableArray<Game> Games { get; set; }
 
-    [Reactive] public AchievementsFilter Filter { get; set; }
+    [Reactive] public AchievementsFilter Filter { get; set; } = AchievementsFilter.None;
+    [Reactive] public AchievementSort Sort { get; set; } = AchievementSort.UnlockTime;
 
+    [Reactive] public SortDirection SortDirection { get; set; } = SortDirection.Descending;
     public string[] FilterOptions => Enum.GetValues<AchievementsFilter>().Select(af => af.Humanize()).ToArray();
+    public string[] SortOptions => Enum.GetValues<AchievementSort>().Select(af => af.Humanize()).ToArray();
 
     public Game? SelectedGame
     {
@@ -50,11 +56,35 @@ public class AchievementsViewModel : ViewModelBase
         Log.Debug("Selected game changed! Fetching achievements");
         using var db = new GamiContext();
 
-        Achievements = db.Achievements.AsQueryable().Where(a => a.GameId == SelectedGame.Id)
+        var achievementsQuery = db.Achievements.AsQueryable().Where(a => a.GameId == SelectedGame.Id)
             .Where(a => Filter == AchievementsFilter.None ||
-                        Filter == AchievementsFilter.Locked == !a.Progress.Unlocked)
+                        Filter == AchievementsFilter.Locked == !a.Progress.Unlocked);
+
+
+        achievementsQuery = (Sort, SortDirection) switch
+        {
+            (AchievementSort.Name, SortDirection.Ascending) => achievementsQuery.OrderBy(a => a.Name),
+            (AchievementSort.Name, SortDirection.Descending) => achievementsQuery.OrderByDescending(a =>
+                a.Name),
+            (AchievementSort.GlobalProgress, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
+                a.GlobalPercent),
+            (AchievementSort.GlobalProgress, SortDirection.Descending) => achievementsQuery.OrderByDescending(a =>
+                a.GlobalPercent),
+
+            (AchievementSort.UnlockTime, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
+                a.Progress == null ? DateTime.UnixEpoch : a.Progress.UnlockTime),
+            (AchievementSort.UnlockTime, SortDirection.Descending) => achievementsQuery.OrderBy(a =>
+                a.Progress == null ? DateTime.UnixEpoch : a.Progress.UnlockTime),
+            (AchievementSort.Unlocked, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
+                a.Progress != null && a.Progress.Unlocked),
+            (AchievementSort.Unlocked, SortDirection.Descending) => achievementsQuery.OrderByDescending(a =>
+                a.Progress != null && a.Progress.Unlocked)
+        };
+
+        Achievements = achievementsQuery
             .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
             .ToImmutableArray();
+
         Log.Debug("Selected game changed! Fetched achievements");
     }
 }
