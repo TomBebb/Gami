@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
@@ -12,6 +11,8 @@ namespace Gami.Desktop.ViewModels;
 
 public class AchievementsViewModel : ViewModelBase
 {
+    private Game? _selectedGame;
+
     public AchievementsViewModel()
     {
         using (var db = new GamiContext())
@@ -19,23 +20,26 @@ public class AchievementsViewModel : ViewModelBase
             Games = [..db.Games.Select(g => new Game { Id = g.Id, Name = g.Name, LibraryId = g.LibraryId })];
             SelectedGame = Games.FirstOrDefault();
         }
-
-        this.WhenAnyValue(x => x.SelectedGame)
-            .Subscribe(g =>
-            {
-                Log.Information("Selected game changed! Fethcing achievements");
-                using var db = new GamiContext();
-
-                Achievements = db.Achievements.AsQueryable().Where(a => a.GameId == g.Id)
-                    .Select(a => new AchievementData(a, new AchievementProgress()))
-                    .ToImmutableArray();
-                Log.Information("Selected game changed! Fetched achievements");
-            });
     }
 
     [Reactive] public ImmutableArray<Game> Games { get; set; }
 
-    [Reactive] public Game? SelectedGame { get; set; }
+    public Game? SelectedGame
+    {
+        get => _selectedGame;
+        set
+        {
+            Log.Debug("Selected game changed! Fethcing achievements");
+            using var db = new GamiContext();
+
+            Achievements = db.Achievements.AsQueryable().Where(a => a.GameId == value.Id)
+                .Select(a => new AchievementData(a, new AchievementProgress()))
+                .ToImmutableArray();
+            Log.Debug("Selected game changed! Fetched achievements");
+
+            this.RaiseAndSetIfChanged(ref _selectedGame, value);
+        }
+    }
 
     [Reactive]
     public ImmutableArray<AchievementData> Achievements { get; set; } = ImmutableArray<AchievementData>.Empty;
