@@ -26,16 +26,17 @@
         </Button>
         <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
             <StackPanel Orientation="Horizontal">
-
-                <fa:CommandBar
-                    DefaultLabelPosition="Right">
-                    <fa:CommandBar.PrimaryCommands>
-                        <fa:CommandBarButton IconSource="Refresh"
-                                             Command="{Binding Refresh}"
-                                             Label="Refresh" />
-                    </fa:CommandBar.PrimaryCommands>
-                </fa:CommandBar>
-
+                <SplitButton>
+                    <SplitButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Refresh Library</Label>
+                            <fa:SymbolIcon Symbol="Refresh" />
+                        </StackPanel>
+                    </SplitButton.Content>
+                    <SplitButton.Flyout>
+                        <MenuFlyout Placement="Bottom" ItemsSource="{Binding PluginNames}" />
+                    </SplitButton.Flyout>
+                </SplitButton>
                 <Border BorderBrush="Teal" BorderThickness="1">
                     <StackPanel Orientation="Horizontal">
                         <Label VerticalAlignment="Center">Sort:</Label>
