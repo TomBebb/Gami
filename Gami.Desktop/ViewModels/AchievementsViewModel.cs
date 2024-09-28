@@ -84,7 +84,7 @@ public class AchievementsViewModel : ViewModelBase
 
             (AchievementSort.UnlockTime, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
                 a.Progress == null ? DateTime.UnixEpoch : a.Progress.UnlockTime),
-            (AchievementSort.UnlockTime, SortDirection.Descending) => achievementsQuery.OrderBy(a =>
+            (AchievementSort.UnlockTime, SortDirection.Descending) => achievementsQuery.OrderByDescending(a =>
                 a.Progress == null ? DateTime.UnixEpoch : a.Progress.UnlockTime),
             (AchievementSort.Unlocked, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
                 a.Progress != null && a.Progress.Unlocked),
