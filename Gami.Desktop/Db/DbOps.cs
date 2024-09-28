@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core.Ext;
@@ -168,10 +167,12 @@ public static class DbOps
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
                 {
+                    Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
                     var achievementsProgress = await scanner.ScanProgress(g);
 
                     await db.BulkInsertOrUpdateAsync(achievementsProgress);
+                    Log.Information("Scanned achievements progress for: {Name}", g.Name);
                 }));
         }
     }
@@ -249,15 +250,12 @@ public static class DbOps
 
             Log.Debug("Scanned metadta");
         });
-        /*
         Task.Run(async () =>
         {
-            Log.Debug("Scanning missing achievement data");
-            await ScanMissingAchievementsData();
-            Log.Debug("Scanned missing achievement data; scanning progress");
+            Log.Debug(" scanning progress");
             await ScanAchievementsProgress();
 
             Log.Debug("Scanned achievements progress");
-        }); */
+        });
     }
 }
