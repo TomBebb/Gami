@@ -21,22 +21,31 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <ScrollViewer Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding Achievements}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding Progress.Unlocked}" IsEnabled="False" />
-                                <Image
+            <Grid RowDefinitions="Auto,*">
+                <ComboBox ItemsSource="{Binding FilterOptions}" SelectedIndex="{Binding Filter}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Achievements}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding Progress.Unlocked}" IsEnabled="False" />
+                                    <Image
 
-                                    asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"
-                                    MaxHeight="20" />
-                                <Label Content="{Binding Achievement.Name}" />
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                        asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"
+                                        MaxHeight="20" />
+                                    <Label Content="{Binding Achievement.Name}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>
