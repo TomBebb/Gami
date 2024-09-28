@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reactive;
 using FluentAvalonia.UI.Data;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
@@ -27,6 +28,13 @@ public class AchievementsViewModel : ViewModelBase
         this.WhenAnyValue(v => v.Filter).Subscribe(_ => { ReloadAchievements(); });
         this.WhenAnyValue(v => v.Sort).Subscribe(_ => { ReloadAchievements(); });
         this.WhenAnyValue(v => v.SortDirection).Subscribe(_ => { ReloadAchievements(); });
+        ToggleSortDir = ReactiveCommand.Create(() =>
+        {
+            SortDirection = SortDirection == SortDirection.Ascending
+                ? SortDirection.Descending
+                : SortDirection.Ascending;
+        });
+        this.WhenAnyValue(v => v.SortDirection).Subscribe(dir => { SortAscending = dir == SortDirection.Ascending; });
     }
 
     [Reactive] public ImmutableArray<Game> Games { get; set; }
@@ -35,8 +43,11 @@ public class AchievementsViewModel : ViewModelBase
     [Reactive] public AchievementSort Sort { get; set; } = AchievementSort.UnlockTime;
 
     [Reactive] public SortDirection SortDirection { get; set; } = SortDirection.Descending;
+    [Reactive] public bool SortAscending { get; set; }
     public string[] FilterOptions => Enum.GetValues<AchievementsFilter>().Select(af => af.Humanize()).ToArray();
     public string[] SortOptions => Enum.GetValues<AchievementSort>().Select(af => af.Humanize()).ToArray();
+
+    public ReactiveCommand<Unit, Unit> ToggleSortDir { get; }
 
     public Game? SelectedGame
     {
