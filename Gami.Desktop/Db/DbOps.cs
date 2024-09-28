@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
+using Gami.Core.Ext;
 using Gami.Core.Models;
-using Gami.Desktop.MIsc;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -62,25 +61,20 @@ public static class DbOps
             await Task.WhenAll(
                 gamesMissingAchievements.Select(async g =>
                 {
+                    Log.Information("Scanning achievements..");
                     var achievements = await scanner.Scan(g);
-                    foreach (var a in achievements)
-                    {
-                        var id =
-                            $"{type}:{g.LibraryId}::{a.LibraryId}";
-                        Log.Debug("Process {Id}", id);
-                    }
 
-                    Log.Debug("Scanning achievements {Data}",
+#if DEBUG
+                    Log.Debug("Got achievements {Data}",
                         JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
+
+#endif
                     await using var db = new GamiContext();
-                    await db.BulkInsertAsync(achievements.Select(a => new Achievement
-                    {
-                        LockedIcon = a.LockedIcon,
-                        UnlockedIcon = a.UnlockedIcon,
-                        Id = $"{type}:{g.LibraryId}::{a.LibraryId}",
-                        Name = a.Name,
-                        LibraryId = a.LibraryId
-                    }));
+                    Log.Information("Inserting achievements for {Game}", g.Name);
+                    await db.BulkInsertOrUpdateAsync(achievements);
+
+
+                    Log.Information("Inserted achievements for {Game}", g.Name);
                 }));
         }
     }
@@ -173,10 +167,12 @@ public static class DbOps
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
                 {
+                    Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
                     var achievementsProgress = await scanner.ScanProgress(g);
 
                     await db.BulkInsertOrUpdateAsync(achievementsProgress);
+                    Log.Information("Scanned achievements progress for: {Name}", g.Name);
                 }));
         }
     }
@@ -205,7 +201,7 @@ public static class DbOps
                         IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),
                         HeaderUrl = await item.HeaderUrl.AutoDownloadUriOpt(WithPrefix("header")),
                         LogoUrl = await item.LogoUrl.AutoDownloadUriOpt(WithPrefix("logo")),
-                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero")),
+                        HeroUrl = await item.HeroUrl.AutoDownloadUriOpt(WithPrefix("hero"))
                     };
                     if (await db.Games.AnyAsync(v => v.Id == mapped.Id))
                     {
@@ -236,6 +232,12 @@ public static class DbOps
         });
         _ = Task.Run(async () =>
         {
+            Log.Debug("Scanning achievements");
+            await ScanMissingAchievementsData();
+            Log.Debug("Scanned achievements");
+        });
+        _ = Task.Run(async () =>
+        {
             Log.Debug("Scanning metadata");
             await using var db = new GamiContext();
 
@@ -248,15 +250,12 @@ public static class DbOps
 
             Log.Debug("Scanned metadta");
         });
-        /*
         Task.Run(async () =>
         {
-            Log.Debug("Scanning missing achievement data");
-            await ScanMissingAchievementsData();
-            Log.Debug("Scanned missing achievement data; scanning progress");
+            Log.Debug(" scanning progress");
             await ScanAchievementsProgress();
 
             Log.Debug("Scanned achievements progress");
-        }); */
+        });
     }
 }
