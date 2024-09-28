@@ -157,6 +157,7 @@ public static class DbOps
                 [
                     ..db.Games
                         .Where(g => g.LibraryType == type)
+                        .Where(g => g.Achievements.Count != 0)
                         .Select(g => new GameLibraryRef
                         {
                             LibraryType = g.LibraryType,
