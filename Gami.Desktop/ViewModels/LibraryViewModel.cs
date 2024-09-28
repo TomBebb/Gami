@@ -29,10 +29,9 @@ public class LibraryViewModel : ViewModelBase
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
 
-    
+
     public LibraryViewModel()
     {
-        SelectedPlugin = Plugins[0];
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
@@ -182,22 +181,20 @@ public class LibraryViewModel : ViewModelBase
 
     [Reactive] public int SortFieldIndex { get; set; }
 
-
-    public PluginConfig SelectedPlugin { get; set; }
-
-    private async ValueTask Refresh(string name)
+    private async ValueTask Refresh(string key)
     {
-        Log.Information("Refresh: {Name}", name);
-        if (name == "All")
+        Log.Information("Refresh: {Name}", key);
+        if (key == "all")
         {
             await DbOps.ScanAllLibraries();
         }
         else
         {
-            var conf = GameExtensions.PluginConfigs.Values.FirstOrDefault(v => v.Name == name);
-            var scanner = GameExtensions.ScannersByName[conf!.Key];
+            var scanner = GameExtensions.ScannersByName[key];
             await DbOps.ScanLibrary(scanner);
         }
+
+        RefreshCache();
     }
 
     private void RefreshCache()
