@@ -28,7 +28,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
         var res = new ConcurrentBag<Achievement>();
-        if (allAchievements.Game.AvailableGameStats.Achievements == null)
+        if (allAchievements.Game?.AvailableGameStats?.Achievements == null)
             return res;
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
@@ -131,6 +131,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         Log.Debug("Fetch game achievements for {GameId}", url);
 
+        Log.Information("Fetching {Url}", url);
 
         var res = await HttpConsts.HttpClient.GetFromJsonAsync<GameSchemaResult>(url,
             new

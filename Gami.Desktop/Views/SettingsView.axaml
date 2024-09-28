@@ -44,26 +44,36 @@
             </TabItem>
             <TabItem Header="Metadata">
                 <ScrollViewer>
+                    <StackPanel Orientation="Vertical">
 
-                    <Grid ColumnDefinitions="10*, *, 10*" RowDefinitions="*,*,*,*,*">
-                        <Label Grid.Row="0" Grid.Column="0">
-                            Name
-                        </Label>
-                        <CheckBox Grid.Row="0" Grid.Column="1" />
-
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Background="Red">
-                            <ItemsControl ItemsSource="{Binding Settings.MetadataNameSources}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Label Content="{Binding  }" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Button>Add</Button>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Metadata.FetchAchievements}" />
+                            <Label>Download achievements after library scan</Label>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Metadata.FetchMetadata}" />
+                            <Label>Download games metadata after library scan</Label>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="10, 10*">
+                            <Label Grid.Row="0" Grid.Column="0">
+                                Name
+                            </Label>
+
+                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="Red">
+                                <ItemsControl ItemsSource="{Binding Settings.Metadata.Sources}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding  }" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button>Add</Button>
+                            </StackPanel>
 
 
-                    </Grid>
+                        </Grid>
+                    </StackPanel>
+
                 </ScrollViewer>
             </TabItem>
         </TabControl>
