@@ -29,7 +29,7 @@ public class AchievementsViewModel : ViewModelBase
         get => _selectedGame;
         set
         {
-            Log.Debug("Selected game changed! Fethcing achievements");
+            Log.Debug("Selected game changed! Fetching achievements");
             using var db = new GamiContext();
 
             Achievements = db.Achievements.AsQueryable().Where(a => a.GameId == value.Id)

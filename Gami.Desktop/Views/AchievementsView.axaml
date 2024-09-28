@@ -19,9 +19,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Grid.Column="1" Orientation="Vertical">
-            <Label Content="{Binding SelectedGame.Name}" />
-
+        <ScrollViewer Grid.Column="1">
             <ItemsControl ItemsSource="{Binding Achievements}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -36,6 +34,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>
