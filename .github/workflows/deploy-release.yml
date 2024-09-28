@@ -37,12 +37,12 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         body: "Windows 64-bit build"
-      
+
     - name: 'Publish Linux'
       shell: bash
       run: |
-          dotnet publish Gami.Desktop/Gami.Desktop.csproj -r linux-x64 -c Release -o release/linux -p:PublishSingleFile=true --self-contained
-          zip -r release/linux.zip release/linux
+        dotnet publish Gami.Desktop/Gami.Desktop.csproj -r linux-x64 -c Release -o release/linux -p:PublishSingleFile=true --self-contained
+        zip -r release/linux.zip release/linux
 
     - name: Upload Linux binaries to release
       uses: svenstaro/upload-release-action@v2
@@ -53,3 +53,19 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         body: "Linux 64-bit build"
+
+    - name: 'Publish Mac OSX'
+      shell: bash
+      run: |
+        dotnet publish Gami.Desktop/Gami.Desktop.csproj -r osx-x64 -c Release -o release/linux -p:PublishSingleFile=true --self-contained
+        zip -r release/linux.zip release/linux
+
+    - name: Upload Mac OSX binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: release/mac_osx.zip
+        asset_name: mac_osx.zip
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "Mac OSX 64-bit build"
