@@ -8,6 +8,8 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Scanner.Epic;
+using Gami.Scanner.Steam;
 using Serilog;
 
 namespace Gami.Desktop.Plugins;
@@ -16,8 +18,8 @@ public static class GameExtensions
 {
     private static readonly string[] Plugins =
     [
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll",
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Epic\bin\Debug\net8.0\Gami.Scanner.Epic.dll"
+        typeof(SteamCommon).Assembly.Location,
+        typeof(EpicLibrary).Assembly.Location
     ];
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
