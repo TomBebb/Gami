@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:models="clr-namespace:Gami.Core.Models;assembly=Gami.Core"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:conv="clr-namespace:Gami.Desktop.Conv"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Gami.Desktop.Views.AchievementsView"
              x:DataType="vm:AchievementsViewModel">
@@ -12,6 +13,9 @@
     <Design.DataContext>
         <vm:AchievementsViewModel />
     </Design.DataContext>
+    <UserControl.Resources>
+        <conv:PercentValueConverter x:Key="PercentValueConverter" />
+    </UserControl.Resources>
     <Grid ColumnDefinitions="2*, 5*">
         <ListBox ItemsSource="{Binding Games}" SelectedValue="{Binding SelectedGame}">
             <ListBox.ItemTemplate>
@@ -36,14 +40,22 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border>
-                                <StackPanel Orientation="Horizontal">
+                                <Grid ColumnDefinitions="Auto, Auto, *, Auto,*">
                                     <CheckBox IsChecked="{Binding Progress.Unlocked}" IsEnabled="False" />
-                                    <Image
+                                    <Image Grid.Column="1"
 
-                                        asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"
-                                        MaxHeight="20" />
-                                    <Label Content="{Binding Achievement.Name}" />
-                                </StackPanel>
+                                           asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"
+                                           MaxHeight="20" />
+                                    <Label Grid.Column="2" Content="{Binding Achievement.Name}"
+                                           VerticalAlignment="Center" />
+
+                                    <Label Grid.Column="3"
+                                           HorizontalContentAlignment="Right"
+                                           Content="{Binding Achievement.GlobalPercent , Converter={StaticResource PercentValueConverter}}" />
+
+                                    <ProgressBar Grid.Column="4" Maximum="100"
+                                                 Value="{Binding Achievement.GlobalPercent}" />
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
