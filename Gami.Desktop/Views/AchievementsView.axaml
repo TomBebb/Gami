@@ -55,7 +55,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border>
-                                <Grid ColumnDefinitions="Auto, Auto, *, Auto,*">
+                                <Grid ColumnDefinitions="Auto, Auto,*,  2*, Auto, 2*">
                                     <CheckBox IsChecked="{Binding Progress.Unlocked}" IsEnabled="False" />
                                     <Image Grid.Column="1"
 
@@ -64,11 +64,14 @@
                                     <Label Grid.Column="2" Content="{Binding Achievement.Name}"
                                            VerticalAlignment="Center" />
 
-                                    <Label Grid.Column="3"
+                                    <Label Grid.Column="3" Content="{Binding Achievement.Progress.UnlockTime}"
+                                           VerticalAlignment="Center" />
+
+                                    <Label Grid.Column="4"
                                            HorizontalContentAlignment="Right"
                                            Content="{Binding Achievement.GlobalPercent , Converter={StaticResource PercentValueConverter}}" />
 
-                                    <ProgressBar Grid.Column="4" Maximum="100"
+                                    <ProgressBar Grid.Column="5" Maximum="100"
                                                  Value="{Binding Achievement.GlobalPercent}" />
                                 </Grid>
                             </Border>
