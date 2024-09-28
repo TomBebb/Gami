@@ -20,8 +20,9 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ScrollViewer Grid.Column="1">
-            <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Column="1" RowDefinitions="Auto,*">
+            <StackPanel Orientation="Horizontal">
+                <Label VerticalAlignment="Center">Filter: </Label>
                 <ComboBox ItemsSource="{Binding FilterOptions}" SelectedIndex="{Binding Filter}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -29,7 +30,9 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <ItemsControl Grid.Row="1" ItemsSource="{Binding Achievements}">
+            </StackPanel>
+            <ScrollViewer Grid.Row="1">
+                <ItemsControl ItemsSource="{Binding Achievements}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border>
@@ -45,7 +48,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </Grid>
-        </ScrollViewer>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>
