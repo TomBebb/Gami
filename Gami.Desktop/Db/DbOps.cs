@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
+using Gami.Core.Ext;
 using Gami.Core.Models;
 using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
@@ -60,13 +62,8 @@ public static class DbOps
             await Task.WhenAll(
                 gamesMissingAchievements.Select(async g =>
                 {
+                    Log.Information("Scanning achievements..");
                     var achievements = await scanner.Scan(g);
-                    foreach (var a in achievements)
-                    {
-                        var id =
-                            $"{type}:{g.LibraryId}::{a.LibraryId}";
-                        Log.Debug("Process {Id}", id);
-                    }
 
 #if DEBUG
                     Log.Debug("Got achievements {Data}",
