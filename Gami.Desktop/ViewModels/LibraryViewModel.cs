@@ -14,6 +14,7 @@ using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.MIsc;
 using Gami.Desktop.Models;
+using Gami.Desktop.Models.Settings;
 using Gami.Desktop.Plugins;
 using Gami.Library.Gog;
 using Microsoft.EntityFrameworkCore;
@@ -189,16 +190,25 @@ public class LibraryViewModel : ViewModelBase
 
     private async ValueTask Refresh(string key)
     {
+        var settings = await MySettings.LoadAsync();
         Log.Information("Refresh: {Name}", key);
         if (key == "all")
         {
             await DbOps.ScanAllLibraries();
+            if (settings.Metadata.FetchAchievements)
+                await DbOps.ScanAchievementsData();
         }
         else
         {
             var scanner = GameExtensions.ScannersByName[key];
             await DbOps.ScanLibrary(scanner);
+
+
+            if (settings.Metadata.FetchAchievements &&
+                GameExtensions.AchievementsByName.TryGetValue(key, out var value))
+                await DbOps.ScanAchievementsData(value);
         }
+
 
         RefreshCache();
     }

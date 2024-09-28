@@ -38,47 +38,53 @@ public static class DbOps
         }
     }
 
-    // ReSharper disable once UnusedMember.Local
-    private static async ValueTask ScanMissingAchievementsData()
+    public static async ValueTask ScanAchievementsData(string key)
     {
-        foreach (var (type, scanner) in GameExtensions.AchievementsByName)
-        {
-            ImmutableArray<GameLibraryRef> gamesMissingAchievements;
-            await using (var db = new GamiContext())
-            {
-                gamesMissingAchievements =
-                [
-                    ..db.Games
-                        .Where(g => g.Achievements.Count == 0)
-                        .Where(g => g.LibraryType == type)
-                        .Select(g => new GameLibraryRef
-                        {
-                            LibraryType = g.LibraryType,
-                            LibraryId = g.LibraryId,
-                            Name = g.Name
-                        })
-                ];
-            }
+        await ScanAchievementsData(GameExtensions.AchievementsByName[key]);
+    }
 
-            await Task.WhenAll(
-                gamesMissingAchievements.Select(async g =>
-                {
-                    Log.Information("Scanning achievements..");
-                    var achievements = await scanner.Scan(g);
+    public static async ValueTask ScanAchievementsData()
+    {
+        await Task.WhenAll(GameExtensions.AchievementsByName.Values.Select(async g => await ScanAchievementsData(g)));
+    }
+
+    public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner)
+    {
+        ImmutableArray<GameLibraryRef> gamesMissingAchievements;
+        await using (var db = new GamiContext())
+        {
+            gamesMissingAchievements =
+            [
+                ..db.Games
+                    .Where(g => g.Achievements.Count == 0)
+                    .Where(g => g.LibraryType == scanner.Type)
+                    .Select(g => new GameLibraryRef
+                    {
+                        LibraryType = g.LibraryType,
+                        LibraryId = g.LibraryId,
+                        Name = g.Name
+                    })
+            ];
+        }
+
+        await Task.WhenAll(
+            gamesMissingAchievements.Select(async g =>
+            {
+                Log.Information("Scanning achievements..");
+                var achievements = await scanner.Scan(g);
 
 #if DEBUG
-                    Log.Debug("Got achievements {Data}",
-                        JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
+                Log.Debug("Got achievements {Data}",
+                    JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
 
 #endif
-                    await using var db = new GamiContext();
-                    Log.Information("Inserting achievements for {Game}", g.Name);
-                    await db.BulkInsertOrUpdateAsync(achievements);
+                await using var db = new GamiContext();
+                Log.Information("Inserting achievements for {Game}", g.Name);
+                await db.BulkInsertOrUpdateAsync(achievements);
 
 
-                    Log.Information("Inserted achievements for {Game}", g.Name);
-                }));
-        }
+                Log.Information("Inserted achievements for {Game}", g.Name);
+            }));
     }
 
     private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
@@ -89,7 +95,7 @@ public static class DbOps
         return metadata;
     }
 
-    // ReSharper disable once UnusedMember.Local
+// ReSharper disable once UnusedMember.Local
     private static async ValueTask<int> GetOrCreate<T>(this DbContext context, DbSet<T> set, string value) where T :
         NamedIdItem, new()
     {
@@ -109,7 +115,7 @@ public static class DbOps
         return obj.Id;
     }
 
-    private static async ValueTask ScanMetadata(GameLibraryRef game)
+    public static async ValueTask ScanMetadata(GameLibraryRef game)
     {
         await using var db = new GamiContext();
         var metadata = await GetMetadata(game);
@@ -145,7 +151,7 @@ public static class DbOps
         Log.Debug("Steam saved");
     }
 
-    // ReSharper disable once UnusedMember.Local
+// ReSharper disable once UnusedMember.Local
     private static async ValueTask ScanAchievementsProgress()
     {
         foreach (var (type, scanner) in GameExtensions.AchievementsByName)

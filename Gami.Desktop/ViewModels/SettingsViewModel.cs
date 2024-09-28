@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive;
-using Gami.Desktop.Models;
+using Gami.Desktop.Models.Settings;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
@@ -17,8 +17,6 @@ public class SettingsViewModel : ViewModelBase
             SettingsChanged?.Invoke(Settings);
         });
     }
-
-    [Reactive] public string CurrentSource { get; set; }
 
     [Reactive] public MySettings Settings { get; set; } = MySettings.Load();
 
