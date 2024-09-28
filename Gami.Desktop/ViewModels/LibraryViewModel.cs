@@ -155,6 +155,12 @@ public class LibraryViewModel : ViewModelBase
 
     public ImmutableArray<PluginConfig> Plugins =>
     [
+        new()
+        {
+            Key = "all",
+            Name = "All",
+            Settings = ImmutableArray<PluginConfigSetting>.Empty
+        },
         ..GameExtensions.PluginConfigs.Values.Where(v => GameExtensions.ScannersByName.ContainsKey(v.Key))
     ];
 
