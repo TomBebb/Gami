@@ -53,7 +53,7 @@ public class App : Application
                     Log.Information("Save changes");
 
 
-                    DbOps.DoScan().GetAwaiter().GetResult();
+                    DbOps.AutoScan().GetAwaiter().GetResult();
                     /*Task.Run(() =>
                     DoScan().AsTask());
                 */

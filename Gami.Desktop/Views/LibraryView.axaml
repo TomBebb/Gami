@@ -8,6 +8,7 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
+             xmlns:plugins="clr-namespace:Gami.Desktop.Plugins"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Class="Gami.Desktop.Views.LibraryView">
@@ -26,6 +27,18 @@
         </Button>
         <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
             <StackPanel Orientation="Horizontal">
+
+                <ComboBox ItemsSource="{Binding Plugins}" SelectedValue="{Binding SelectedPlugin}">
+
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="plugins:PluginConfig">
+                            <Label Content="{Binding Name   }" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button>
+                    <fa:SymbolIcon Symbol="Refresh" VerticalAlignment="Stretch" />
+                </Button>
                 <SplitButton>
                     <SplitButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -34,7 +47,17 @@
                         </StackPanel>
                     </SplitButton.Content>
                     <SplitButton.Flyout>
-                        <MenuFlyout Placement="Bottom" ItemsSource="{Binding PluginNames}" />
+                        <MenuFlyout Placement="Bottom" ItemsSource="{Binding Plugins}">
+
+                            <MenuFlyout.ItemTemplate>
+                                <DataTemplate DataType="plugins:PluginConfig">
+
+
+                                    <MenuItem Header="{Binding Name   }" CommandParameter="{Binding}"
+                                              Command="{Binding Refresh}" />
+                                </DataTemplate>
+                            </MenuFlyout.ItemTemplate>
+                        </MenuFlyout>
                     </SplitButton.Flyout>
                 </SplitButton>
                 <Border BorderBrush="Teal" BorderThickness="1">
