@@ -18,4 +18,6 @@ public sealed class Achievement
     public AchievementProgress? Progress { get; set; }
 
     public List<Game> Games { get; set; } = null!;
+
+    public float? GlobalPercent { get; set; }
 }

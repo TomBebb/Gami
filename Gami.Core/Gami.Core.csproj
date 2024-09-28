@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
-        <Version>0.4.6</Version>
+        <Version>0.5.0</Version>
         <Title>Gami shared library for plugins and client</Title>
         <Authors>Tom Bebbington</Authors>
         <Description>A shared library for Gami UI and plugins</Description>
@@ -13,7 +13,7 @@
         <RepositoryUrl>https://github.com/TomBebb/Gami.Core</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>game</PackageTags>
-        <PackageReleaseNotes>Simplify file writing logic</PackageReleaseNotes>
+        <PackageReleaseNotes>Add achievement global percent</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
