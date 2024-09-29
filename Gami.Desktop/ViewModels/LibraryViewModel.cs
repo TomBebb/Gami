@@ -33,6 +33,12 @@ public class LibraryViewModel : ViewModelBase
 
     public LibraryViewModel()
     {
+        DeleteGame = ReactiveCommand.CreateFromTask(async (Game game) =>
+        {
+            await using var db = new GamiContext();
+            await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
+            RefreshCache();
+        });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
@@ -248,6 +254,7 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
+    public ReactiveCommand<Game, Unit> DeleteGame { get; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
     public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
