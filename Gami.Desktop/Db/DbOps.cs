@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
@@ -48,33 +50,35 @@ public static class DbOps
 
     public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner)
     {
-        ImmutableArray<GameLibraryRef> gamesMissingAchievements;
-        await using (var db = new GamiContext())
-        {
-            gamesMissingAchievements =
-            [
-                ..db.Games
-                    .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
-                    .Where(g => g.LibraryType == scanner.Type)
-                    .Select(g => new GameLibraryRef
-                    {
-                        LibraryType = g.LibraryType,
-                        LibraryId = g.LibraryId,
-                        Name = g.Name
-                    })
-            ];
-        }
+        await using var db = new GamiContext();
+
+        ImmutableArray<GameLibraryRef> gamesMissingAchievements =
+        [
+            ..db.Games
+                .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
+                .Where(g => g.LibraryType == scanner.Type)
+                .Select(g => new GameLibraryRef
+                {
+                    LibraryType = g.LibraryType,
+                    LibraryId = g.LibraryId,
+                    Name = g.Name
+                })
+        ];
+
+        var achievements = new ConcurrentBag<Achievement>();
 
         await Task.WhenAll(
             gamesMissingAchievements.Select(async g =>
             {
                 Log.Information("Scanning achievements..");
-                await using var db = new GamiContext();
-                await foreach (var achievement in scanner.Scan(g)) db.Achievements.Update(achievement);
 
-                await db.SaveChangesAsync();
-                Log.Information("Inserted achievements for {Game}", g.Name);
+                await foreach (var achievement in scanner.Scan(g)) achievements.Add(achievement);
+
+                Log.Information("Scanned achievements for {Game}", g.Name);
             }));
+        Log.Information("Inserting achievements ");
+
+        await db.BulkInsertOrUpdateAsync(achievements);
     }
 
     private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
