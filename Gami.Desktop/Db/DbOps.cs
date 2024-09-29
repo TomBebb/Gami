@@ -54,7 +54,7 @@ public static class DbOps
             gamesMissingAchievements =
             [
                 ..db.Games
-                    .Where(g => g.Achievements.Count == 0)
+                    .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
                     .Where(g => g.LibraryType == scanner.Type)
                     .Select(g => new GameLibraryRef
                     {
@@ -70,7 +70,7 @@ public static class DbOps
             {
                 Log.Information("Scanning achievements..");
                 await using var db = new GamiContext();
-                await foreach (var achievement in scanner.Scan(g)) await db.Achievements.AddAsync(achievement);
+                await foreach (var achievement in scanner.Scan(g)) db.Achievements.Update(achievement);
 
                 await db.SaveChangesAsync();
                 Log.Information("Inserted achievements for {Game}", g.Name);
@@ -169,7 +169,7 @@ public static class DbOps
                     Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
 
-                    await foreach (var pr in scanner.ScanProgress(g)) await db.AchievementsProgresses.AddAsync(pr);
+                    await foreach (var pr in scanner.ScanProgress(g)) db.AchievementsProgresses.Update(pr);
                     await db.SaveChangesAsync();
                     Log.Information("Scanned achievements progress for: {Name}", g.Name);
                 }));
