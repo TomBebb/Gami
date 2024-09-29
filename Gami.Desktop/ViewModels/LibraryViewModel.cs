@@ -12,6 +12,7 @@ using FluentAvalonia.UI.Controls;
 using Gami.Core;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
+using Gami.Desktop.Db.Models;
 using Gami.Desktop.MIsc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Models.Settings;
@@ -35,9 +36,37 @@ public class LibraryViewModel : ViewModelBase
     {
         DeleteGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
-            await using var db = new GamiContext();
-            await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
-            RefreshCache();
+            async ValueTask DeleteGame()
+            {
+                await using var db = new GamiContext();
+                await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
+                RefreshCache();
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = "Confirm Game Removal",
+                CloseButtonText = "No",
+                PrimaryButtonText = "Yes",
+                SecondaryButtonText = "Yes (add to blacklist)",
+                PrimaryButtonCommand = ReactiveCommand.CreateFromTask(async () => await DeleteGame()),
+                SecondaryButtonCommand = ReactiveCommand.CreateFromTask(async () =>
+                {
+                    await DeleteGame();
+
+                    await using var db = new GamiContext();
+                    var res = await db.ExcludedGames.AddAsync(new ExcludedGame
+                        { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
+                    await db.SaveChangesAsync();
+                    Log.Debug("Excluded Game: {Game}", res);
+                }),
+                Content = new Label
+                {
+                    Content =
+                        $"Are you sure you want to remove {game.Name}?\nSelecting \"Yes (add to blacklist)\" will mean the game will not be imported on the next import"
+                }
+            };
+            await dialog.ShowAsync();
         });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {

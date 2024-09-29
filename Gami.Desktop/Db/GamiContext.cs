@@ -2,6 +2,7 @@
 using System.IO;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Desktop.Db.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gami.Desktop.Db;
@@ -21,6 +22,7 @@ public class GamiContext : DbContext
     public DbSet<Platform> Platforms { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
     public DbSet<Series> Series { get; set; }
+    public DbSet<ExcludedGame> ExcludedGames { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -54,5 +56,8 @@ public class GamiContext : DbContext
         builder.Entity<Game>()
             .Property(g => g.LibraryId)
             .HasComputedColumnSql("substr([Id], instr([id], ':')+1)");
+
+        builder.Entity<ExcludedGame>()
+            .HasKey(e => new { e.LibraryId, e.LibraryType });
     }
 }
