@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
@@ -48,33 +50,35 @@ public static class DbOps
 
     public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner)
     {
-        ImmutableArray<GameLibraryRef> gamesMissingAchievements;
-        await using (var db = new GamiContext())
-        {
-            gamesMissingAchievements =
-            [
-                ..db.Games
-                    .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
-                    .Where(g => g.LibraryType == scanner.Type)
-                    .Select(g => new GameLibraryRef
-                    {
-                        LibraryType = g.LibraryType,
-                        LibraryId = g.LibraryId,
-                        Name = g.Name
-                    })
-            ];
-        }
+        await using var db = new GamiContext();
+
+        ImmutableArray<GameLibraryRef> gamesMissingAchievements =
+        [
+            ..db.Games
+                .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
+                .Where(g => g.LibraryType == scanner.Type)
+                .Select(g => new GameLibraryRef
+                {
+                    LibraryType = g.LibraryType,
+                    LibraryId = g.LibraryId,
+                    Name = g.Name
+                })
+        ];
+
+        var achievements = new ConcurrentBag<Achievement>();
 
         await Task.WhenAll(
             gamesMissingAchievements.Select(async g =>
             {
                 Log.Information("Scanning achievements..");
-                await using var db = new GamiContext();
-                await foreach (var achievement in scanner.Scan(g)) db.Achievements.Update(achievement);
 
-                await db.SaveChangesAsync();
-                Log.Information("Inserted achievements for {Game}", g.Name);
+                await foreach (var achievement in scanner.Scan(g)) achievements.Add(achievement);
+
+                Log.Information("Scanned achievements for {Game}", g.Name);
             }));
+        Log.Information("Inserting achievements ");
+
+        await db.BulkInsertOrUpdateAsync(achievements);
     }
 
     private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
@@ -147,25 +151,24 @@ public static class DbOps
         if (curr == null)
             throw new ApplicationException($"No matching game ref found in DB for {game.LibraryId}");
 
-        if (metadata.Description != null)
-            curr.Description = metadata.Description;
+        curr.Description = metadata.Description ?? "";
         if (metadata.Genres != null)
-            curr.Genres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new Genre
+            curr.Genres = metadata.Genres.Value.Select(v => new Genre
             {
                 Name = v
             }).ToList();
         if (metadata.Developers != null)
-            curr.Developers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new Developer
+            curr.Developers = metadata.Developers.Value.Select(v => new Developer
             {
                 Name = v
             }).ToList();
         if (metadata.Publishers != null)
-            curr.Publishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new Publisher
+            curr.Publishers = metadata.Publishers.Value.Select(v => new Publisher
             {
                 Name = v
             }).ToList();
         if (metadata.Series != null)
-            curr.Series = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new Series
+            curr.Series = metadata.Series.Value.Select(v => new Series
             {
                 Name = v
             }).ToList();
@@ -195,6 +198,7 @@ public static class DbOps
                         })
                 ];
             }
+
 
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
