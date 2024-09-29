@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -24,12 +23,10 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
     public string Type => SteamCommon.TypeName;
 
-    public async ValueTask<ConcurrentBag<Achievement>> Scan(IGameLibraryRef game)
+    public async IAsyncEnumerable<Achievement> Scan(IGameLibraryRef game)
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
-        var res = new ConcurrentBag<Achievement>();
-        if (allAchievements.Game?.AvailableGameStats?.Achievements == null)
-            return res;
+        if (allAchievements.Game?.AvailableGameStats?.Achievements == null) yield break;
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
@@ -40,35 +37,30 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         var globalPercentsByName =
             globalPercents.AchievementPercentages.Achievements.ToImmutableDictionary(v => v.Name, v => v.Percent);
-        await Task.WhenAll(allAchievements.Game.AvailableGameStats.Achievements.Select(
-            async
-                achievement =>
+
+        foreach (var achievement in allAchievements.Game.AvailableGameStats.Achievements)
+            yield return new Achievement
             {
-                res.Add(new Achievement
-                {
-                    Id =
-                        $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
-                    Name = achievement.DisplayName,
-                    LibraryId = achievement.Name,
-                    LockedIconUrl = achievement.Icon,
-                    UnlockedIconUrl = achievement.IconGray,
-                    GlobalPercent = globalPercentsByName.GetValueOrDefault(achievement.Name)
-                });
-            }));
-        return res;
+                Id =
+                    $"{game.LibraryType}:{game.LibraryId}::{achievement.Name}",
+                Name = achievement.DisplayName,
+                LibraryId = achievement.Name,
+                LockedIconUrl = achievement.Icon,
+                UnlockedIconUrl = achievement.IconGray,
+                GlobalPercent = globalPercentsByName.GetValueOrDefault(achievement.Name)
+            };
     }
 
-    public async ValueTask<ConcurrentBag<AchievementProgress>> ScanProgress(
+    public async IAsyncEnumerable<AchievementProgress> ScanProgress(
         IGameLibraryRef game)
     {
-        var res = new ConcurrentBag<AchievementProgress>();
         var playerAchievements =
             await GetPlayerAchievements(game).ConfigureAwait(false);
         Log.Debug("Player Achievements: {Achievements}",
             playerAchievements.PlayerStats.Achievements?.Length ?? 0);
         foreach (var achievement in playerAchievements.PlayerStats.Achievements ??
                                     ImmutableArray<PlayerAchievementItem>.Empty)
-            res.Add(new AchievementProgress
+            yield return new AchievementProgress
             {
                 AchievementId =
                     $"{game.LibraryType}:{game.LibraryId}::{achievement.ApiName}",
@@ -77,8 +69,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
                     : DateTime.UnixEpoch.AddSeconds
                         (achievement.UnlockTime),
                 Unlocked = achievement.Achieved == 1
-            });
-        return res;
+            };
     }
 
     private async ValueTask<PlayerAchievementsResults> GetPlayerAchievements

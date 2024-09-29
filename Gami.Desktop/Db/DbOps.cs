@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
@@ -71,18 +69,10 @@ public static class DbOps
             gamesMissingAchievements.Select(async g =>
             {
                 Log.Information("Scanning achievements..");
-                var achievements = await scanner.Scan(g);
-
-#if DEBUG
-                Log.Debug("Got achievements {Data}",
-                    JsonSerializer.Serialize(achievements.Select(a => a.LibraryId)));
-
-#endif
                 await using var db = new GamiContext();
-                Log.Information("Inserting achievements for {Game}", g.Name);
-                await db.BulkInsertOrUpdateAsync(achievements);
+                await foreach (var achievement in scanner.Scan(g)) await db.Achievements.AddAsync(achievement);
 
-
+                await db.SaveChangesAsync();
                 Log.Information("Inserted achievements for {Game}", g.Name);
             }));
     }
@@ -178,9 +168,9 @@ public static class DbOps
                 {
                     Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
-                    var achievementsProgress = await scanner.ScanProgress(g);
 
-                    await db.BulkInsertOrUpdateAsync(achievementsProgress);
+                    await foreach (var pr in scanner.ScanProgress(g)) await db.AchievementsProgresses.AddAsync(pr);
+                    await db.SaveChangesAsync();
                     Log.Information("Scanned achievements progress for: {Name}", g.Name);
                 }));
         }
