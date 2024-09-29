@@ -85,7 +85,6 @@ public static class DbOps
         return metadata;
     }
 
-// ReSharper disable once UnusedMember.Local
     private static async ValueTask<int> GetOrCreate<T>(this DbContext context, DbSet<T> set, string value) where T :
         NamedIdItem, new()
     {
@@ -103,6 +102,40 @@ public static class DbOps
         await set.AddAsync(obj);
         await context.SaveChangesAsync();
         return obj.Id;
+    }
+
+    public static async ValueTask ScanMetadata()
+    {
+        ImmutableArray<GameLibraryRef> refs;
+        await using (var db = new GamiContext())
+        {
+            refs = db.Games.Select(g => new GameLibraryRef
+            {
+                LibraryId = g.LibraryId,
+                Name = g.Name,
+                LibraryType = g.LibraryType
+            }).ToImmutableArray();
+        }
+
+        await Task.WhenAll(refs.Select(async vm => await ScanMetadata(vm)));
+    }
+
+    public static async ValueTask ScanMetadata(string key)
+    {
+        ImmutableArray<GameLibraryRef> refs;
+        await using (var db = new GamiContext())
+        {
+            refs = db.Games
+                .Where(g => g.LibraryType == key)
+                .Select(g => new GameLibraryRef
+                {
+                    LibraryId = g.LibraryId,
+                    Name = g.Name,
+                    LibraryType = g.LibraryType
+                }).ToImmutableArray();
+        }
+
+        await Task.WhenAll(refs.Select(async vm => await ScanMetadata(vm)));
     }
 
     public static async ValueTask ScanMetadata(GameLibraryRef game)

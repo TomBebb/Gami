@@ -197,6 +197,8 @@ public class LibraryViewModel : ViewModelBase
             await DbOps.ScanAllLibraries();
             if (settings.Metadata.FetchAchievements)
                 await DbOps.ScanAchievementsData();
+            if (settings.Metadata.FetchMetadata)
+                await DbOps.ScanMetadata();
         }
         else
         {
@@ -207,6 +209,9 @@ public class LibraryViewModel : ViewModelBase
             if (settings.Metadata.FetchAchievements &&
                 GameExtensions.AchievementsByName.TryGetValue(key, out var value))
                 await DbOps.ScanAchievementsData(value);
+
+            if (settings.Metadata.FetchMetadata)
+                await DbOps.ScanMetadata(key);
         }
 
 
