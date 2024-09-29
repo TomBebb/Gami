@@ -147,28 +147,23 @@ public static class DbOps
         if (curr == null)
             throw new ApplicationException($"No matching game ref found in DB for {game.LibraryId}");
 
-        if (metadata.Description != null)
-            curr.Description = metadata.Description;
-        if (metadata.Genres != null)
-            curr.Genres = (metadata.Genres ?? ImmutableArray<string>.Empty).Select(v => new Genre
-            {
-                Name = v
-            }).ToList();
-        if (metadata.Developers != null)
-            curr.Developers = (metadata.Developers ?? ImmutableArray<string>.Empty).Select(v => new Developer
-            {
-                Name = v
-            }).ToList();
-        if (metadata.Publishers != null)
-            curr.Publishers = (metadata.Publishers ?? ImmutableArray<string>.Empty).Select(v => new Publisher
-            {
-                Name = v
-            }).ToList();
-        if (metadata.Series != null)
-            curr.Series = (metadata.Series ?? ImmutableArray<string>.Empty).Select(v => new Series
-            {
-                Name = v
-            }).ToList();
+        curr.Description = metadata.Description;
+        curr.Genres = metadata.Genres.Select(v => new Genre
+        {
+            Name = v
+        }).ToList();
+        curr.Developers = metadata.Developers.Select(v => new Developer
+        {
+            Name = v
+        }).ToList();
+        curr.Publishers = metadata.Publishers.Select(v => new Publisher
+        {
+            Name = v
+        }).ToList();
+        curr.Series = metadata.Series.Select(v => new Series
+        {
+            Name = v
+        }).ToList();
         await db.SaveChangesAsync();
 
         Log.Debug("Steam saved");
@@ -195,6 +190,7 @@ public static class DbOps
                         })
                 ];
             }
+
 
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
