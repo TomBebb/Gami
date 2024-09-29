@@ -219,6 +219,13 @@ public static class DbOps
                 return new Lazy<string>(() => $"{item.LibraryType}_{item.LibraryId}_{name}");
             }
 
+            if (await db.ExcludedGames.AnyAsync(eg =>
+                    eg.LibraryId == item.LibraryId && eg.LibraryType == item.LibraryType))
+            {
+                Log.Debug("Skip excluded game {}", item.Name);
+                continue;
+            }
+
             var mapped = new Game
             {
                 Id = $"{scanner.Type}:{item.LibraryId}",

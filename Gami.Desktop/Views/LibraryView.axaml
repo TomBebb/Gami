@@ -114,7 +114,7 @@
                         IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 
                     <fa:FontIcon Name="FontIcon"
-                                 Glyph="Xsaa"
+                                 Glyph="X"
                                  FontSize="18" />
                 </Button>
             </Grid>
@@ -167,12 +167,12 @@
                                              Command="{Binding InstallGame}"
                                              CommandParameter="{Binding SelectedGame}"
                                              Label="Install" />
-                        <fa:CommandBarButton IconSource="Delete"
+                        <fa:CommandBarButton IconSource="Uninstall"
                                              Background="Orange"
-                                             IsVisible="{Binding SelectedGame.Installed}"
+                                             IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
                                              Command="{Binding UninstallGame}"
                                              CommandParameter="{Binding SelectedGame}"
-                                             Label="Delete" />
+                                             Label="Uninstall" />
                         <fa:CommandBarButton IconSource="Edit"
                                              Background="LightBlue"
                                              Command="{Binding EditGame}"
@@ -180,6 +180,18 @@
                                              Label="Edit" />
 
                     </fa:CommandBar.PrimaryCommands>
+                    <fa:CommandBar.SecondaryCommands>
+
+                        <fa:CommandBarButton
+                            Command="{Binding DeleteGame}"
+                            CommandParameter="{Binding SelectedGame}"
+                            HotKey="Delete"
+                            Label="Delete">
+                            <fa:CommandBarButton.IconSource>
+                                <fa:SymbolIconSource Symbol="Clear" />
+                            </fa:CommandBarButton.IconSource>
+                        </fa:CommandBarButton>
+                    </fa:CommandBar.SecondaryCommands>
 
                 </fa:CommandBar>
 
