@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -124,11 +126,14 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
 
         Log.Information("Fetching {Url}", url);
 
-        var res = await HttpConsts.HttpClient.GetFromJsonAsync<GameSchemaResult>(url,
+        var res = await HttpConsts.HttpClient.GetAsync(url);
+        if (res.StatusCode == HttpStatusCode.Forbidden &&
+            Equals(res.Content.Headers.ContentType, new MediaTypeHeaderValue("application/json")))
+            return new GameSchemaResult();
+        var steam = await res.Content.ReadAsStreamAsync();
+        return (await JsonSerializer.DeserializeAsync<GameSchemaResult>(steam,
             new
-                JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-        return res!;
+                JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
     }
 
     private sealed class PlayerAchievementItem
