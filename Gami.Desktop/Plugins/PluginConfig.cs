@@ -24,7 +24,7 @@ public class PluginConfig : ReactiveObject
     [JsonIgnore]
     private ImmutableDictionary<string, object> MySettings
     {
-        get => PluginJson.Load<ImmutableDictionary<string, object>>(Key)!;
+        get => PluginJson.Load<ImmutableDictionary<string, object>>(Key) ?? ImmutableDictionary<string, object>.Empty;
         set => PluginJson.Save(value, Key).AsTask().Wait();
     }
 
@@ -40,8 +40,9 @@ public class PluginConfig : ReactiveObject
                 {
                     Key = s.Key,
                     Name = s.Name,
-                    Value = vals[s.Key],
-                    Hint = s.Hint
+                    Value = vals.GetValueOrDefault(s.Key) ?? "",
+                    Hint = s.Hint,
+                    Type = s.Type
                 })
             ];
         }
