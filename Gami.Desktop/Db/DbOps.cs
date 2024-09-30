@@ -124,6 +124,7 @@ public static class DbOps
             throw new ApplicationException($"No matching game ref found in DB for {game.LibraryId}");
 
         curr.Description = metadata.Description ?? "";
+        curr.ReleaseDate = metadata.ReleaseDate?.ToDateTime(new TimeOnly(0, 0)) ?? DateTime.UnixEpoch;
 
         if (metadata.Genres != null)
         {
@@ -167,7 +168,7 @@ public static class DbOps
 
         await db.SaveChangesAsync();
 
-        Log.Debug("Steam saved");
+        Log.Debug("Steam saved for {Game}", game);
     }
 
 // ReSharper disable once UnusedMember.Local

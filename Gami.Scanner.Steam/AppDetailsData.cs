@@ -1,12 +1,13 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Gami.Scanner.Steam;
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public sealed class AppDetailsData
 {
     public string Type { get; set; } = null!;
@@ -20,23 +21,22 @@ public sealed class AppDetailsData
     public ImmutableArray<string> Publishers { get; set; }
 
     public ImmutableArray<AppGenre>? Genres { get; set; }
+
+    public AppReleaseDate? ReleaseDate { get; set; }
 }
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
+public sealed class AppReleaseDate
+{
+    public bool ComingSoon { get; set; }
+    public string? Date { get; set; }
+}
+
 public sealed class AppGenre
 {
     public string Id { get; set; } = null!;
     public string Description { get; set; } = null!;
 }
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public sealed class AppDetails
 {
     public bool Success { get; set; }
