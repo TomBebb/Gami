@@ -7,6 +7,7 @@ using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Models;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
@@ -100,7 +101,8 @@ public class AchievementsViewModel : ViewModelBase
 
         Achievements =
         [
-            ..achievementsQuery
+            ..achievementsQuery.Include(a => a.Progress)
+                .AsEnumerable()
                 .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
         ];
 
