@@ -13,9 +13,9 @@ public class SettingsViewModel : ViewModelBase
 {
     public SettingsViewModel()
     {
-        SaveCommand = ReactiveCommand.Create(() =>
+        SaveCommand = ReactiveCommand.CreateFromTask(async () =>
         {
-            Settings.Save();
+            await Settings.SaveAsync();
             SettingsChanged(Settings);
         });
     }

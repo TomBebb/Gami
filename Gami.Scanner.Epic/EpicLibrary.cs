@@ -1,6 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Gami.Core;
 using Gami.Core.Models;
@@ -57,30 +58,22 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         var text = "N/A";
 
         FrozenDictionary<string, InstallationData>? installData = null;
-        try
-        {
-            installData = ScanInstalledData();
+        installData = await ScanInstalledDataAsync();
 
-            var proc = new Process
+        var proc = new Process
+        {
+            StartInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "legendary",
-                    Arguments = "list",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            proc.Start();
+                FileName = "legendary",
+                Arguments = "list",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            }
+        };
+        proc.Start();
 
-            text = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning("Error while scanning apps: {Err}", ex.Message);
-        }
-
+        text = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
 
         if (installData == null)
             yield break;
@@ -110,8 +103,26 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
             return FrozenDictionary<string, InstallationData>.Empty;
 
         var stream = File.OpenRead(path);
-        return JsonSerializer.Deserialize<FrozenDictionary<string, InstallationData>>(stream,
-            LegendaryJsonSerializerOptions) ?? FrozenDictionary<string, InstallationData>.Empty;
+
+        var raw = JsonSerializer.Deserialize<JsonObject>(stream);
+        return raw == null
+            ? FrozenDictionary<string, InstallationData>.Empty
+            : raw.ToFrozenDictionary(v => v.Key, v => v.Value.Deserialize<InstallationData>())!;
+    }
+
+    private static async ValueTask<FrozenDictionary<string, InstallationData>> ScanInstalledDataAsync()
+    {
+        var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".config/legendary/installed.json");
+        if (!File.Exists(path))
+            return FrozenDictionary<string, InstallationData>.Empty;
+
+        var stream = File.OpenRead(path);
+
+        var raw = await JsonSerializer.DeserializeAsync<JsonObject>(stream);
+        return raw == null
+            ? FrozenDictionary<string, InstallationData>.Empty
+            : raw.ToFrozenDictionary(v => v.Key, v => v.Value.Deserialize<InstallationData>())!;
     }
 
     [GeneratedRegex(@" \* (.+) \(App name: (.+) \| Version: (.+)\)")]

@@ -37,10 +37,10 @@ public class MySettings : Core.Models.Settings
         return (await JsonSerializer.DeserializeAsync<MySettings>(stream, GameExtensions.PluginOpts))!;
     }
 
-    public void Save()
+    public async ValueTask SaveAsync()
     {
-        using var stream = File.Open(ConfigPath, FileMode.Create);
-        JsonSerializer.Serialize(stream, this, GameExtensions.PluginOpts);
+        await using var stream = File.Open(ConfigPath, FileMode.Create);
+        await JsonSerializer.SerializeAsync(stream, this, GameExtensions.PluginOpts);
         Log.Debug("Saved settings to {Path}", ConfigPath);
     }
 }

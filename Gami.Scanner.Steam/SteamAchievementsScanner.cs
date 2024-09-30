@@ -31,7 +31,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     public async IAsyncEnumerable<Achievement> Scan(IGameLibraryRef game)
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
-        if (allAchievements.Game.AvailableGameStats.Achievements == null) yield break;
+        if (allAchievements?.Game.AvailableGameStats?.Achievements == null) yield break;
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
@@ -114,7 +114,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             SteamApiJsonSerializerOptions))!;
     }
 
-    private async ValueTask<GameSchemaResult> GetGameAchievements
+    private async ValueTask<GameSchemaResult?> GetGameAchievements
         (IGameLibraryRef game)
     {
         var config = await _config.Task;
@@ -132,7 +132,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             Equals(res.Content.Headers.ContentType, new MediaTypeHeaderValue("application/json")))
             return new GameSchemaResult();
         var steam = await res.Content.ReadAsStreamAsync();
-        return (await JsonSerializer.DeserializeAsync<GameSchemaResult>(steam, SteamApiJsonSerializerOptions))!;
+        return await JsonSerializer.DeserializeAsync<GameSchemaResult>(steam, SteamApiJsonSerializerOptions);
     }
 
     private sealed class PlayerAchievementItem
