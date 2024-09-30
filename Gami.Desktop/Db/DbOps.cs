@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,7 +72,7 @@ public static class DbOps
         {
             refs =
             [
-                ..db.Games.Select(g => new GameLibraryRef
+                ..db.Games.Where(g => g.Description == "").Select(g => new GameLibraryRef
                 {
                     LibraryId = g.LibraryId,
                     Name = g.Name,
@@ -96,6 +97,7 @@ public static class DbOps
             [
                 ..db.Games
                     .Where(g => g.LibraryType == key)
+                    .Where(g => g.Description == "")
                     .Select(g => new GameLibraryRef
                     {
                         LibraryId = g.LibraryId,
@@ -122,26 +124,47 @@ public static class DbOps
             throw new ApplicationException($"No matching game ref found in DB for {game.LibraryId}");
 
         curr.Description = metadata.Description ?? "";
+
         if (metadata.Genres != null)
-            curr.Genres = metadata.Genres.Value.Select(v => new Genre
+        {
+            curr.Genres = new List<Genre>(metadata.Genres?.Length ?? 0);
+            foreach (var cn in metadata.Genres!)
             {
-                Name = v
-            }).ToList();
+                var existing = await db.Genres.Where(g => g.Name == cn).FirstOrDefaultAsync();
+                curr.Genres.Add(existing ?? new Genre { Name = cn });
+            }
+        }
+
         if (metadata.Developers != null)
-            curr.Developers = metadata.Developers.Value.Select(v => new Developer
+        {
+            curr.Developers = new List<Developer>(metadata.Developers?.Length ?? 0);
+            foreach (var cn in metadata.Developers!)
             {
-                Name = v
-            }).ToList();
+                var existing = await db.Developers.Where(g => g.Name == cn).FirstOrDefaultAsync();
+                curr.Developers.Add(existing ?? new Developer { Name = cn });
+            }
+        }
+
         if (metadata.Publishers != null)
-            curr.Publishers = metadata.Publishers.Value.Select(v => new Publisher
+        {
+            curr.Publishers = new List<Publisher>(metadata.Publishers?.Length ?? 0);
+            foreach (var cn in metadata.Publishers!)
             {
-                Name = v
-            }).ToList();
+                var existing = await db.Publishers.Where(g => g.Name == cn).FirstOrDefaultAsync();
+                curr.Publishers.Add(existing ?? new Publisher { Name = cn });
+            }
+        }
+
         if (metadata.Series != null)
-            curr.Series = metadata.Series.Value.Select(v => new Series
+        {
+            curr.Series = new List<Series>(metadata.Series?.Length ?? 0);
+            foreach (var cn in metadata.Series!)
             {
-                Name = v
-            }).ToList();
+                var existing = await db.Series.Where(g => g.Name == cn).FirstOrDefaultAsync();
+                curr.Series.Add(existing ?? new Series { Name = cn });
+            }
+        }
+
         await db.SaveChangesAsync();
 
         Log.Debug("Steam saved");

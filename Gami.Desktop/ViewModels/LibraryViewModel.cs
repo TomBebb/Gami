@@ -132,7 +132,6 @@ public class LibraryViewModel : ViewModelBase
             var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
-            game.Id = $"{game.LibraryType}:{game.LibraryId}";
 
             db.Games.Attach(game);
             db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
@@ -326,6 +325,21 @@ public class LibraryViewModel : ViewModelBase
         };
 
         Games = games
+            .Select(g => new Game
+            {
+                Name = g.Name,
+                Description = g.Description,
+                ReleaseDate = g.ReleaseDate,
+                Playtime = g.Playtime,
+                HeaderUrl = g.HeaderUrl,
+                IconUrl = g.IconUrl,
+                HeroUrl = g.HeroUrl,
+                LogoUrl = g.LogoUrl,
+                Id = g.Id,
+                Publishers = g.Publishers.Select(v => new Publisher { Name = v.Name }).ToList(),
+                Developers = g.Developers.Select(v => new Developer { Name = v.Name }).ToList(),
+                Genres = g.Genres.Select(v => new Genre { Name = v.Name }).ToList()
+            })
             .ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
