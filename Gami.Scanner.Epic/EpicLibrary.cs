@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -28,10 +28,8 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         Process.Start(fullExe);
     }
 
-    public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
-    {
-        return ValueTask.FromResult(ScanInstalledData()[gameRef.LibraryId].InstallPath.ResolveMatchingProcess());
-    }
+    public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef) =>
+        ValueTask.FromResult(ScanInstalledData()[gameRef.LibraryId].InstallPath.ResolveMatchingProcess());
 
     public string Type => "epic";
 
@@ -48,19 +46,17 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         Process.Start("legendary", ["uninstall", gameRef.LibraryId, "-y"]).Start();
     }
 
-    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game)
-    {
-        return ValueTask.FromResult(ScanInstalledData()
+    public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) =>
+        ValueTask.FromResult(ScanInstalledData()
             .ContainsKey(game.LibraryId)
             ? GameInstallStatus.Installed
             : GameInstallStatus.InLibrary);
-    }
 
     public async IAsyncEnumerable<IGameLibraryMetadata> Scan()
     {
         var text = "N/A";
 
-        ImmutableDictionary<string, InstallationData>? installData = null;
+        FrozenDictionary<string, InstallationData>? installData = null;
         try
         {
             installData = ScanInstalledData();
@@ -106,16 +102,16 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         }
     }
 
-    private static ImmutableDictionary<string, InstallationData> ScanInstalledData()
+    private static FrozenDictionary<string, InstallationData> ScanInstalledData()
     {
         var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".config/legendary/installed.json");
         if (!File.Exists(path))
-            return ImmutableDictionary<string, InstallationData>.Empty;
+            return FrozenDictionary<string, InstallationData>.Empty;
 
         var stream = File.OpenRead(path);
-        return JsonSerializer.Deserialize<ImmutableDictionary<string, InstallationData>>(stream,
-            LegendaryJsonSerializerOptions) ?? ImmutableDictionary<string, InstallationData>.Empty;
+        return JsonSerializer.Deserialize<FrozenDictionary<string, InstallationData>>(stream,
+            LegendaryJsonSerializerOptions) ?? FrozenDictionary<string, InstallationData>.Empty;
     }
 
     [GeneratedRegex(@" \* (.+) \(App name: (.+) \| Version: (.+)\)")]

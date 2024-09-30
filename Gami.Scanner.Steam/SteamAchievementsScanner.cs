@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
@@ -40,7 +41,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         Log.Debug("Loaded game percents");
 
         var globalPercentsByName =
-            globalPercents.AchievementPercentages.Achievements.ToImmutableDictionary(v => v.Name, v => v.Percent);
+            globalPercents.AchievementPercentages.Achievements.ToFrozenDictionary(v => v.Name, v => v.Percent);
 
         foreach (var achievement in allAchievements.Game.AvailableGameStats.Achievements)
             yield return new Achievement

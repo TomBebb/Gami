@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -22,9 +23,9 @@ public class PluginConfig : ReactiveObject
 
 
     [JsonIgnore]
-    private ImmutableDictionary<string, object> MySettings
+    private FrozenDictionary<string, object> MySettings
     {
-        get => PluginJson.Load<ImmutableDictionary<string, object>>(Key)!;
+        get => PluginJson.Load<FrozenDictionary<string, object>>(Key)!;
         set => PluginJson.Save(value, Key).AsTask().Wait();
     }
 
@@ -45,6 +46,6 @@ public class PluginConfig : ReactiveObject
                 })
             ];
         }
-        set { MySettings = value.ToImmutableDictionary(v => v.Key, v => v.Value)!; }
+        set { MySettings = value.ToFrozenDictionary(v => v.Key, v => v.Value)!; }
     }
 }
