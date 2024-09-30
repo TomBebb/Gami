@@ -38,17 +38,18 @@ public static class DbOps
         }
     }
 
-    public static async ValueTask ScanAchievementsData(string key)
+    public static async ValueTask ScanAchievementsData(string key, Action<float> onProgress)
     {
-        await ScanAchievementsData(GameExtensions.AchievementsByName[key]);
+        await ScanAchievementsData(GameExtensions.AchievementsByName[key], onProgress);
     }
 
-    public static async ValueTask ScanAchievementsData()
+    public static async ValueTask ScanAchievementsData(Action<float> onProgress)
     {
-        await Task.WhenAll(GameExtensions.AchievementsByName.Values.Select(async g => await ScanAchievementsData(g)));
+        await Task.WhenAll(
+            GameExtensions.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
     }
 
-    public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner)
+    public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner, Action<float> onProgress)
     {
         await using var db = new GamiContext();
 
@@ -68,8 +69,9 @@ public static class DbOps
         var achievements = new ConcurrentBag<Achievement>();
 
         await Task.WhenAll(
-            gamesMissingAchievements.Select(async g =>
+            gamesMissingAchievements.Select(async (g, index) =>
             {
+                onProgress?.Invoke(index / (float)gamesMissingAchievements.Length);
                 Log.Information("Scanning achievements..");
 
                 await foreach (var achievement in scanner.Scan(g)) achievements.Add(achievement);
@@ -89,26 +91,7 @@ public static class DbOps
         return metadata;
     }
 
-    private static async ValueTask<int> GetOrCreate<T>(this DbContext context, DbSet<T> set, string value) where T :
-        NamedIdItem, new()
-    {
-        Log.Debug("{Func} Value: {Val}", nameof(GetOrCreate), value);
-        var myId = await set.Where(v => v.Name == value)
-            .Select(v => v.Id)
-            .Cast<int?>()
-            .FirstOrDefaultAsync();
-
-        if (myId != null)
-            return myId.Value;
-
-        var obj = new T { Name = value };
-
-        await set.AddAsync(obj);
-        await context.SaveChangesAsync();
-        return obj.Id;
-    }
-
-    public static async ValueTask ScanMetadata()
+    public static async ValueTask ScanMetadata(Action<float> onProgress)
     {
         ImmutableArray<GameLibraryRef> refs;
         await using (var db = new GamiContext())
@@ -121,10 +104,14 @@ public static class DbOps
             }).ToImmutableArray();
         }
 
-        await Task.WhenAll(refs.Select(async vm => await ScanMetadata(vm)));
+        await Task.WhenAll(refs.Select(async (vm, index) =>
+        {
+            onProgress(index / (float)refs.Length);
+            await ScanMetadata(vm);
+        }));
     }
 
-    public static async ValueTask ScanMetadata(string key)
+    public static async ValueTask ScanMetadata(string key, Action<float> onProgress)
     {
         ImmutableArray<GameLibraryRef> refs;
         await using (var db = new GamiContext())
@@ -139,7 +126,11 @@ public static class DbOps
                 }).ToImmutableArray();
         }
 
-        await Task.WhenAll(refs.Select(async vm => await ScanMetadata(vm)));
+        await Task.WhenAll(refs.Select(async (vm, index) =>
+        {
+            await ScanMetadata(vm);
+            onProgress(index / (float)refs.Length);
+        }));
     }
 
     public static async ValueTask ScanMetadata(GameLibraryRef game)
@@ -213,6 +204,11 @@ public static class DbOps
         }
     }
 
+    public static ValueTask ScanLibrary(string key)
+    {
+        return ScanLibrary(GameExtensions.ScannersByName[key]);
+    }
+
     public static async ValueTask ScanLibrary(IGameLibraryScanner scanner)
     {
         await using var db = new GamiContext();
@@ -260,11 +256,6 @@ public static class DbOps
         }
 
         await db.SaveChangesAsync();
-    }
-
-    public static async ValueTask ScanAllLibraries()
-    {
-        await Task.WhenAll(GameExtensions.ScannersByName.Values.Select(async v => await ScanLibrary(v)));
     }
 
     public static async ValueTask AutoScan()

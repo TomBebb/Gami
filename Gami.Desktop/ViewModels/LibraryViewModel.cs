@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using Gami.Core;
@@ -227,29 +228,66 @@ public class LibraryViewModel : ViewModelBase
     {
         var settings = await MySettings.LoadAsync();
         Log.Information("Refresh: {Name}", key);
-        if (key == "all")
+        var dialog = new TaskDialog
         {
-            await DbOps.ScanAllLibraries();
-            if (settings.Metadata.FetchAchievements)
-                await DbOps.ScanAchievementsData();
-            if (settings.Metadata.FetchMetadata)
-                await DbOps.ScanMetadata();
-        }
-        else
+            Title = "Syncing Library",
+
+            Content = "Scanning Games",
+            ShowProgressBar = true,
+            XamlRoot = WindowUtil.GetMainWindow()
+        };
+
+        if (key != "all" && GameExtensions.PluginConfigs.TryGetValue(key, out var setting))
+            dialog.Title = $"{dialog.Title} for {setting.Name}";
+
+        void OnProgress(float progress)
         {
-            var scanner = GameExtensions.ScannersByName[key];
-            await DbOps.ScanLibrary(scanner);
-
-
-            if (settings.Metadata.FetchAchievements &&
-                GameExtensions.AchievementsByName.TryGetValue(key, out var value))
-                await DbOps.ScanAchievementsData(value);
-
-            if (settings.Metadata.FetchMetadata)
-                await DbOps.ScanMetadata(key);
+            dialog.SetProgressBarState(progress * 100f, TaskDialogProgressState.Normal);
         }
 
+        dialog.Opened += async (_, _) =>
+        {
+            if (key == "all")
+            {
+                await Task.WhenAll(
+                    GameExtensions.ScannersByName.Values.Select(async v => { await DbOps.ScanLibrary(v); }));
 
+                if (settings.Metadata.FetchAchievements)
+                {
+                    dialog.Content = "Scanning achievements";
+                    await DbOps.ScanAchievementsData(OnProgress);
+                }
+
+                if (settings.Metadata.FetchMetadata)
+                {
+                    dialog.Content = "Scanning metadata";
+                    await DbOps.ScanMetadata(OnProgress);
+                }
+            }
+            else
+            {
+                dialog.SetProgressBarState(0f, TaskDialogProgressState.Indeterminate);
+                await DbOps.ScanLibrary(key);
+
+
+                if (settings.Metadata.FetchAchievements &&
+                    GameExtensions.AchievementsByName.TryGetValue(key, out var value))
+                {
+                    dialog.Content = "Scanning achievements";
+                    await DbOps.ScanAchievementsData(value, OnProgress);
+                }
+
+                if (settings.Metadata.FetchMetadata)
+                {
+                    dialog.Content = "Scanning metadata";
+                    await DbOps.ScanMetadata(key, OnProgress);
+                }
+            }
+
+            Dispatcher.UIThread.Post(() => { dialog.Hide(TaskDialogStandardResult.OK); });
+        };
+
+        await dialog.ShowAsync();
         RefreshCache();
     }
 
