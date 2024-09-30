@@ -14,6 +14,21 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
     private static readonly string SteamPath =
         OperatingSystem.IsWindows() ? "C:/Program Files (x86)/Steam/steam.exe" : "steam";
 
+
+    public string Type => "steam";
+
+    public void Launch(IGameLibraryRef gameRef) =>
+        RunGameCmd("rungameid", gameRef.LibraryId);
+
+    public ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
+    {
+        var meta = SteamScanner.ScanInstalledGame(gameRef.LibraryId);
+        if (meta == null)
+            return ValueTask.FromResult<Process?>(null);
+        var appDir = Path.Join(SteamScanner.AppsPath, "common", meta.InstallDir);
+        return ValueTask.FromResult(appDir.ResolveMatchingProcess());
+    }
+
     public async ValueTask Install(IGameLibraryRef gameRef) =>
         await Task.Run(() => RunGameCmd("install", gameRef.LibraryId));
 
@@ -22,21 +37,6 @@ public sealed class SteamCommon : IGameLibraryLauncher, IGameLibraryManagement
 
     public ValueTask<GameInstallStatus> CheckInstallStatus(IGameLibraryRef game) =>
         SteamScanner.CheckStatus(game.LibraryId);
-
-
-    public string Type => "steam";
-
-    public void Launch(IGameLibraryRef gameRef) =>
-        RunGameCmd("rungameid", gameRef.LibraryId);
-
-    public async ValueTask<Process?> GetMatchingProcess(IGameLibraryRef gameRef)
-    {
-        var meta = SteamScanner.ScanInstalledGame(gameRef.LibraryId);
-        if (meta == null)
-            return null;
-        var appDir = Path.Join(SteamScanner.AppsPath, "common", meta.InstallDir);
-        return appDir.ResolveMatchingProcess();
-    }
 
 
     private static void RunGameCmd(string cmd, string id)

@@ -1,4 +1,6 @@
-﻿namespace Gami.Desktop.Models;
+﻿// ReSharper disable UnusedMember.Global
+
+namespace Gami.Desktop.Models;
 
 public enum AchievementsFilter
 {

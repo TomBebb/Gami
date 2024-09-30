@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable ClassNeverInstantiated.Global
+
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace Gami.Library.Gog.Models;
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-public sealed class Download
+public sealed record Download
 {
     public string ManualUrl { get; set; } = null!;
     public string Name { get; set; } = null!;

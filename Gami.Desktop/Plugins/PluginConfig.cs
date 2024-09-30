@@ -17,15 +17,15 @@ public class PluginConfig : ReactiveObject
     [Reactive] public required string Name { get; set; }
 
     [Reactive]
-    public required ImmutableArray<PluginConfigSetting> Settings { get; set; } =
+    public required ImmutableArray<PluginConfigSetting> Settings { get; init; } =
         ImmutableArray<PluginConfigSetting>.Empty;
 
 
     [JsonIgnore]
-    public ImmutableDictionary<string, object> MySettings
+    private ImmutableDictionary<string, object> MySettings
     {
         get => PluginJson.Load<ImmutableDictionary<string, object>>(Key)!;
-        set => PluginJson.Save(value, Key);
+        set => PluginJson.Save(value, Key).AsTask().Wait();
     }
 
     [JsonIgnore]
@@ -34,13 +34,16 @@ public class PluginConfig : ReactiveObject
         get
         {
             var vals = MySettings;
-            return Settings.Select(s => new MappedPluginConfigSetting
-            {
-                Key = s.Key,
-                Name = s.Name,
-                Value = vals[s.Key],
-                Hint = s.Hint
-            }).ToImmutableArray();
+            return
+            [
+                ..Settings.Select(s => new MappedPluginConfigSetting
+                {
+                    Key = s.Key,
+                    Name = s.Name,
+                    Value = vals[s.Key],
+                    Hint = s.Hint
+                })
+            ];
         }
         set { MySettings = value.ToImmutableDictionary(v => v.Key, v => v.Value)!; }
     }

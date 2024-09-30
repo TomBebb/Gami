@@ -13,6 +13,6 @@ public partial class MainView : UserControl
 
     private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e)
     {
-        ((MainViewModel)DataContext)!.Curr = e.SelectedItem.ToString()!;
+        (DataContext as MainViewModel)!.Curr = e.SelectedItem.ToString()!;
     }
 }

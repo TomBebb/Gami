@@ -8,8 +8,6 @@ namespace Gami.Desktop.Conv;
 
 public sealed class TimeSpanDisplayConverter : IValueConverter
 {
-    public static readonly TimeSpanDisplayConverter Instance = new();
-
     public object Convert(object? value, Type targetType, object? parameter,
         CultureInfo culture)
     {

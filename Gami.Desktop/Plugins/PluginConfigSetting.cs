@@ -8,8 +8,10 @@ namespace Gami.Desktop.Plugins;
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class PluginConfigSetting
 {
-    [Reactive] public required string Key { get; set; }
+    [Reactive] public required string Key { get; init; }
     [Reactive] public required string Name { get; set; }
 
     [Reactive] public string? Hint { get; set; }
+
+    [Reactive] public PluginConfigSettingType Type { get; set; } = PluginConfigSettingType.String;
 }

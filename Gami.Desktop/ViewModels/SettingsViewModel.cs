@@ -5,6 +5,8 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace Gami.Desktop.ViewModels;
 
 public class SettingsViewModel : ViewModelBase
@@ -14,14 +16,14 @@ public class SettingsViewModel : ViewModelBase
         SaveCommand = ReactiveCommand.Create(() =>
         {
             Settings.Save();
-            SettingsChanged?.Invoke(Settings);
+            SettingsChanged(Settings);
         });
     }
 
     [Reactive] public MySettings Settings { get; set; } = MySettings.Load();
 
     public ReactiveCommand<Unit, Unit> SaveCommand { get; }
-    public static event Action<MySettings> SettingsChanged;
+    public static event Action<MySettings> SettingsChanged = null!;
 
     public void Watch()
     {

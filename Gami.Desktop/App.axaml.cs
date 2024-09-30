@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -53,10 +52,7 @@ public class App : Application
                     Log.Information("Save changes");
 
 
-                    DbOps.AutoScan().GetAwaiter().GetResult();
-                    /*Task.Run(() =>
-                    DoScan().AsTask());
-                */
+                    Task.Run(async () => { await DbOps.AutoScan(); });
                     Log.Information("Saved changes");
                 }
 
@@ -89,11 +85,9 @@ public class App : Application
             Log.Debug("Lost focus: {Ev}; state: {State}", args, window.WindowState);
             await Task.Delay(10);
             Log.Debug("Lost focus: {Ev}; state: {State}", args, window.WindowState);
-            if (window.WindowState == WindowState.Minimized)
-            {
-                Log.Information("Minimized");
-                if (settings.Settings.MinimizeToSystemTray) window.Hide();
-            }
+            if (window.WindowState != WindowState.Minimized) return;
+            Log.Information("Minimized");
+            if (settings.Settings.MinimizeToSystemTray) window.Hide();
         };
 
         window.Closing += (_, args) =>
@@ -105,15 +99,13 @@ public class App : Application
             window.Hide();
         };
 
-        Log.Information("Got settings: {DAta}",
-            JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
 
         var open = ReactiveCommand.Create(OpenOnClick);
         var trayIcon = new TrayIcon
         {
             IsVisible = settings.Settings.ShowSystemTrayIcon,
             ToolTipText = "Gami",
-            Icon = new WindowIcon(new Bitmap("C:\\Users\\topha\\Code\\Gami\\Gami.Desktop\\Assets\\avalonia-logo.ico")),
+            Icon = new WindowIcon(new Bitmap(@"C:\Users\topha\Code\Gami\Gami.Desktop\Assets\avalonia-logo.ico")),
             Command = open,
             Menu =
             [
@@ -121,21 +113,15 @@ public class App : Application
                 new NativeMenuItem("Exit Gami") { Command = ReactiveCommand.Create(Close) }
             ]
         };
-        SettingsViewModel.SettingsChanged += settings =>
+        SettingsViewModel.SettingsChanged += newSettings =>
         {
             Log.Information("SettingsChanged");
             Dispatcher.UIThread.Post(() =>
-                trayIcon.IsVisible = settings.ShowSystemTrayIcon);
+                trayIcon.IsVisible = newSettings.ShowSystemTrayIcon);
         };
-        return;
-        var trayIcons = new TrayIcons
-        {
-            trayIcon
-        };
-        SetValue(TrayIcon.IconsProperty, settings.Settings.ShowSystemTrayIcon ? trayIcons : null);
     }
 
-    private void OpenOnClick()
+    private static void OpenOnClick()
     {
         Log.Debug("Opening on click");
         var window = WindowUtil.GetMainWindow()!;
@@ -145,7 +131,7 @@ public class App : Application
         //window.Activate();
     }
 
-    private void Close()
+    private static void Close()
     {
         Environment.Exit(0);
     }

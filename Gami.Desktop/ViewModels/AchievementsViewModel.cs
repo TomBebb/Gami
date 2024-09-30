@@ -11,6 +11,8 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 
+// ReSharper disable MemberCanBeMadeStatic.Global
+
 namespace Gami.Desktop.ViewModels;
 
 public class AchievementsViewModel : ViewModelBase
@@ -44,8 +46,11 @@ public class AchievementsViewModel : ViewModelBase
 
     [Reactive] public SortDirection SortDirection { get; set; } = SortDirection.Descending;
     [Reactive] public bool SortAscending { get; set; }
-    public string[] FilterOptions => Enum.GetValues<AchievementsFilter>().Select(af => af.Humanize()).ToArray();
-    public string[] SortOptions => Enum.GetValues<AchievementSort>().Select(af => af.Humanize()).ToArray();
+
+    public string[] FilterOptions { get; set; } =
+        Enum.GetValues<AchievementsFilter>().Select(af => af.Humanize()).ToArray();
+
+    public string[] SortOptions { get; set; } = Enum.GetValues<AchievementSort>().Select(af => af.Humanize()).ToArray();
 
     public ReactiveCommand<Unit, Unit> ToggleSortDir { get; }
 
@@ -67,9 +72,9 @@ public class AchievementsViewModel : ViewModelBase
         Log.Debug("Selected game changed! Fetching achievements");
         using var db = new GamiContext();
 
-        var achievementsQuery = db.Achievements.AsQueryable().Where(a => a.GameId == SelectedGame.Id)
+        var achievementsQuery = db.Achievements.AsQueryable().Where(a => a.GameId == SelectedGame!.Id)
             .Where(a => Filter == AchievementsFilter.None ||
-                        Filter == AchievementsFilter.Locked == !a.Progress.Unlocked);
+                        Filter == AchievementsFilter.Locked == (a.Progress == null || !a.Progress.Unlocked));
 
 
         achievementsQuery = (Sort, SortDirection) switch
@@ -89,12 +94,15 @@ public class AchievementsViewModel : ViewModelBase
             (AchievementSort.Unlocked, SortDirection.Ascending) => achievementsQuery.OrderBy(a =>
                 a.Progress != null && a.Progress.Unlocked),
             (AchievementSort.Unlocked, SortDirection.Descending) => achievementsQuery.OrderByDescending(a =>
-                a.Progress != null && a.Progress.Unlocked)
+                a.Progress != null && a.Progress.Unlocked),
+            _ => throw new ArgumentOutOfRangeException(nameof(Sort) + ", " + nameof(SortDirection), "Invalid value")
         };
 
-        Achievements = achievementsQuery
-            .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
-            .ToImmutableArray();
+        Achievements =
+        [
+            ..achievementsQuery
+                .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
+        ];
 
         Log.Debug("Selected game changed! Fetched achievements");
     }

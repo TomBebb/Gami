@@ -1,4 +1,6 @@
-﻿namespace Gami.Scanner.Steam;
+﻿// ReSharper disable ClassNeverInstantiated.Global
+
+namespace Gami.Scanner.Steam;
 
 public record SteamConfig(
     string ApiKey = "",

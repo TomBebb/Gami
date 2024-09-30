@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using Avalonia.Controls;
 using Gami.Desktop.Views;
 using ReactiveUI;
@@ -51,7 +50,7 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    [Reactive] public ReactiveObject? CurrObject { get; set; } = new LibraryViewModel();
+    [Reactive] private ReactiveObject? CurrObject { get; set; } = new LibraryViewModel();
 
     [Reactive] public UserControl? CurrView { get; set; }
 }

@@ -22,6 +22,7 @@
                 <Setter.Value>
                     <ControlTemplate>
                         <Border Background="Transparent">
+                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                             <RadioButton Content="{TemplateBinding ContentPresenter.Content}"
                                          VerticalAlignment="Center"
                                          IsChecked="{Binding Path=IsSelected,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}" />

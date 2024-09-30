@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Gami.Core.Models;
 using IniParser.Parser;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedType.Global
+
 namespace Gami.Desktop.Scanners;
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public static class BuiltInAppScanner
 {
     public static ImmutableList<IGameLibraryRef> ScanApps()

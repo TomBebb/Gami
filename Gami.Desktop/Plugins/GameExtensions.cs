@@ -42,9 +42,6 @@ public static class GameExtensions
     public static readonly FrozenDictionary<string, IGameAchievementScanner>
         AchievementsByName = PluginsByType<IGameAchievementScanner>();
 
-    public static readonly FrozenDictionary<string, IGameIconLookup>
-        IconLookupByName = PluginsByType<IGameIconLookup>();
-
     public static readonly FrozenDictionary<string, IGameMetadataScanner>
         MetadataScannersByName = PluginsByType<IGameMetadataScanner>();
 
@@ -141,10 +138,7 @@ public static class GameExtensions
         LaunchersByName.GetLauncher(game.LibraryType).Launch(game);
     }
 
-    public static ValueTask Install(this Game game)
-    {
-        return InstallersByName.GetLauncher(game.LibraryType).Install(game);
-    }
+    public static ValueTask Install(this Game game) => InstallersByName.GetLauncher(game.LibraryType).Install(game);
 
 
     public static void Uninstall(this Game game)

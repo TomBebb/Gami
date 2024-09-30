@@ -20,6 +20,8 @@ namespace Gami.Scanner.Steam;
 [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
 public sealed class SteamAchievementsScanner : IGameAchievementScanner
 {
+    private static readonly JsonSerializerOptions SteamApiJsonSerializerOptions = new(JsonSerializerDefaults.Web);
+
     private readonly AsyncLazy<SteamConfig> _config = new(async () =>
         await PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName));
 
@@ -28,7 +30,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
     public async IAsyncEnumerable<Achievement> Scan(IGameLibraryRef game)
     {
         var allAchievements = await GetGameAchievements(game).ConfigureAwait(false);
-        if (allAchievements.Game?.AvailableGameStats?.Achievements == null) yield break;
+        if (allAchievements.Game.AvailableGameStats.Achievements == null) yield break;
         Log.Debug("Game achievements: {Game}",
             allAchievements.Game.AvailableGameStats.Achievements.Length);
 
@@ -89,9 +91,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         {
             var res = await HttpConsts.HttpClient
                 .GetFromJsonAsync<PlayerAchievementsResults>(
-                    url,
-                    new
-                        JsonSerializerOptions(JsonSerializerDefaults.Web));
+                    url, SteamApiJsonSerializerOptions);
             return res!;
         }
         catch (HttpRequestException)
@@ -110,7 +110,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
         Log.Debug("Fetch global percents for {GameId}", url);
 
         return (await HttpConsts.HttpClient.GetFromJsonAsync<GlobalPercentAchievementsResults>(url,
-            new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+            SteamApiJsonSerializerOptions))!;
     }
 
     private async ValueTask<GameSchemaResult> GetGameAchievements
@@ -131,9 +131,7 @@ public sealed class SteamAchievementsScanner : IGameAchievementScanner
             Equals(res.Content.Headers.ContentType, new MediaTypeHeaderValue("application/json")))
             return new GameSchemaResult();
         var steam = await res.Content.ReadAsStreamAsync();
-        return (await JsonSerializer.DeserializeAsync<GameSchemaResult>(steam,
-            new
-                JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+        return (await JsonSerializer.DeserializeAsync<GameSchemaResult>(steam, SteamApiJsonSerializerOptions))!;
     }
 
     private sealed class PlayerAchievementItem

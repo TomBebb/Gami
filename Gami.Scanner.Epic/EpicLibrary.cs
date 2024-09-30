@@ -6,6 +6,8 @@ using Gami.Core;
 using Gami.Core.Models;
 using Serilog;
 
+// ReSharper disable UnusedType.Global
+
 namespace Gami.Scanner.Epic;
 
 public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLauncher, IGameLibraryScanner
@@ -82,8 +84,7 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
         {
             Log.Warning("Error while scanning apps: {Err}", ex.Message);
         }
-        
-        
+
 
         if (installData == null)
             yield break;
@@ -98,7 +99,7 @@ public sealed partial class EpicLibrary : IGameLibraryManagement, IGameLibraryLa
                 LibraryType = Type,
                 Name = match.Groups[1].Value,
                 LibraryId = id,
-                InstallStatus = installData!.ContainsKey(id)
+                InstallStatus = installData.ContainsKey(id)
                     ? GameInstallStatus.Installed
                     : GameInstallStatus.InLibrary
             };

@@ -15,34 +15,6 @@ namespace Gami.Desktop.Db;
 
 public static class DbOps
 {
-    private static async ValueTask ScanMissingIcons()
-    {
-        await using var db = new GamiContext();
-
-        foreach (var item in db.Games
-                     .Where(g => g.IconUrl == null)
-                     .Select(g => new GameLibraryRef
-                         { Name = g.Name, LibraryId = g.LibraryId, LibraryType = g.LibraryType }))
-        {
-            var scanner = GameExtensions.IconLookupByName[item.LibraryType];
-            var icon = await scanner.LookupIcon(item);
-            var mapped = new Game
-            {
-                Id = $"{item.LibraryType}:{item.LibraryId}",
-                IconUrl = icon
-            };
-            db.Games.Attach(mapped);
-            db.Entry(mapped).Property(x => x.IconUrl).IsModified = true;
-
-            await db.SaveChangesAsync();
-        }
-    }
-
-    public static async ValueTask ScanAchievementsData(string key, Action<float> onProgress)
-    {
-        await ScanAchievementsData(GameExtensions.AchievementsByName[key], onProgress);
-    }
-
     public static async ValueTask ScanAchievementsData(Action<float> onProgress)
     {
         await Task.WhenAll(
@@ -56,7 +28,8 @@ public static class DbOps
         ImmutableArray<GameLibraryRef> gamesMissingAchievements =
         [
             ..db.Games
-                .Where(g => !db.Achievements.Where(a => a.GameId == g.Id).Any())
+                // ReSharper disable once AccessToDisposedClosure
+                .Where(g => !db.Achievements.Any(a => a.GameId == g.Id))
                 .Where(g => g.LibraryType == scanner.Type)
                 .Select(g => new GameLibraryRef
                 {
@@ -71,7 +44,7 @@ public static class DbOps
         await Task.WhenAll(
             gamesMissingAchievements.Select(async (g, index) =>
             {
-                onProgress?.Invoke(index / (float)gamesMissingAchievements.Length);
+                onProgress(index / (float)gamesMissingAchievements.Length);
                 Log.Information("Scanning achievements..");
 
                 await foreach (var achievement in scanner.Scan(g)) achievements.Add(achievement);
@@ -96,12 +69,15 @@ public static class DbOps
         ImmutableArray<GameLibraryRef> refs;
         await using (var db = new GamiContext())
         {
-            refs = db.Games.Select(g => new GameLibraryRef
-            {
-                LibraryId = g.LibraryId,
-                Name = g.Name,
-                LibraryType = g.LibraryType
-            }).ToImmutableArray();
+            refs =
+            [
+                ..db.Games.Select(g => new GameLibraryRef
+                {
+                    LibraryId = g.LibraryId,
+                    Name = g.Name,
+                    LibraryType = g.LibraryType
+                })
+            ];
         }
 
         await Task.WhenAll(refs.Select(async (vm, index) =>
@@ -116,14 +92,17 @@ public static class DbOps
         ImmutableArray<GameLibraryRef> refs;
         await using (var db = new GamiContext())
         {
-            refs = db.Games
-                .Where(g => g.LibraryType == key)
-                .Select(g => new GameLibraryRef
-                {
-                    LibraryId = g.LibraryId,
-                    Name = g.Name,
-                    LibraryType = g.LibraryType
-                }).ToImmutableArray();
+            refs =
+            [
+                ..db.Games
+                    .Where(g => g.LibraryType == key)
+                    .Select(g => new GameLibraryRef
+                    {
+                        LibraryId = g.LibraryId,
+                        Name = g.Name,
+                        LibraryType = g.LibraryType
+                    })
+            ];
         }
 
         await Task.WhenAll(refs.Select(async (vm, index) =>
@@ -133,7 +112,7 @@ public static class DbOps
         }));
     }
 
-    public static async ValueTask ScanMetadata(GameLibraryRef game)
+    private static async ValueTask ScanMetadata(GameLibraryRef game)
     {
         await using var db = new GamiContext();
         var metadata = await GetMetadata(game);
@@ -204,21 +183,13 @@ public static class DbOps
         }
     }
 
-    public static ValueTask ScanLibrary(string key)
-    {
-        return ScanLibrary(GameExtensions.ScannersByName[key]);
-    }
+    public static ValueTask ScanLibrary(string key) => ScanLibrary(GameExtensions.ScannersByName[key]);
 
     public static async ValueTask ScanLibrary(IGameLibraryScanner scanner)
     {
         await using var db = new GamiContext();
         await foreach (var item in scanner.Scan().ConfigureAwait(false))
         {
-            Lazy<string> WithPrefix(string name)
-            {
-                return new Lazy<string>(() => $"{item.LibraryType}_{item.LibraryId}_{name}");
-            }
-
             if (await db.ExcludedGames.AnyAsync(eg =>
                     eg.LibraryId == item.LibraryId && eg.LibraryType == item.LibraryType))
             {
@@ -252,6 +223,13 @@ public static class DbOps
             else
             {
                 await db.AddAsync(mapped);
+            }
+
+            continue;
+
+            Lazy<string> WithPrefix(string name)
+            {
+                return new Lazy<string>(() => $"{item.LibraryType}_{item.LibraryId}_{name}");
             }
         }
 

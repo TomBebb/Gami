@@ -25,6 +25,12 @@ using ReactiveUI.Fody.Helpers;
 using Serilog;
 using WebView = AvaloniaWebView.WebView;
 
+// ReSharper disable MemberCanBeMadeStatic.Global
+
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace Gami.Desktop.ViewModels;
 
 public class LibraryViewModel : ViewModelBase
@@ -37,13 +43,6 @@ public class LibraryViewModel : ViewModelBase
     {
         DeleteGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
-            async ValueTask DeleteGame()
-            {
-                await using var db = new GamiContext();
-                await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
-                RefreshCache();
-            }
-
             var dialog = new ContentDialog
             {
                 Title = "Confirm Game Removal",
@@ -68,6 +67,14 @@ public class LibraryViewModel : ViewModelBase
                 }
             };
             await dialog.ShowAsync();
+            return;
+
+            async ValueTask DeleteGame()
+            {
+                await using var db = new GamiContext();
+                await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
+                RefreshCache();
+            }
         });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
@@ -114,6 +121,8 @@ public class LibraryViewModel : ViewModelBase
                 case GameLaunchBehavior.Minimize:
                     mainWindow.WindowState = WindowState.Minimized;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(settings.GameLaunchWindowBehavior));
             }
         });
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
@@ -163,14 +172,17 @@ public class LibraryViewModel : ViewModelBase
                 Content = webview
             };
             await dialog.ShowAsync();
+
             this.WhenAnyValue(v => v.CurrentUrl)
-                .Subscribe(async v =>
-                {
-                    Log.Debug("weebbview URL changed: {Url}", v);
-                    if (v == null || Auth == null)
-                        return;
-                    if (await Auth!.CurrUrlChange(v)) dialog?.Hide(ContentDialogResult.Primary);
-                });
+                .Subscribe(OnUrlChange);
+            return;
+
+            async void OnUrlChange(string? v)
+            {
+                Log.Debug("weebbview URL changed: {Url}", v);
+                if (v == null || Auth == null) return;
+                if (await Auth!.CurrUrlChange(v)) dialog.Hide(ContentDialogResult.Primary);
+            }
         });
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
@@ -187,10 +199,12 @@ public class LibraryViewModel : ViewModelBase
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
 
-        RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask());
+        RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
     }
 
+#pragma warning disable CA1822
     public ImmutableArray<PluginConfig> Plugins =>
+#pragma warning restore CA1822
     [
         new()
         {
@@ -209,8 +223,9 @@ public class LibraryViewModel : ViewModelBase
 
     [Reactive] private Process? Current { get; set; }
 
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+#pragma warning disable CA1859
     [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
+#pragma warning restore CA1859
     [Reactive] public string? CurrentUrl { get; set; }
     public ReactiveCommand<string?, Unit> RefreshGame { get; }
 
@@ -239,11 +254,6 @@ public class LibraryViewModel : ViewModelBase
 
         if (key != "all" && GameExtensions.PluginConfigs.TryGetValue(key, out var setting))
             dialog.Title = $"{dialog.Title} for {setting.Name}";
-
-        void OnProgress(float progress)
-        {
-            dialog.SetProgressBarState(progress * 100f, TaskDialogProgressState.Normal);
-        }
 
         dialog.Opened += async (_, _) =>
         {
@@ -289,13 +299,19 @@ public class LibraryViewModel : ViewModelBase
 
         await dialog.ShowAsync();
         RefreshCache();
+        return;
+
+        void OnProgress(float progress)
+        {
+            dialog.SetProgressBarState(progress * 100f, TaskDialogProgressState.Normal);
+        }
     }
 
     private void RefreshCache()
     {
         var sort = (SortGameField)SortFieldIndex;
         Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}", Search, sort);
-        var dir = SortDirection.Ascending;
+        const SortDirection dir = SortDirection.Ascending;
         using var db = new GamiContext();
         var games = db.Games
             .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));

@@ -8,22 +8,21 @@ namespace Gami.Desktop.Conv;
 
 public class InstallStatusToIconConv : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (!(value is GameInstallStatus status))
-            throw new ArgumentException(nameof(value));
+        if (value is not GameInstallStatus status)
+            throw new ArgumentException("Not " + nameof(GameInstallStatus), nameof(value));
 
         return status switch
         {
             GameInstallStatus.Installing => Symbol.Rotate,
             GameInstallStatus.Queued => Symbol.Rotate,
             GameInstallStatus.Installed => Symbol.Checkmark,
-            GameInstallStatus.InLibrary => Symbol.Clear
+            GameInstallStatus.InLibrary => Symbol.Clear,
+            _ => throw new ArgumentOutOfRangeException(nameof(value))
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotImplementedException();
-    }
 }

@@ -1,8 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+// ReSharper disable ClassNeverInstantiated.Global
+
 namespace Gami.Library.Gog.Models;
 
-public sealed class OwnedGames
-{
-    public ImmutableArray<long> Owned { get; set; }
-}
+public sealed record OwnedGames(ImmutableArray<long> Owned);

@@ -1,5 +1,5 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -10,15 +10,15 @@ using Nito.AsyncEx;
 using Serilog;
 using ValveKeyValue;
 
+// ReSharper disable ClassNeverInstantiated.Global
+
 namespace Gami.Scanner.Steam;
 
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class SteamLocalLibraryMetadata : ScannedGameLibraryMetadata
 {
-    public string InstallDir { get; set; } = null!;
+    public string InstallDir { get; init; } = null!;
 }
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class SteamScanner : IGameLibraryScanner
 {
     private static readonly string BasePath = OperatingSystem.IsMacCatalyst() || OperatingSystem.IsMacOS()
@@ -33,7 +33,7 @@ public sealed class SteamScanner : IGameLibraryScanner
 
     public static readonly string AppsPath = Path.Join(BasePath, "steamapps");
 
-    public static readonly string AppsImageCachePath = Path.Join(BasePath, "appcache/librarycache");
+    private static readonly string AppsImageCachePath = Path.Join(BasePath, "appcache/librarycache");
 
     private readonly AsyncLazy<SteamConfig> _config = new(() =>
         PluginJson.LoadOrErrorAsync<SteamConfig>(SteamCommon.TypeName).AsTask());
@@ -47,18 +47,11 @@ public sealed class SteamScanner : IGameLibraryScanner
     {
         var ownedGames = await ScanOwned().ConfigureAwait(false);
 
-        var installed = new Dictionary<long, GameInstallStatus>();
         Log.Debug("Got owned games: {Total}", ownedGames.Length);
-        foreach (var lib in ScanInstalled())
-            installed.Add(long.Parse(lib.LibraryId), lib.InstallStatus);
+        var installed = ScanInstalled()
+            .ToFrozenDictionary(lib => long.Parse(lib.LibraryId), lib => lib.InstallStatus);
 
-        Uri? AutoMapPathUrl(string path)
-        {
-            path = Path.Join(AppsImageCachePath, "/" + path);
-            Log.Information("Check path: {Path}; exists: {Exists}", path, File.Exists(path));
-            return File.Exists(path) ? new Uri(path) : null;
-        }
-
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var game in ownedGames)
         {
             var gameRef = new ScannedGameLibraryMetadata
@@ -78,6 +71,15 @@ public sealed class SteamScanner : IGameLibraryScanner
 #endif
 
             yield return gameRef;
+        }
+
+        yield break;
+
+        Uri? AutoMapPathUrl(string path)
+        {
+            path = Path.Join(AppsImageCachePath, "/" + path);
+            Log.Information("Check path: {Path}; exists: {Exists}", path, File.Exists(path));
+            return File.Exists(path) ? new Uri(path) : null;
         }
     }
 
@@ -116,10 +118,8 @@ public sealed class SteamScanner : IGameLibraryScanner
         return _cachedGames.Value;
     }
 
-    public static async ValueTask<GameInstallStatus> CheckStatus(string id)
-    {
-        return ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary;
-    }
+    public static ValueTask<GameInstallStatus> CheckStatus(string id) =>
+        ValueTask.FromResult(ScanInstalledGame(id)?.InstallStatus ?? GameInstallStatus.InLibrary);
 
     private static IEnumerable<SteamLocalLibraryMetadata> ScanInstalled()
     {

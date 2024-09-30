@@ -1,4 +1,8 @@
-﻿namespace Gami.Library.Gog.Models;
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+namespace Gami.Library.Gog.Models;
 
 public class AuthTokenResponse
 {
