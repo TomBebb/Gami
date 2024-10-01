@@ -38,7 +38,7 @@
                                         <StackPanel Grid.Column="1" Orientation="Vertical">
 
                                             <html:HtmlLabel Text="{Binding Hint }" />
-                                            <TextBox Text="{Binding Value }" />
+                                            <TextBox Text="{Binding Value }" TextChanged="TextBox_OnTextChanged" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
