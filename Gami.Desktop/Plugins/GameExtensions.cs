@@ -8,6 +8,9 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
+using Gami.Library.Gog;
+using Gami.Scanner.Epic;
+using Gami.Scanner.Steam;
 using Serilog;
 
 namespace Gami.Desktop.Plugins;
@@ -16,8 +19,9 @@ public static class GameExtensions
 {
     private static readonly string[] Plugins =
     [
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Steam\bin\Debug\net8.0\Gami.Scanner.Steam.dll",
-        @"C:\Users\topha\Code\Gami\Gami.Scanner.Epic\bin\Debug\net8.0\Gami.Scanner.Epic.dll"
+        typeof(SteamScanner).Assembly.Location,
+        typeof(GogLibrary).Assembly.Location,
+        typeof(EpicLibrary).Assembly.Location
     ];
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
@@ -138,7 +142,10 @@ public static class GameExtensions
         LaunchersByName.GetLauncher(game.LibraryType).Launch(game);
     }
 
-    public static ValueTask Install(this Game game) => InstallersByName.GetLauncher(game.LibraryType).Install(game);
+    public static ValueTask Install(this Game game)
+    {
+        return InstallersByName.GetLauncher(game.LibraryType).Install(game);
+    }
 
 
     public static void Uninstall(this Game game)
