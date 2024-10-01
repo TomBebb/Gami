@@ -16,8 +16,10 @@ public partial class AddOnsView : UserControl
     private void TextBox_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
         var model = (MappedPluginConfigSetting)((TextBox)sender).DataContext;
+        if (model == null) return;
 
         var addons = (AddonsViewModel)((TextBox)sender)?.Parent?.Parent?.Parent?.Parent?.DataContext;
+        if (addons == null) return;
         var addon = addons.SelectedAddon;
         var curr = PluginJson.Load<Dictionary<string, object>>(addon.Key) ?? new Dictionary<string, object>();
         curr[model!.Key] = model!.Value;
