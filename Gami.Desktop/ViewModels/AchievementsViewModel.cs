@@ -70,6 +70,9 @@ public class AchievementsViewModel : ViewModelBase
 
     private void ReloadAchievements()
     {
+        var selectedId = SelectedGame?.Id;
+        if (selectedId == null)
+            return;
         Log.Debug("Selected game changed! Fetching achievements");
         using var db = new GamiContext();
 
