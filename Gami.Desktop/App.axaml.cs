@@ -105,7 +105,7 @@ public class App : Application
         {
             IsVisible = settings.Settings.ShowSystemTrayIcon,
             ToolTipText = "Gami",
-            Icon = new WindowIcon(new Bitmap(@"C:\Users\topha\Code\Gami\Gami.Desktop\Assets\avalonia-logo.ico")),
+            Icon = new WindowIcon(new Bitmap("Assets/avalonia-logo-copy.ico")),
             Command = open,
             Menu =
             [
