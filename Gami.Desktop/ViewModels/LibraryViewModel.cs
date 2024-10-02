@@ -10,7 +10,6 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
-using Gami.Core;
 using Gami.Core.Models;
 using Gami.Desktop.Db;
 using Gami.Desktop.Db.Models;
@@ -18,12 +17,10 @@ using Gami.Desktop.MIsc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Models.Settings;
 using Gami.Desktop.Plugins;
-using Gami.Library.Gog;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
-using WebView = AvaloniaWebView.WebView;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 
@@ -156,44 +153,12 @@ public class LibraryViewModel : ViewModelBase
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             EditingGame = game;
         });
-        ShowDialog = ReactiveCommand.CreateFromTask(async (string? initialUrl) =>
-        {
-            if (initialUrl != null)
-                CurrentUrl = initialUrl;
-            if (CurrentUrl == null)
-                return;
-            var webview = new WebView { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
-            webview.NavigationStarting += (_, arg) => CurrentUrl = arg.Url?.ToString() ?? CurrentUrl;
-            var dialog = new ContentDialog
-            {
-                Title = "My Dialog Title",
-                CloseButtonText = "Close",
-                Content = webview
-            };
-            await dialog.ShowAsync();
-
-            this.WhenAnyValue(v => v.CurrentUrl)
-                .Subscribe(OnUrlChange);
-            return;
-
-            async void OnUrlChange(string? v)
-            {
-                Log.Debug("weebbview URL changed: {Url}", v);
-                if (v == null || Auth == null) return;
-                if (await Auth!.CurrUrlChange(v)) dialog.Hide(ContentDialogResult.Primary);
-            }
-        });
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
-        this.WhenAnyValue(v => v.CurrentUrl)
-            .Subscribe(v => Log.Debug("URL changed: {Url}", v));
         this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex)
             .Subscribe(_ => RefreshCache());
         RefreshCache();
 
-        this.WhenAnyValue(v => v.Auth)
-            .Select(v => v?.AuthUrl())
-            .BindTo(this, v => v.CurrentUrl);
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
@@ -221,11 +186,6 @@ public class LibraryViewModel : ViewModelBase
     [Reactive] private Game? PlayingGame { get; set; }
 
     [Reactive] private Process? Current { get; set; }
-
-#pragma warning disable CA1859
-    [Reactive] private IGameLibraryAuth? Auth { get; set; } = new GogLibrary();
-#pragma warning restore CA1859
-    [Reactive] public string? CurrentUrl { get; set; }
     public ReactiveCommand<string?, Unit> RefreshGame { get; }
 
     public ImmutableArray<string> SortFields { get; set; } =

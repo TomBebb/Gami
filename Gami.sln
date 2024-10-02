@@ -1,13 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Scanner.Steam", "Gami.Scanner.Steam\Gami.Scanner.Steam.csproj", "{A0C761EB-6025-4AD4-98DD-03B8EB120853}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Desktop", "Gami.Desktop\Gami.Desktop.csproj", "{3E17A61F-9A29-4883-9CC0-C657DED4C554}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Scanner.Epic", "Gami.Scanner.Epic\Gami.Scanner.Epic.csproj", "{D446018A-5063-48C9-BAF0-39FCB436D411}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gami.Library.Gog", "Gami.Library.Gog\Gami.Library.Gog.csproj", "{630A5527-B96B-49EE-ABD5-57567A4BBF32}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

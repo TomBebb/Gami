@@ -16,6 +16,8 @@ public class PluginConfig : ReactiveObject
     [Reactive] public required string Key { get; set; }
     [Reactive] public required string Name { get; set; }
 
+    [Reactive] public string? Hint { get; set; }
+
     [Reactive]
     public required ImmutableArray<PluginConfigSetting> Settings { get; init; } =
         ImmutableArray<PluginConfigSetting>.Empty;
