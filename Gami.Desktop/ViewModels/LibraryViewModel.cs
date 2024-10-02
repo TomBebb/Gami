@@ -313,7 +313,6 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Game, Unit> DeleteGame { get; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
-    public ReactiveCommand<string?, Unit> ShowDialog { get; set; }
 
 
     [Reactive] public ImmutableList<Game> Games { get; private set; } = ImmutableList<Game>.Empty;

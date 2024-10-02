@@ -24,9 +24,6 @@
         <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
-        <Button Command="{Binding ShowDialog}">
-            Show dialog
-        </Button>
         <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
             <StackPanel Orientation="Horizontal">
                 <SplitButton>
