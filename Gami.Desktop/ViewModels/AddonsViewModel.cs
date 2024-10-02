@@ -27,7 +27,8 @@ public sealed class AddonsViewModel : ViewModelBase
         this.WhenAnyValue(v => v.SelectedAddon)
             .Subscribe(v =>
             {
-                Auth = GameExtensions.LibraryAuthByName.TryGetValue(v.Key, out var auth) ? auth : null;
+                Auth = v == null ? null :
+                    GameExtensions.LibraryAuthByName.TryGetValue(v.Key, out var auth) ? auth : null;
             });
 
         this.WhenAnyValue(v => v.Auth)
@@ -65,8 +66,9 @@ public sealed class AddonsViewModel : ViewModelBase
         });
     }
 
-    private string? InitialUrl { get; }
-    private string? CurrentUrl { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+    [Reactive] private string? InitialUrl { get; set; }
+    [Reactive] private string? CurrentUrl { get; set; }
     public ReactiveCommand<Unit, Unit> ReAuthCommand { get; set; }
 #pragma warning disable CA1822
     public ImmutableArray<PluginConfig> Installed => GameExtensions.PluginConfigs.Values;

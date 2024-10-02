@@ -2,13 +2,16 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
+using Octokit;
 using Serilog;
 using Tomlyn;
 using Tomlyn.Model;
@@ -17,7 +20,7 @@ namespace Gami.Desktop.Plugins;
 
 public static class GameExtensions
 {
-    private static readonly string[] Plugins = [];
+    private static readonly ImmutableArray<string> Plugins;
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
     {
@@ -30,31 +33,68 @@ public static class GameExtensions
 
 
     public static readonly FrozenDictionary<string, IGameLibraryManagement>
-        InstallersByName = PluginsByType<IGameLibraryManagement>();
+        LibraryManagersByName;
 
     public static readonly FrozenDictionary<string, IGameLibraryLauncher>
-        LaunchersByName = PluginsByType<IGameLibraryLauncher>();
+        LaunchersByName;
 
     public static readonly FrozenDictionary<string, IGameLibraryScanner>
-        ScannersByName = PluginsByType<IGameLibraryScanner>();
+        ScannersByName;
 
     public static readonly FrozenDictionary<string, IGameAchievementScanner>
-        AchievementsByName = PluginsByType<IGameAchievementScanner>();
+        AchievementsByName;
 
     public static readonly FrozenDictionary<string, IGameMetadataScanner>
-        MetadataScannersByName = PluginsByType<IGameMetadataScanner>();
+        MetadataScannersByName;
 
     public static readonly FrozenDictionary<string, IGameLibraryAuth>
-        LibraryAuthByName = PluginsByType<IGameLibraryAuth>();
+        LibraryAuthByName;
 
     public static readonly FrozenDictionary<string, PluginConfig>
         // ReSharper disable once UnusedMember.Global
+        PluginConfigs;
+
+    static GameExtensions()
+    {
+        var dllPath = Path.Join(Consts.BasePluginDir, "dlls");
+        Console.WriteLine($"Check Dlls: {dllPath}");
+        if (!Directory.Exists(dllPath))
+        {
+            var github = new GitHubClient(new ProductHeaderValue("Gami"));
+            var res = github.Repository.Release.GetLatest("TomBebb", "Gami.MainAddons").Result;
+            var url = res.Assets[0].BrowserDownloadUrl;
+            Log.Information("Downloading DLLs from: {Url}", url);
+            var client = new HttpClient();
+
+            ZipFile.ExtractToDirectory(client.GetStreamAsync(url).Result, dllPath);
+            var releasesPath = Path.Combine(dllPath, "release");
+            if (Directory.Exists(Path.Combine(dllPath, "release")))
+            {
+                foreach (var path in Directory.GetFiles(releasesPath, "*.dll"))
+                    File.Move(path, path.Replace(releasesPath, dllPath), true);
+
+                Directory.Delete(releasesPath, true);
+            }
+        }
+
+        Plugins = [..Directory.GetFiles(dllPath, "*.dll")];
+
+        Console.WriteLine(string.Join(',', Plugins));
         PluginConfigs = Plugins.Select(p =>
             {
                 var assembly = LoadPlugin(p);
+                Log.Debug("Loaded assembly: {Assemby}", assembly);
                 return (p, LoadPluginConfig(assembly));
             })
             .ToFrozenDictionary(v => v.p, v => v.Item2);
+
+        LibraryManagersByName = PluginsByType<IGameLibraryManagement>();
+        LaunchersByName = PluginsByType<IGameLibraryLauncher>();
+        ScannersByName = PluginsByType<IGameLibraryScanner>();
+        AchievementsByName = PluginsByType<IGameAchievementScanner>();
+        MetadataScannersByName = PluginsByType<IGameMetadataScanner>();
+        LibraryAuthByName = PluginsByType<IGameLibraryAuth>();
+    }
 
 
     private static Assembly LoadPlugin(string pluginLocation)
@@ -114,8 +154,10 @@ public static class GameExtensions
     {
         var manifest = assembly.GetManifestResourceNames();
         var configPath = $"{assembly.FullName!.Split(",")[0]}.config.toml";
-        Log.Debug("Manifest for {Assembly}; {Games}; Config={Conf}", assembly.FullName, manifest, configPath);
+        Log.Debug("Manifest for {Assembly}; {Games}; Config={Conf}", assembly.FullName, string.Join(", ", manifest),
+            configPath);
         var configStream = assembly.GetManifestResourceStream(configPath);
+
 
         if (configStream == null)
             throw new ApplicationException($"Missing '{configPath}' in {assembly.FullName!}");
@@ -123,12 +165,12 @@ public static class GameExtensions
 
         var text = new StreamReader(configStream).ReadToEnd();
         var model = Toml.ToModel(text);
-        var settings = model.TryGetValue("settings", out var data) ? (TomlArray)data : new TomlArray();
+        var settings = model.TryGetValue("settings", out var data) ? (TomlTableArray)data : [];
         return new PluginConfig
         {
             Key = (string)model["key"],
             Name = (string)model["name"],
-            Settings = settings.Cast<TomlTable>().Select(v => new PluginConfigSetting
+            Settings = settings.Select(v => new PluginConfigSetting
             {
                 Key = (string)v["key"],
                 Name = (string)v["key"],
@@ -139,7 +181,6 @@ public static class GameExtensions
             }).ToImmutableArray()
             //            Settings = 
         };
-        return JsonSerializer.Deserialize<PluginConfig>(configStream, PluginOpts)!;
     }
 
     private static FrozenDictionary<string, T> PluginsByType<T>() where T : class, IBasePlugin
@@ -148,7 +189,7 @@ public static class GameExtensions
             {
                 var assembly = LoadPlugin(p);
                 var matching = GetMatching<T>(assembly);
-                Log.Debug("Matching for {Type}: {Cl}", typeof(T).Name, matching.GetType().Name);
+                Log.Debug("Matching for {Type}: {Cl}", typeof(T).Name, matching?.GetType()?.Name);
                 return matching;
             })
             .Where(v => v != null)
@@ -171,12 +212,12 @@ public static class GameExtensions
 
     public static ValueTask Install(this Game game)
     {
-        return InstallersByName.GetLauncher(game.LibraryType).Install(game);
+        return LibraryManagersByName.GetLauncher(game.LibraryType).Install(game);
     }
 
 
     public static void Uninstall(this Game game)
     {
-        InstallersByName.GetLauncher(game.LibraryType).Uninstall(game);
+        LibraryManagersByName.GetLauncher(game.LibraryType).Uninstall(game);
     }
 }

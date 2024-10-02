@@ -14,3 +14,4 @@ FodyWavers.xsd
 FolderProfile.pubxml*
 *.csproj.user
 release
+publish

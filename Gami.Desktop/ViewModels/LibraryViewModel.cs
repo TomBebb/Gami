@@ -126,7 +126,7 @@ public class LibraryViewModel : ViewModelBase
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             await game.Install();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
+            var status = await GameExtensions.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
 
@@ -139,7 +139,7 @@ public class LibraryViewModel : ViewModelBase
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
-            var status = await GameExtensions.InstallersByName[game.LibraryType].CheckInstallStatus(game);
+            var status = await GameExtensions.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
