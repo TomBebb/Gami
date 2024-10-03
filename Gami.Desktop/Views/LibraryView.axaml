@@ -53,13 +53,17 @@
                         <ComboBox SelectedIndex="{Binding SortFieldIndex}"
 
                                   VerticalAlignment="Center"
-                                  ItemsSource="{Binding SortFields}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <ComboBoxItem Content="{Binding }" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  ItemsSource="{Binding SortFields}" />
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="Teal" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Label VerticalAlignment="Center">View:</Label>
+
+                        <ComboBox SelectedIndex="{Binding ViewType}"
+
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding ViewFields}" />
                     </StackPanel>
                 </Border>
 

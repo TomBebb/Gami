@@ -17,6 +17,7 @@ using Gami.Desktop.Db.Models;
 using Gami.Desktop.Misc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Models.Settings;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -30,11 +31,17 @@ using Serilog;
 
 namespace Gami.Desktop.ViewModels;
 
+public enum LibraryViewType
+{
+    Details,
+    Grid,
+    Table
+}
+
 public class LibraryViewModel : ViewModelBase
 {
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
-
 
     public LibraryViewModel()
     {
@@ -53,7 +60,7 @@ public class LibraryViewModel : ViewModelBase
 
                     await using var db = new GamiContext();
                     var res = await db.ExcludedGames.AddAsync(new ExcludedGame
-                    { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
+                        { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
                     await db.SaveChangesAsync();
                     Log.Debug("Excluded Game: {Game}", res);
                 }),
@@ -166,6 +173,12 @@ public class LibraryViewModel : ViewModelBase
         RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
     }
 
+    public bool IsViewDetails => ViewType == LibraryViewType.Details;
+    public bool IsViewGrid => ViewType == LibraryViewType.Grid;
+    public bool IsViewTable => ViewType == LibraryViewType.Table;
+
+    public LibraryViewType ViewType { get; set; } = LibraryViewType.Details;
+
 #pragma warning disable CA1822
     public ImmutableArray<AddonConfig> Plugins =>
 #pragma warning restore CA1822
@@ -190,10 +203,16 @@ public class LibraryViewModel : ViewModelBase
 
     public ImmutableArray<string> SortFields { get; set; } =
     [
-        .. Enum.GetValues(typeof(SortGameField))
-            .Cast<SortGameField>()
+        .. Enum.GetValues<SortGameField>()
             .Select(v => v
-                .GetName())
+                .Humanize())
+    ];
+
+    public ImmutableArray<string> ViewFields { get; set; } =
+    [
+        .. Enum.GetValues<LibraryViewType>()
+            .Select(v => v
+                .Humanize())
     ];
 
     [Reactive] public int SortFieldIndex { get; set; }
