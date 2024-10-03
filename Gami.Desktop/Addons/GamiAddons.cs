@@ -78,9 +78,12 @@ public static class GamiAddons
             }
         }
 
-        Addons = [..Directory.GetFiles(dllPath, "*.dll")];
+        Addons = [..Directory.GetFiles(dllPath, "*.dll")
+        .Where(d => { 
+            var fn = Path.GetFileName(d);
+            return fn.StartsWith("Gami.") && fn != "Gami.Core.dll"; })];
 
-        Console.WriteLine(string.Join(',', Addons));
+        Log.Information("Addons: {Addons}", string.Join(',', Addons));
         AddonConfigs = Addons.Select(p =>
             {
                 var assembly = LoadPlugin(p);
@@ -100,13 +103,8 @@ public static class GamiAddons
 
     private static Assembly LoadPlugin(string pluginLocation)
     {
-        foreach (var assemblyName in Assembly.GetExecutingAssembly()
-                     .GetReferencedAssemblies())
-            if (assemblyName.FullName.Contains("Gami") ||
-                assemblyName.FullName.Contains("Steam"))
-                Log.Information("Assembly {Name}", assemblyName.Name);
 
-        Log.Debug("Loading plugin from: {Path}", pluginLocation);
+        Log.Information("Loading plugin from: {Path}", pluginLocation);
         var loadContext = new AddonLoadContext(pluginLocation);
         return loadContext.LoadFromAssemblyName(
             new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
