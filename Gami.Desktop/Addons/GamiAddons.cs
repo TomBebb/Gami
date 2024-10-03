@@ -16,11 +16,12 @@ using Serilog;
 using Tomlyn;
 using Tomlyn.Model;
 
-namespace Gami.Desktop.Plugins;
+namespace Gami.Desktop.Addons;
 
-public static class GameExtensions
+public static class GamiAddons
+
 {
-    private static readonly ImmutableArray<string> Plugins;
+    private static readonly ImmutableArray<string> Addons;
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
     {
@@ -50,11 +51,11 @@ public static class GameExtensions
     public static readonly FrozenDictionary<string, IGameLibraryAuth>
         LibraryAuthByName;
 
-    public static readonly FrozenDictionary<string, PluginConfig>
+    public static readonly FrozenDictionary<string, AddonConfig>
         // ReSharper disable once UnusedMember.Global
-        PluginConfigs;
+        AddonConfigs;
 
-    static GameExtensions()
+    static GamiAddons()
     {
         var dllPath = Path.Join(Consts.BasePluginDir, "dlls");
         Console.WriteLine($"Check Dlls: {dllPath}");
@@ -77,10 +78,10 @@ public static class GameExtensions
             }
         }
 
-        Plugins = [..Directory.GetFiles(dllPath, "*.dll")];
+        Addons = [..Directory.GetFiles(dllPath, "*.dll")];
 
-        Console.WriteLine(string.Join(',', Plugins));
-        PluginConfigs = Plugins.Select(p =>
+        Console.WriteLine(string.Join(',', Addons));
+        AddonConfigs = Addons.Select(p =>
             {
                 var assembly = LoadPlugin(p);
                 Log.Debug("Loaded assembly: {Assemby}", assembly);
@@ -88,12 +89,12 @@ public static class GameExtensions
             })
             .ToFrozenDictionary(v => v.p, v => v.Item2);
 
-        LibraryManagersByName = PluginsByType<IGameLibraryManagement>();
-        LaunchersByName = PluginsByType<IGameLibraryLauncher>();
-        ScannersByName = PluginsByType<IGameLibraryScanner>();
-        AchievementsByName = PluginsByType<IGameAchievementScanner>();
-        MetadataScannersByName = PluginsByType<IGameMetadataScanner>();
-        LibraryAuthByName = PluginsByType<IGameLibraryAuth>();
+        LibraryManagersByName = AddonsByType<IGameLibraryManagement>();
+        LaunchersByName = AddonsByType<IGameLibraryLauncher>();
+        ScannersByName = AddonsByType<IGameLibraryScanner>();
+        AchievementsByName = AddonsByType<IGameAchievementScanner>();
+        MetadataScannersByName = AddonsByType<IGameMetadataScanner>();
+        LibraryAuthByName = AddonsByType<IGameLibraryAuth>();
     }
 
 
@@ -106,7 +107,7 @@ public static class GameExtensions
                 Log.Information("Assembly {Name}", assemblyName.Name);
 
         Log.Debug("Loading plugin from: {Path}", pluginLocation);
-        var loadContext = new PluginLoadContext(pluginLocation);
+        var loadContext = new AddonLoadContext(pluginLocation);
         return loadContext.LoadFromAssemblyName(
             new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
     }
@@ -150,7 +151,7 @@ public static class GameExtensions
         return null;
     }
 
-    private static PluginConfig LoadPluginConfig(Assembly assembly)
+    private static AddonConfig LoadPluginConfig(Assembly assembly)
     {
         var manifest = assembly.GetManifestResourceNames();
         var configPath = $"{assembly.FullName!.Split(",")[0]}.config.toml";
@@ -166,26 +167,26 @@ public static class GameExtensions
         var text = new StreamReader(configStream).ReadToEnd();
         var model = Toml.ToModel(text);
         var settings = model.TryGetValue("settings", out var data) ? (TomlTableArray)data : [];
-        return new PluginConfig
+        return new AddonConfig
         {
             Key = (string)model["key"],
             Name = (string)model["name"],
-            Settings = settings.Select(v => new PluginConfigSetting
+            Settings = settings.Select(v => new AddoConfigSetting
             {
                 Key = (string)v["key"],
                 Name = (string)v["key"],
                 Hint = (string?)v["hint"],
-                Type = v.TryGetValue("type", out var type) && type is PluginConfigSettingType ty
+                Type = v.TryGetValue("type", out var type) && type is AddonConfigSettingType ty
                     ? ty
-                    : PluginConfigSettingType.String
+                    : AddonConfigSettingType.String
             }).ToImmutableArray()
             //            Settings = 
         };
     }
 
-    private static FrozenDictionary<string, T> PluginsByType<T>() where T : class, IBasePlugin
+    private static FrozenDictionary<string, T> AddonsByType<T>() where T : class, IBaseAddon
     {
-        return Plugins.Select(p =>
+        return Addons.Select(p =>
             {
                 var assembly = LoadPlugin(p);
                 var matching = GetMatching<T>(assembly);

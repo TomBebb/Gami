@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using DynamicData;
 using DynamicData.Binding;
 
-namespace Gami.Desktop.MIsc;
+namespace Gami.Desktop.Misc;
 
 public static class QueryableExt
 {

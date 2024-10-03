@@ -2,7 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 
-namespace Gami.Desktop.MIsc;
+namespace Gami.Desktop.Misc;
 
 public static class WindowUtil
 {

@@ -8,7 +8,7 @@ using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
-using Gami.Desktop.Plugins;
+using Gami.Desktop.Addons;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -19,7 +19,7 @@ public static class DbOps
     public static async ValueTask ScanAchievementsData(Action<float> onProgress)
     {
         await Task.WhenAll(
-            GameExtensions.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
+            GamiAddons.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
     }
 
     public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner, Action<float> onProgress)
@@ -60,7 +60,7 @@ public static class DbOps
     private static async ValueTask<GameMetadata> GetMetadata(GameLibraryRef game)
     {
         var metadata = new GameMetadata();
-        foreach (var (_, scanner) in GameExtensions.MetadataScannersByName)
+        foreach (var (_, scanner) in GamiAddons.MetadataScannersByName)
             metadata = metadata.Combine(await scanner.ScanMetadata(game));
         return metadata;
     }
@@ -174,40 +174,54 @@ public static class DbOps
 // ReSharper disable once UnusedMember.Local
     private static async ValueTask ScanAchievementsProgress()
     {
-        foreach (var (type, scanner) in GameExtensions.AchievementsByName)
+        Log.Information("Scanning achievements progress");
+        foreach (var (type, scanner) in GamiAddons.AchievementsByName)
         {
-            ImmutableArray<GameLibraryRef> gamesToScan;
+            ImmutableArray<AchievementGameLibraryRef> gamesToScan;
             await using (var db = new GamiContext())
             {
                 gamesToScan =
                 [
                     ..db.Games
                         .Where(g => g.LibraryType == type)
-                        .Where(g => g.Achievements.Count != 0)
-                        .Select(g => new GameLibraryRef
+                        .Where(g => db.Achievements.Any(a => a.GameId == g.Id))
+                        .Select(g => new AchievementGameLibraryRef
                         {
                             LibraryType = g.LibraryType,
                             LibraryId = g.LibraryId,
-                            Name = g.Name
+                            Name = g.Name,
+                            TotalAchievements = g.Achievements.Count
                         })
                 ];
             }
 
 
+            Log.Information("Scanning achievements progress for: {Total} games", gamesToScan.Length);
             await Task.WhenAll(
                 gamesToScan.Select(async g =>
                 {
                     Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
 
-                    await foreach (var pr in scanner.ScanProgress(g)) db.AchievementsProgresses.Update(pr);
-                    await db.SaveChangesAsync();
-                    Log.Information("Scanned achievements progress for: {Name}", g.Name);
+                    var progress = new List<AchievementProgress>();
+
+                    await foreach (var pr in scanner.ScanProgress(g))
+                    {
+                        Log.Information("Scanning achievements progress for: {Name}", pr.Achievement.Name);
+                        progress.Add(pr);
+                    }
+
+                    await db.BulkInsertOrUpdateAsync(progress);
+                    Log.Information("Scanned achievements progress for: {Name}; Total: {Total}", g.Name,
+                        progress.Count);
                 }));
         }
     }
 
-    public static ValueTask ScanLibrary(string key) => ScanLibrary(GameExtensions.ScannersByName[key]);
+    public static ValueTask ScanLibrary(string key)
+    {
+        return ScanLibrary(GamiAddons.ScannersByName[key]);
+    }
 
     public static async ValueTask ScanLibrary(IGameLibraryScanner scanner)
     {
@@ -263,5 +277,10 @@ public static class DbOps
     public static async ValueTask AutoScan()
     {
         await ScanAchievementsProgress();
+    }
+
+    private class AchievementGameLibraryRef : GameLibraryRef
+    {
+        public int TotalAchievements { get; set; }
     }
 }

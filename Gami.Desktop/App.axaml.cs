@@ -10,7 +10,7 @@ using Avalonia.Threading;
 using AvaloniaWebView;
 using Gami.Core;
 using Gami.Desktop.Db;
-using Gami.Desktop.MIsc;
+using Gami.Desktop.Misc;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;

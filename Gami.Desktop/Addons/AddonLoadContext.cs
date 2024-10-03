@@ -2,9 +2,9 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Gami.Desktop.Plugins;
+namespace Gami.Desktop.Addons;
 
-internal class PluginLoadContext(string pluginPath) : AssemblyLoadContext
+internal class AddonLoadContext(string pluginPath) : AssemblyLoadContext
 {
     private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
 

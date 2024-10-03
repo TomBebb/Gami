@@ -6,12 +6,12 @@ using Gami.Core;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Plugins;
+namespace Gami.Desktop.Addons;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public class PluginConfig : ReactiveObject
+public class AddonConfig : ReactiveObject
 {
     [Reactive] public required string Key { get; set; }
     [Reactive] public required string Name { get; set; }
@@ -19,26 +19,26 @@ public class PluginConfig : ReactiveObject
     [Reactive] public string? Hint { get; set; }
 
     [Reactive]
-    public required ImmutableArray<PluginConfigSetting> Settings { get; init; } =
-        ImmutableArray<PluginConfigSetting>.Empty;
+    public required ImmutableArray<AddoConfigSetting> Settings { get; init; } =
+        ImmutableArray<AddoConfigSetting>.Empty;
 
 
     [JsonIgnore]
     private ImmutableDictionary<string, object> MySettings
     {
-        get => PluginJson.Load<ImmutableDictionary<string, object>>(Key) ?? ImmutableDictionary<string, object>.Empty;
-        set => PluginJson.Save(value, Key).AsTask().Wait();
+        get => AddonJson.Load<ImmutableDictionary<string, object>>(Key) ?? ImmutableDictionary<string, object>.Empty;
+        set => AddonJson.Save(value, Key).AsTask().Wait();
     }
 
     [JsonIgnore]
-    public ImmutableArray<MappedPluginConfigSetting> MappedSettings
+    public ImmutableArray<MappedAddoConfigSetting> MappedSettings
     {
         get
         {
             var vals = MySettings;
             return
             [
-                ..Settings.Select(s => new MappedPluginConfigSetting
+                ..Settings.Select(s => new MappedAddoConfigSetting
                 {
                     Key = s.Key,
                     Name = s.Name,

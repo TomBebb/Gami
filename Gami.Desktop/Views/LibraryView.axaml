@@ -8,8 +8,8 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
-             xmlns:plugins="clr-namespace:Gami.Desktop.Plugins"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:addons="clr-namespace:Gami.Desktop.Addons"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Name="View"
@@ -37,7 +37,7 @@
                         <fa:FAMenuFlyout Placement="Bottom" ItemsSource="{Binding Plugins}">
 
                             <fa:FAMenuFlyout.ItemTemplate>
-                                <DataTemplate DataType="plugins:PluginConfig">
+                                <DataTemplate DataType="addons:AddonConfig">
                                     <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
                                     <fa:MenuFlyoutItem Text="{Binding Name   }" CommandParameter="{Binding Key}"
                                                        Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).RefreshGame }" />

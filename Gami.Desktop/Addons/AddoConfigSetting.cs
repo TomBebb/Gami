@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Plugins;
+namespace Gami.Desktop.Addons;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public class PluginConfigSetting
+public class AddoConfigSetting
 {
     [Reactive] public required string Key { get; init; }
     [Reactive] public required string Name { get; set; }
 
     [Reactive] public string? Hint { get; set; }
 
-    [Reactive] public PluginConfigSettingType Type { get; set; } = PluginConfigSettingType.String;
+    [Reactive] public AddonConfigSettingType Type { get; set; } = AddonConfigSettingType.String;
 }

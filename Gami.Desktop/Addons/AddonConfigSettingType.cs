@@ -1,8 +1,8 @@
 // ReSharper disable UnusedMember.Global
 
-namespace Gami.Desktop.Plugins;
+namespace Gami.Desktop.Addons;
 
-public enum PluginConfigSettingType
+public enum AddonConfigSettingType
 {
     String,
     Int,

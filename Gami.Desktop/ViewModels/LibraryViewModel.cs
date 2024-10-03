@@ -11,12 +11,12 @@ using Avalonia.Threading;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using Gami.Core.Models;
+using Gami.Desktop.Addons;
 using Gami.Desktop.Db;
 using Gami.Desktop.Db.Models;
-using Gami.Desktop.MIsc;
+using Gami.Desktop.Misc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Models.Settings;
-using Gami.Desktop.Plugins;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -84,7 +84,7 @@ public class LibraryViewModel : ViewModelBase
             while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
             {
                 await Task.Delay(LookupProcessInterval);
-                Current = await GameExtensions.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
+                Current = await GamiAddons.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
             }
 
             Log.Debug("Game open: {Open}", Current != null);
@@ -126,7 +126,7 @@ public class LibraryViewModel : ViewModelBase
         {
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             await game.Install();
-            var status = await GameExtensions.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
+            var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
 
@@ -139,7 +139,7 @@ public class LibraryViewModel : ViewModelBase
         {
             Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
             game.Uninstall();
-            var status = await GameExtensions.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
+            var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
             game.InstallStatus = status;
             game.Id = $"{game.LibraryType}:{game.LibraryId}";
@@ -167,16 +167,16 @@ public class LibraryViewModel : ViewModelBase
     }
 
 #pragma warning disable CA1822
-    public ImmutableArray<PluginConfig> Plugins =>
+    public ImmutableArray<AddonConfig> Plugins =>
 #pragma warning restore CA1822
     [
         new()
         {
             Key = "all",
             Name = "All",
-            Settings = ImmutableArray<PluginConfigSetting>.Empty
+            Settings = ImmutableArray<AddoConfigSetting>.Empty
         },
-        ..GameExtensions.PluginConfigs.Values.Where(v => GameExtensions.ScannersByName.ContainsKey(v.Key))
+        ..GamiAddons.AddonConfigs.Values.Where(v => GamiAddons.ScannersByName.ContainsKey(v.Key))
     ];
 
     [Reactive] public string Search { get; set; } = "";
@@ -211,7 +211,7 @@ public class LibraryViewModel : ViewModelBase
             XamlRoot = WindowUtil.GetMainWindow()
         };
 
-        if (key != "all" && GameExtensions.PluginConfigs.TryGetValue(key, out var setting))
+        if (key != "all" && GamiAddons.AddonConfigs.TryGetValue(key, out var setting))
             dialog.Title = $"{dialog.Title} for {setting.Name}";
 
         dialog.Opened += async (_, _) =>
@@ -219,7 +219,7 @@ public class LibraryViewModel : ViewModelBase
             if (key == "all")
             {
                 await Task.WhenAll(
-                    GameExtensions.ScannersByName.Values.Select(async v => { await DbOps.ScanLibrary(v); }));
+                    GamiAddons.ScannersByName.Values.Select(async v => { await DbOps.ScanLibrary(v); }));
 
                 if (settings.Metadata.FetchAchievements)
                 {
@@ -239,7 +239,7 @@ public class LibraryViewModel : ViewModelBase
                 await DbOps.ScanLibrary(key);
 
                 if (settings.Metadata.FetchAchievements &&
-                    GameExtensions.AchievementsByName.TryGetValue(key, out var value))
+                    GamiAddons.AchievementsByName.TryGetValue(key, out var value))
                 {
                     dialog.Content = "Scanning achievements";
                     await Task.Run(async () => await DbOps.ScanAchievementsData(value, OnProgress));

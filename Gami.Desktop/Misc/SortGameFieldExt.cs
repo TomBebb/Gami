@@ -1,16 +1,19 @@
 using System;
 
-namespace Gami.Desktop.MIsc;
+namespace Gami.Desktop.Misc;
 
 public static class SortGameFieldExt
 {
-    public static string GetName(this SortGameField field) => field switch
+    public static string GetName(this SortGameField field)
     {
-        SortGameField.Name => "Name",
-        SortGameField.LibraryType => "Library Type",
-        SortGameField.ReleaseDate => "Release Date",
-        SortGameField.InstallStatus => "Install",
-        SortGameField.LastPlayed => "Last Played",
-        _ => throw new ArgumentOutOfRangeException(nameof(field), field, null)
-    };
+        return field switch
+        {
+            SortGameField.Name => "Name",
+            SortGameField.LibraryType => "Library Type",
+            SortGameField.ReleaseDate => "Release Date",
+            SortGameField.InstallStatus => "Install",
+            SortGameField.LastPlayed => "Last Played",
+            _ => throw new ArgumentOutOfRangeException(nameof(field), field, null)
+        };
+    }
 }

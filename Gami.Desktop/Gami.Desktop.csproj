@@ -25,7 +25,7 @@
         <PackageReference Include="DialogHost.Avalonia" Version="0.7.9"/>
         <PackageReference Include="EFCore.BulkExtensions" Version="8.0.4"/>
         <PackageReference Include="FluentAvaloniaUI" Version="2.1.0"/>
-        <PackageReference Include="Gami.Core" Version="0.9.1"/>
+        <PackageReference Include="Gami.Core" Version="0.10.0"/>
         <PackageReference Include="HeroIcons.Avalonia" Version="1.0.2"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="ini-parser-new" Version="2.6.2"/>
@@ -87,11 +87,5 @@
         <Content Include="..\plugin.schema.json">
             <Link>plugin.schema.json</Link>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Gami.Library.Gog\Gami.Library.Gog.csproj"/>
-        <ProjectReference Include="..\Gami.Scanner.Epic\Gami.Scanner.Epic.csproj"/>
-        <ProjectReference Include="..\Gami.Scanner.Steam\Gami.Scanner.Steam.csproj"/>
     </ItemGroup>
 </Project>

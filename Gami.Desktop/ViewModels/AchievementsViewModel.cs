@@ -76,7 +76,8 @@ public class AchievementsViewModel : ViewModelBase
         Log.Debug("Selected game changed! Fetching achievements");
         using var db = new GamiContext();
 
-        var achievementsQuery = db.Achievements.AsQueryable().Where(a => a.GameId == SelectedGame!.Id)
+        var achievementsQuery = db.Achievements.AsQueryable()
+            .Where(a => a.GameId == SelectedGame!.Id)
             .Where(a => Filter == AchievementsFilter.None ||
                         Filter == AchievementsFilter.Locked == (a.Progress == null || !a.Progress.Unlocked));
 

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using Gami.Core;
-using Gami.Desktop.Plugins;
+using Gami.Desktop.Addons;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 
@@ -26,7 +26,7 @@ public class MySettings : Core.Models.Settings
         var info = new FileInfo(ConfigPath);
         if (!info.Exists || info.Length == 0) return new MySettings();
         using var stream = File.OpenRead(ConfigPath);
-        return JsonSerializer.Deserialize<MySettings>(stream, GameExtensions.PluginOpts)!;
+        return JsonSerializer.Deserialize<MySettings>(stream, GamiAddons.PluginOpts)!;
     }
 
     public static async ValueTask<MySettings> LoadAsync()
@@ -34,13 +34,13 @@ public class MySettings : Core.Models.Settings
         var info = new FileInfo(ConfigPath);
         if (!info.Exists || info.Length == 0) return new MySettings();
         await using var stream = File.OpenRead(ConfigPath);
-        return (await JsonSerializer.DeserializeAsync<MySettings>(stream, GameExtensions.PluginOpts))!;
+        return (await JsonSerializer.DeserializeAsync<MySettings>(stream, GamiAddons.PluginOpts))!;
     }
 
     public async ValueTask SaveAsync()
     {
         await using var stream = File.Open(ConfigPath, FileMode.Create);
-        await JsonSerializer.SerializeAsync(stream, this, GameExtensions.PluginOpts);
+        await JsonSerializer.SerializeAsync(stream, this, GamiAddons.PluginOpts);
         Log.Debug("Saved settings to {Path}", ConfigPath);
     }
 }

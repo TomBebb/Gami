@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using AvaloniaWebView;
 using FluentAvalonia.UI.Controls;
 using Gami.Core;
-using Gami.Desktop.Plugins;
+using Gami.Desktop.Addons;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
@@ -28,7 +28,7 @@ public sealed class AddonsViewModel : ViewModelBase
             .Subscribe(v =>
             {
                 Auth = v == null ? null :
-                    GameExtensions.LibraryAuthByName.TryGetValue(v.Key, out var auth) ? auth : null;
+                    GamiAddons.LibraryAuthByName.TryGetValue(v.Key, out var auth) ? auth : null;
             });
 
         this.WhenAnyValue(v => v.Auth)
@@ -71,10 +71,10 @@ public sealed class AddonsViewModel : ViewModelBase
     [Reactive] private string? CurrentUrl { get; set; }
     public ReactiveCommand<Unit, Unit> ReAuthCommand { get; set; }
 #pragma warning disable CA1822
-    public ImmutableArray<PluginConfig> Installed => GameExtensions.PluginConfigs.Values;
+    public ImmutableArray<AddonConfig> Installed => GamiAddons.AddonConfigs.Values;
 #pragma warning restore CA1822
 
-    [Reactive] public PluginConfig SelectedAddon { get; set; }
+    [Reactive] public AddonConfig SelectedAddon { get; set; }
 
 
 #pragma warning disable CA1859
