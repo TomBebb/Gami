@@ -78,10 +78,15 @@ public static class GamiAddons
             }
         }
 
-        Addons = [..Directory.GetFiles(dllPath, "*.dll")
-        .Where(d => { 
-            var fn = Path.GetFileName(d);
-            return fn.StartsWith("Gami.") && fn != "Gami.Core.dll"; })];
+        Addons =
+        [
+            ..Directory.GetFiles(dllPath, "*.dll")
+                .Where(d =>
+                {
+                    var fn = Path.GetFileName(d);
+                    return fn.StartsWith("Gami.") && fn != "Gami.Core.dll";
+                })
+        ];
 
         Log.Information("Addons: {Addons}", string.Join(',', Addons));
         AddonConfigs = Addons.Select(p =>
@@ -103,7 +108,6 @@ public static class GamiAddons
 
     private static Assembly LoadPlugin(string pluginLocation)
     {
-
         Log.Information("Loading plugin from: {Path}", pluginLocation);
         var loadContext = new AddonLoadContext(pluginLocation);
         return loadContext.LoadFromAssemblyName(
@@ -172,7 +176,7 @@ public static class GamiAddons
             Settings = settings.Select(v => new AddoConfigSetting
             {
                 Key = (string)v["key"],
-                Name = (string)v["key"],
+                Name = (string)v["name"],
                 Hint = (string?)v["hint"],
                 Type = v.TryGetValue("type", out var type) && type is AddonConfigSettingType ty
                     ? ty
