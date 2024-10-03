@@ -173,11 +173,12 @@ public static class GamiAddons
         {
             Key = (string)model["key"],
             Name = (string)model["name"],
+            Hint = model.TryGetValue("hint", out var v) ? (string?)v : null,
             Settings = settings.Select(v => new AddoConfigSetting
             {
                 Key = (string)v["key"],
                 Name = (string)v["name"],
-                Hint = (string?)v["hint"],
+                Hint = v.TryGetValue("hint", out var h) ? (string?)h : null,
                 Type = v.TryGetValue("type", out var type) && type is AddonConfigSettingType ty
                     ? ty
                     : AddonConfigSettingType.String

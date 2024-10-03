@@ -5,12 +5,16 @@
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:html="clr-namespace:TheArtOfDev.HtmlRenderer.Avalonia;assembly=Avalonia.HtmlRenderer"
              xmlns:addons="clr-namespace:Gami.Desktop.Addons"
+             xmlns:conv="clr-namespace:Gami.Desktop.Conv"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:AddonsViewModel"
              x:Class="Gami.Desktop.Views.AddOnsView">
     <Design.DataContext>
         <vm:AddonsViewModel />
     </Design.DataContext>
+    <UserControl.Resources>
+        <conv:MarkdownHtmlConverter x:Key="MarkdownConverter" />
+    </UserControl.Resources>
     <TabControl>
         <TabItem Header="Installed">
             <Grid ColumnDefinitions="*, *">
@@ -30,6 +34,9 @@
                         <Label Content="{Binding  SelectedAddon.Name}"
                                FontWeight="Bold" />
 
+                        <html:HtmlLabel
+                            IsVisible="{Binding  SelectedAddon.Hint, Converter={x:Static ObjectConverters.IsNotNull}}"
+                            Text="{Binding SelectedAddon.Hint, Converter={StaticResource MarkdownConverter}}" />
 
                         <Button Command="{Binding ReAuthCommand}"
                                 IsVisible="{Binding  InitialUrl, Converter={x:Static ObjectConverters.IsNotNull}}">
@@ -39,11 +46,12 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="addons:MappedAddoConfigSetting">
 
-                                    <Grid ColumnDefinitions="*,3*">
+                                    <Grid ColumnDefinitions="*,*,3*">
                                         <Label Content="{Binding Name }" />
-                                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                                        <StackPanel Grid.Column="2" Orientation="Vertical">
 
-                                            <html:HtmlLabel Text="{Binding Hint }" />
+                                            <html:HtmlLabel
+                                                Text="{Binding Hint , Converter={StaticResource MarkdownConverter}}" />
                                             <TextBox Text="{Binding Value }" TextChanged="TextBox_OnTextChanged" />
                                         </StackPanel>
                                     </Grid>
