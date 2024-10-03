@@ -29,6 +29,12 @@
 
                         <Label Content="{Binding  SelectedAddon.Name}"
                                FontWeight="Bold" />
+
+
+                        <Button Command="{Binding ReAuthCommand}"
+                                IsVisible="{Binding  InitialUrl, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            Authenticate
+                        </Button>
                         <ItemsControl ItemsSource="{Binding SelectedAddon.MappedSettings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="addons:MappedAddoConfigSetting">

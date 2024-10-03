@@ -67,8 +67,8 @@ public sealed class AddonsViewModel : ViewModelBase
     }
 
     // ReSharper disable once UnusedAutoPropertyAccessor.Local
-    [Reactive] private string? InitialUrl { get; set; }
-    [Reactive] private string? CurrentUrl { get; set; }
+    [Reactive] public string? InitialUrl { get; set; }
+    [Reactive] public string? CurrentUrl { get; set; }
     public ReactiveCommand<Unit, Unit> ReAuthCommand { get; set; }
 #pragma warning disable CA1822
     public ImmutableArray<AddonConfig> Installed => GamiAddons.AddonConfigs.Values;
