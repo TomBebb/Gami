@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 500 500"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="gami-icon.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:bx="https://boxy-svg.com">
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.3039049"
+     inkscape:cx="281.46224"
+     inkscape:cy="307.53777"
+     inkscape:window-width="2691"
+     inkscape:window-height="1120"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <defs
+     id="defs2">
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       cx="267.174"
+       cy="368.012"
+       r="178.356"
+       id="gradient-0"
+       spreadMethod="pad"
+       gradientTransform="matrix(-0.806712,0.590945,-0.605327,-0.826345,607.73031,361.85673)">
+      <stop
+         offset="0"
+         style="stop-color: rgb(107, 255, 0);"
+         id="stop1" />
+      <stop
+         offset="1"
+         style="stop-color: #758d29"
+         id="stop2" />
+    </radialGradient>
+  </defs>
+  <path
+     d="M 471.81581,251.93316 40.826808,430.28916 V 73.577161 Z"
+     style="fill:url(#gradient-0);fill-rule:nonzero;stroke:#000000;paint-order:fill"
+     bx:shape="triangle 67.727 10.448 356.712 430.989 0.5 0 1@17eadcbf"
+     id="path2" />
+  <ellipse
+     style="fill: rgb(8, 0, 0); stroke-width: 4px; stroke: rgb(255, 255, 255);"
+     cx="163.42"
+     cy="250"
+     rx="71.492"
+     ry="71.492"
+     transform="matrix(1, 0, 0, 1, 2.842170943040401e-14, 2.842170943040401e-14)"
+     id="ellipse2" />
+  <path
+     style="fill: rgb(216, 216, 216); stroke: rgb(0, 67, 231); stroke-width: 15px;"
+     d="M 197.516 205.585 L 129.323 288.076 L 197.516 205.585 Z"
+     transform="matrix(1, 0, 0, 1, 2.842170943040401e-14, 2.842170943040401e-14)"
+     id="path3" />
+  <path
+     style="fill: rgb(216, 216, 216); stroke-width: 15px; stroke: rgb(0, 48, 239);"
+     d="M 131.523 208.09 L 196.416 288.381 L 131.523 208.09 Z"
+     transform="matrix(1, 0, 0, 1, 2.842170943040401e-14, 2.842170943040401e-14)"
+     id="path4" />
+</svg>
