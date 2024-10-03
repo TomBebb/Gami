@@ -224,32 +224,31 @@ public class LibraryViewModel : ViewModelBase
                 if (settings.Metadata.FetchAchievements)
                 {
                     dialog.Content = "Scanning achievements";
-                    await DbOps.ScanAchievementsData(OnProgress);
+                    await Task.Run(async () => await DbOps.ScanAchievementsData(OnProgress));
                 }
 
                 if (settings.Metadata.FetchMetadata)
                 {
                     dialog.Content = "Scanning metadata";
-                    await DbOps.ScanMetadata(OnProgress);
+                    await Task.Run(async () => await DbOps.ScanMetadata(OnProgress));
                 }
             }
             else
             {
                 dialog.SetProgressBarState(0f, TaskDialogProgressState.Indeterminate);
                 await DbOps.ScanLibrary(key);
-
-
+                
                 if (settings.Metadata.FetchAchievements &&
                     GameExtensions.AchievementsByName.TryGetValue(key, out var value))
                 {
                     dialog.Content = "Scanning achievements";
-                    await DbOps.ScanAchievementsData(value, OnProgress);
+                    await Task.Run(async () => await DbOps.ScanAchievementsData(value, OnProgress));
                 }
 
                 if (settings.Metadata.FetchMetadata)
                 {
                     dialog.Content = "Scanning metadata";
-                    await DbOps.ScanMetadata(key, OnProgress);
+                    await Task.Run(async () => await DbOps.ScanMetadata(key, OnProgress));
                 }
             }
 
