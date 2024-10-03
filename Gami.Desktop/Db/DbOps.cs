@@ -177,6 +177,7 @@ public static class DbOps
         Log.Information("Scanning achievements progress");
         foreach (var (type, scanner) in GamiAddons.AchievementsByName)
         {
+            Log.Information("Scanning achievement progress for ");
             ImmutableArray<AchievementGameLibraryRef> gamesToScan;
             await using (var db = new GamiContext())
             {
@@ -203,16 +204,14 @@ public static class DbOps
                     Log.Information("Scanning achievements progress for: {Name}", g.Name);
                     await using var db = new GamiContext();
 
-                    var progress = new List<AchievementProgress>();
+                    var progress = new List<AchievementProgress>(g.TotalAchievements);
 
-                    await foreach (var pr in scanner.ScanProgress(g))
-                    {
-                        Log.Information("Scanning achievements progress for: {Name}", pr.Achievement.Name);
-                        progress.Add(pr);
-                    }
+                    await foreach (var pr in scanner.ScanProgress(g)) progress.Add(pr);
 
+                    Log.Information("Inserting achievements progress for: {Name}; Total: {Total}", g.Name,
+                        progress.Count);
                     await db.BulkInsertOrUpdateAsync(progress);
-                    Log.Information("Scanned achievements progress for: {Name}; Total: {Total}", g.Name,
+                    Log.Information("Inserted achievements progress for: {Name}; Total: {Total}", g.Name,
                         progress.Count);
                 }));
         }
