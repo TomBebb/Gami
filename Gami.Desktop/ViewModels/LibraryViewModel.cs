@@ -53,7 +53,7 @@ public class LibraryViewModel : ViewModelBase
 
                     await using var db = new GamiContext();
                     var res = await db.ExcludedGames.AddAsync(new ExcludedGame
-                        { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
+                    { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
                     await db.SaveChangesAsync();
                     Log.Debug("Excluded Game: {Game}", res);
                 }),
@@ -176,7 +176,7 @@ public class LibraryViewModel : ViewModelBase
             Name = "All",
             Settings = ImmutableArray<AddoConfigSetting>.Empty
         },
-        ..GamiAddons.AddonConfigs.Values.Where(v => GamiAddons.ScannersByName.ContainsKey(v.Key))
+        .. GamiAddons.AddonConfigs.Values.Where(v => GamiAddons.ScannersByName.ContainsKey(v.Key))
     ];
 
     [Reactive] public string Search { get; set; } = "";
@@ -190,7 +190,7 @@ public class LibraryViewModel : ViewModelBase
 
     public ImmutableArray<string> SortFields { get; set; } =
     [
-        ..Enum.GetValues(typeof(SortGameField))
+        .. Enum.GetValues(typeof(SortGameField))
             .Cast<SortGameField>()
             .Select(v => v
                 .GetName())

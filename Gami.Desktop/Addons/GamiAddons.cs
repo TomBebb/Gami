@@ -80,7 +80,7 @@ public static class GamiAddons
 
         Addons =
         [
-            ..Directory.GetFiles(dllPath, "*.dll")
+            .. Directory.GetFiles(dllPath, "*.dll")
                 .Where(d =>
                 {
                     var fn = Path.GetFileName(d);

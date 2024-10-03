@@ -38,32 +38,32 @@ public class App : Application
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
-            {
-                if (!Design.IsDesignMode)
                 {
-                    Log.Information("Ensure local app dir exists");
-                    Directory.CreateDirectory(Consts.BasePluginDir);
-                    using (DbContext context = new GamiContext())
+                    if (!Design.IsDesignMode)
                     {
-                        Log.Information("Ensure DB created");
-                        context.Database.EnsureCreated();
+                        Log.Information("Ensure local app dir exists");
+                        Directory.CreateDirectory(Consts.BasePluginDir);
+                        using (DbContext context = new GamiContext())
+                        {
+                            Log.Information("Ensure DB created");
+                            context.Database.EnsureCreated();
+                        }
+
+                        Log.Information("Save changes");
+
+
+                        Task.Run(async () => { await DbOps.AutoScan(); });
+                        Log.Information("Saved changes");
                     }
 
-                    Log.Information("Save changes");
-
-
-                    Task.Run(async () => { await DbOps.AutoScan(); });
-                    Log.Information("Saved changes");
+                    desktop.MainWindow = new MainWindow
+                    {
+                        DataContext = new MainViewModel()
+                    };
+                    if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
+                        Directory.CreateDirectory(Consts.AppDir);
+                    break;
                 }
-
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainViewModel()
-                };
-                if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
-                    Directory.CreateDirectory(Consts.AppDir);
-                break;
-            }
             case ISingleViewApplicationLifetime singleViewPlatform:
                 singleViewPlatform.MainView = new MainView
                 {

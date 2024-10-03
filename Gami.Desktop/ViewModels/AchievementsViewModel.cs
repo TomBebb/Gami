@@ -24,7 +24,7 @@ public class AchievementsViewModel : ViewModelBase
     {
         using (var db = new GamiContext())
         {
-            Games = [..db.Games.Select(g => new Game { Id = g.Id, Name = g.Name, LibraryId = g.LibraryId })];
+            Games = [.. db.Games.Select(g => new Game { Id = g.Id, Name = g.Name, LibraryId = g.LibraryId })];
             SelectedGame = Games.FirstOrDefault();
         }
 
@@ -105,7 +105,7 @@ public class AchievementsViewModel : ViewModelBase
 
         Achievements =
         [
-            ..achievementsQuery.Include(a => a.Progress)
+            .. achievementsQuery.Include(a => a.Progress)
                 .AsEnumerable()
                 .Select(a => new AchievementData(a, a.Progress ?? new AchievementProgress()))
         ];
