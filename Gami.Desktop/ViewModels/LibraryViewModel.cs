@@ -299,7 +299,8 @@ public class LibraryViewModel : ViewModelBase
                 Developers = g.Developers.Select(v => new Developer { Name = v.Name }).ToList(),
                 Genres = g.Genres.Select(v => new Genre { Name = v.Name }).ToList(),
                 LibraryType = g.LibraryType,
-                LibraryId = g.LibraryId
+                LibraryId = g.LibraryId,
+                InstallStatus = g.InstallStatus
             })
             .ToImmutableList();
     }
