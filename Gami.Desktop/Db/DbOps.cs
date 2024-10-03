@@ -238,7 +238,7 @@ public static class DbOps
             {
                 Id = $"{scanner.Type}:{item.LibraryId}",
                 Name = item.Name,
-                InstallStatus = item.InstallStatus,
+                InstallStatus = item.InstallStatus, LastPlayed = item.LastPlayed,
                 Description = "",
                 Playtime = item.Playtime,
                 IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),

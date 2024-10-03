@@ -280,6 +280,7 @@ public class LibraryViewModel : ViewModelBase
             SortGameField.LibraryType => games.Sort(v => v.LibraryType, dir),
             SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
             SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
+            SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
             _ => games
         };
 
@@ -289,6 +290,8 @@ public class LibraryViewModel : ViewModelBase
                 Name = g.Name,
                 Description = g.Description,
                 ReleaseDate = g.ReleaseDate,
+                LastPlayed = g.LastPlayed,
+
                 Playtime = g.Playtime,
                 HeaderUrl = g.HeaderUrl,
                 IconUrl = g.IconUrl,
