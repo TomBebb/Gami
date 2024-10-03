@@ -124,7 +124,36 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="models:Game">
-                                <Grid ColumnDefinitions="*, 10*,Auto, Auto">
+                                <Grid VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
+                                    <Grid.ContextFlyout>
+
+                                        <fa:FAMenuFlyout>
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Play"
+                                                IconSource="Play"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayGame }"
+                                                CommandParameter="{Binding }" />
+
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding !Installed}"
+                                                Text="Install"
+                                                IconSource="Add"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).InstallGame }"
+                                                CommandParameter="{Binding }" />
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Uninstall"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
+                                                CommandParameter="{Binding }" IconSource="Remove" />
+
+                                            <fa:MenuFlyoutItem
+                                                Text="Edit"
+                                                IconSource="Edit"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).EditGame }"
+                                                CommandParameter="{Binding }" />
+                                        </fa:FAMenuFlyout>
+                                    </Grid.ContextFlyout>
                                     <Image Grid.Column="0"
                                            IsVisible="{Binding IconUrl, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
