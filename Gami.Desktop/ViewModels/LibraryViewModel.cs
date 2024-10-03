@@ -237,7 +237,7 @@ public class LibraryViewModel : ViewModelBase
             {
                 dialog.SetProgressBarState(0f, TaskDialogProgressState.Indeterminate);
                 await DbOps.ScanLibrary(key);
-                
+
                 if (settings.Metadata.FetchAchievements &&
                     GameExtensions.AchievementsByName.TryGetValue(key, out var value))
                 {
@@ -297,7 +297,9 @@ public class LibraryViewModel : ViewModelBase
                 Id = g.Id,
                 Publishers = g.Publishers.Select(v => new Publisher { Name = v.Name }).ToList(),
                 Developers = g.Developers.Select(v => new Developer { Name = v.Name }).ToList(),
-                Genres = g.Genres.Select(v => new Genre { Name = v.Name }).ToList()
+                Genres = g.Genres.Select(v => new Genre { Name = v.Name }).ToList(),
+                LibraryType = g.LibraryType,
+                LibraryId = g.LibraryId
             })
             .ToImmutableList();
     }
