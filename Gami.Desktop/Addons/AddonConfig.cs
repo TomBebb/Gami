@@ -38,7 +38,7 @@ public class AddonConfig : ReactiveObject
             var vals = MySettings;
             return
             [
-                ..Settings.Select(s => new MappedAddoConfigSetting
+                .. Settings.Select(s => new MappedAddoConfigSetting
                 {
                     Key = s.Key,
                     Name = s.Name,

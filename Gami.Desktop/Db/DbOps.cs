@@ -28,7 +28,7 @@ public static class DbOps
 
         ImmutableArray<GameLibraryRef> gamesMissingAchievements =
         [
-            ..db.Games
+            .. db.Games
                 // ReSharper disable once AccessToDisposedClosure
                 .Where(g => !db.Achievements.Any(a => a.GameId == g.Id))
                 .Where(g => g.LibraryType == scanner.Type)
@@ -72,7 +72,7 @@ public static class DbOps
         {
             refs =
             [
-                ..db.Games.Where(g => g.Description == "").Select(g => new GameLibraryRef
+                .. db.Games.Where(g => g.Description == "").Select(g => new GameLibraryRef
                 {
                     LibraryId = g.LibraryId,
                     Name = g.Name,
@@ -95,7 +95,7 @@ public static class DbOps
         {
             refs =
             [
-                ..db.Games
+                .. db.Games
                     .Where(g => g.LibraryType == key)
                     .Where(g => g.Description == "")
                     .Select(g => new GameLibraryRef
@@ -171,7 +171,7 @@ public static class DbOps
         Log.Debug("Steam saved for {Game}", game);
     }
 
-// ReSharper disable once UnusedMember.Local
+    // ReSharper disable once UnusedMember.Local
     private static async ValueTask ScanAchievementsProgress()
     {
         Log.Information("Scanning achievements progress");
@@ -183,7 +183,7 @@ public static class DbOps
             {
                 gamesToScan =
                 [
-                    ..db.Games
+                    .. db.Games
                         .Where(g => g.LibraryType == type)
                         .Where(g => db.Achievements.Any(a => a.GameId == g.Id))
                         .Select(g => new AchievementGameLibraryRef
@@ -238,7 +238,8 @@ public static class DbOps
             {
                 Id = $"{scanner.Type}:{item.LibraryId}",
                 Name = item.Name,
-                InstallStatus = item.InstallStatus, LastPlayed = item.LastPlayed,
+                InstallStatus = item.InstallStatus,
+                LastPlayed = item.LastPlayed,
                 Description = "",
                 Playtime = item.Playtime,
                 IconUrl = await item.IconUrl.AutoDownloadUriOpt(WithPrefix("icon")),
