@@ -54,8 +54,9 @@ public sealed class AddonsViewModel : ViewModelBase
             var dialog = new ContentDialog
             {
                 Title = "Authenticate",
+                Content = webview,
                 CloseButtonText = "Close",
-                Content = webview
+                FullSizeDesired = true
             };
             await dialog.ShowAsync();
 
