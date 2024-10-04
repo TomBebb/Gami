@@ -11,7 +11,9 @@
     <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
         <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
