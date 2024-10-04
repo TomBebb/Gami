@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/flatpak/flatpak-builder/refs/heads/main/data/flatpak-manifest.schema.json",
+  "id": "org.tombebb.Gami",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "24.08",
+  "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": ["org.freedesktop.Sdk.Extension.dotnet8"],
+  "build-options": {
+    "prepend-path": "/usr/lib/sdk/dotnet8/bin",
+    "append-ld-library-path": "/usr/lib/sdk/dotnet8/lib",
+    "prepend-pkg-config-path": "/usr/lib/sdk/dotnet8/lib/pkgconfig"
+  },
+  "finish-args": [
+    "--device=dri",
+    "--socket=x11",
+    "--share=ipc",
+    "--env=DOTNET_ROOT=/app/lib/dotnet"
+  ],
+  "modules": [
+    {
+      "name": "dotnet",
+      "buildsystem": "simple",
+      "build-commands": ["/usr/lib/sdk/dotnet8/bin/install.sh"]
+    },
+    {
+      "name": "gami",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/TomBebb/Gami.git",
+          "tag": "v0.2.4",
+          "dest": "src"
+        },
+        "./nuget-sources.json"
+      ],
+      "build-commands": [
+        "ls",
+        "dotnet publish src/Gami.Desktop/Gami.Desktop.csproj -c Release --no-self-contained --source ./nuget-sources",
+        "mkdir -p ${FLATPAK_DEST}/bin",
+        "cp -r bin/Release/net8.0/publish/* ${FLATPAK_DEST}/bin"
+      ]
+    }
+  ]
+}
