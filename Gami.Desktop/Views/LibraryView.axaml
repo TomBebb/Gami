@@ -22,8 +22,10 @@
     </Design.DataContext>
     <UserControl.Resources>
         <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
+        <conv:HumanizerConverter x:Key="HumanizerConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
+
         <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
             <StackPanel Orientation="Horizontal">
                 <SplitButton>
@@ -70,6 +72,7 @@
             </StackPanel>
         </Border>
 
+
         <Grid Grid.Row="2"
               IsVisible="{Binding EditingGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -108,7 +111,19 @@
 
         </Grid>
 
-        <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
+        <DataGrid Grid.Row="3" IsVisible="{Binding  IsViewTable}" ItemsSource="{Binding Games}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Library"
+                                    Binding="{Binding LibraryType, Converter={StaticResource HumanizerConverter}}" />
+                <DataGridTextColumn Header="Name"
+                                    Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Playtime"
+                                    Binding="{Binding Playtime, Converter={StaticResource TimeSpanDisplayConverter}}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *" IsVisible="{Binding IsViewDetails}">
             <Grid ColumnDefinitions="* Auto">
                 <TextBox Text="{Binding Search}" Watermark="Enter search" />
                 <Button Grid.Column="1"

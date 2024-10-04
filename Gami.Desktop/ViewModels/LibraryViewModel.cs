@@ -171,13 +171,35 @@ public class LibraryViewModel : ViewModelBase
             .BindTo(this, x => x.IsPlayingSelected);
 
         RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
+
+        this.WhenAnyValue(v => v.ViewType).Subscribe(vt =>
+        {
+            Log.Information("View type: {ViewType}", vt);
+            IsViewDetails = false;
+            IsViewGrid = false;
+            IsViewTable = false;
+
+            switch (vt)
+            {
+                case LibraryViewType.Details:
+                    IsViewDetails = true;
+                    break;
+                case LibraryViewType.Table:
+                    IsViewTable = true;
+                    break;
+                case LibraryViewType.Grid:
+                    IsViewGrid = true;
+                    break;
+            }
+        });
     }
 
-    public bool IsViewDetails => ViewType == LibraryViewType.Details;
-    public bool IsViewGrid => ViewType == LibraryViewType.Grid;
-    public bool IsViewTable => ViewType == LibraryViewType.Table;
+    [Reactive] public bool IsViewDetails { get; set; }
 
-    public LibraryViewType ViewType { get; set; } = LibraryViewType.Details;
+    [Reactive] public bool IsViewGrid { get; set; }
+    [Reactive] public bool IsViewTable { get; set; }
+
+    [Reactive] public LibraryViewType ViewType { get; set; } = LibraryViewType.Details;
 
 #pragma warning disable CA1822
     public ImmutableArray<AddonConfig> Plugins =>
