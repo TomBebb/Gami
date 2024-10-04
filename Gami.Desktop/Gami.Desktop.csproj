@@ -69,10 +69,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Assets\avalonia-logo-copy.ico">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <AvaloniaResource Include="Assets\avalonia-logo.ico"/>
+        <AvaloniaResource Include="Assets\icon.png"/>
     </ItemGroup>
 
     <ItemGroup>
