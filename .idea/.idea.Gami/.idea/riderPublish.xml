@@ -6,6 +6,7 @@
         <option value="$PROJECT_DIR$/Gami/Gami.Desktop/publish" />
         <option value="$PROJECT_DIR$/.bin" />
         <option value="$PROJECT_DIR$/Gami.Core/bin/Release/net8.0/linux-x64/publish" />
+        <option value="$PROJECT_DIR$/Gami.Desktop/publish" />
       </list>
     </option>
   </component>

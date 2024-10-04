@@ -44,12 +44,16 @@ public sealed class AddonsViewModel : ViewModelBase
             if (CurrentUrl == null)
                 return;
 
-            var webview = new AvaloniaCefBrowser();
-            webview.Address = InitialUrl;
+            var webview = new AvaloniaCefBrowser
+            {
+                Address = InitialUrl,
+                MinWidth = 400,
+                MinHeight = 200
+            };
             webview.LoadStart += (_, ev) => CurrentUrl = ev.Frame.Url;
             var dialog = new ContentDialog
             {
-                Title = "My Dialog Title",
+                Title = "Authenticate",
                 CloseButtonText = "Close",
                 Content = webview
             };
