@@ -3,13 +3,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using AvaloniaWebView;
 using FluentAvalonia.UI.Controls;
 using Gami.Core;
 using Gami.Desktop.Addons;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
+using Xilium.CefGlue.Avalonia;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -43,8 +43,10 @@ public sealed class AddonsViewModel : ViewModelBase
                 CurrentUrl = InitialUrl;
             if (CurrentUrl == null)
                 return;
-            var webview = new WebView { Url = new Uri(CurrentUrl!), MinHeight = 400, MinWidth = 400 };
-            webview.NavigationStarting += (_, arg) => CurrentUrl = arg.Url?.ToString() ?? CurrentUrl;
+
+            var webview = new AvaloniaCefBrowser();
+            webview.Address = InitialUrl;
+            webview.LoadStart += (_, ev) => CurrentUrl = ev.Frame.Url;
             var dialog = new ContentDialog
             {
                 Title = "My Dialog Title",

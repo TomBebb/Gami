@@ -8,7 +8,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using AvaloniaWebView;
 using Gami.Core;
 using Gami.Desktop.Db;
 using Gami.Desktop.Misc;
@@ -27,12 +26,6 @@ public class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override void RegisterServices()
-    {
-        base.RegisterServices();
-
-        AvaloniaWebViewBuilder.Initialize(default);
-    }
 
     public override void OnFrameworkInitializationCompleted()
     {
