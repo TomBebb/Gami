@@ -17,20 +17,6 @@
         <Style Selector="ListBox.RadioButtonListBox">
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
-        <Style Selector="ListBox.RadioButtonListBox ListBoxItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Border Background="Transparent">
-                            <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                            <RadioButton Content="{TemplateBinding ContentPresenter.Content}"
-                                         VerticalAlignment="Center"
-                                         IsChecked="{Binding Path=IsSelected,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </UserControl.Styles>
     <fa:NavigationView SelectionChanged="NavigationView_OnSelectionChanged" PaneDisplayMode="Left"
                        Content="{Binding CurrView}"
