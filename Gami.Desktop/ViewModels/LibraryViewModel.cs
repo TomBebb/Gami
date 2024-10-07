@@ -151,15 +151,12 @@ public class LibraryViewModel : ViewModelBase
         });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
-            Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
             var context = new EditGameViewModel
             {
                 EditingGame = game
             };
             var saveCmd = ReactiveCommand.CreateFromTask(async () =>
             {
-                Log.Debug("Save game: {Data}", JsonSerializer.Serialize(context));
-
                 await using var db = new GamiContext();
                 db.Games.Update(game);
 
