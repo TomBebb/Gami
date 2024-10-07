@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="Gami.Desktop/App.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
+        <entry key="Gami.Desktop/AutoHtmlLabel.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/AchievementsView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/AddOns.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/AddOnsView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
