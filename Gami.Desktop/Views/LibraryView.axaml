@@ -66,44 +66,6 @@
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="2"
-              IsVisible="{Binding EditingGame, 
-                       Converter={x:Static ObjectConverters.IsNotNull}}"
-              RowDefinitions="*,*,*,*,*,Auto"
-              ColumnDefinitions="Auto, *">
-            <Label Content="Name" />
-            <TextBox Grid.Row="0" Grid.Column="1"
-                     Text="{Binding EditingGame.Name,FallbackValue=None}" />
-
-            <Label Grid.Row="1" Grid.Column="0" Content="Description" />
-            <TextBox Grid.Row="1" Grid.Column="1"
-                     Text="{Binding EditingGame.Description,FallbackValue=None}" />
-            <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
-
-            <TextBox Grid.Row="2" Grid.Column="1"
-                     Text="{Binding EditingGame.ReleaseDate,FallbackValue=None}" />
-
-            <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
-
-            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-                <ItemsControl ItemsSource="{Binding EditingGame.Genres,FallbackValue= []}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="models:Genre">
-                            <Label Content="{Binding Name}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-            <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
-                        HorizontalAlignment="Center"
-                        Orientation="Horizontal">
-                <Button Content="Save" />
-                <Button Content="Cancel" />
-
-            </StackPanel>
-
-        </Grid>
-
         <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
             <Grid ColumnDefinitions="* Auto">
                 <TextBox Text="{Binding Search}" Watermark="Enter search" />

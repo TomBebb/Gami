@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
+             xmlns:models="clr-namespace:Gami.Core.Models;assembly=Gami.Core"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:EditGameViewModel"
+             x:Class="Gami.Desktop.Views.GameEditor">
+    <Design.DataContext><vm:EditGameViewModel/></Design.DataContext>
+   
+    <Grid
+        RowDefinitions="*,*,*,*,*,Auto"
+          ColumnDefinitions="Auto, *">
+        <Label Content="Name" />
+        <TextBox Grid.Row="0" Grid.Column="1"
+                 Text="{Binding EditingGame.Name,FallbackValue=None}" />
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Description" />
+        <TextBox Grid.Row="1" Grid.Column="1"
+                 Text="{Binding EditingGame.Description,FallbackValue=None}" />
+        <Label Grid.Row="2" Grid.Column="0" Content="Release Date" />
+
+        <TextBox Grid.Row="2" Grid.Column="1"
+                 Text="{Binding EditingGame.ReleaseDate,FallbackValue=None}" />
+
+        <Label Grid.Row="4" Grid.Column="0" Content="Genres" />
+
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+            <ItemsControl ItemsSource="{Binding EditingGame.Genres,FallbackValue= []}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:Genre">
+                        <Label Content="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <Button Content="Save" />
+            <Button Content="Cancel" />
+
+        </StackPanel>
+
+    </Grid>
+
+</UserControl>

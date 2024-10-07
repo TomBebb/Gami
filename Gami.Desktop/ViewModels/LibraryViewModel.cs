@@ -17,6 +17,7 @@ using Gami.Desktop.Db.Models;
 using Gami.Desktop.Misc;
 using Gami.Desktop.Models;
 using Gami.Desktop.Models.Settings;
+using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -53,7 +54,7 @@ public class LibraryViewModel : ViewModelBase
 
                     await using var db = new GamiContext();
                     var res = await db.ExcludedGames.AddAsync(new ExcludedGame
-                    { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
+                        { LibraryType = game.LibraryType, LibraryId = game.LibraryId });
                     await db.SaveChangesAsync();
                     Log.Debug("Excluded Game: {Game}", res);
                 }),
@@ -151,7 +152,33 @@ public class LibraryViewModel : ViewModelBase
         EditGame = ReactiveCommand.Create((Game game) =>
         {
             Log.Information("Edit game: {Game}", JsonSerializer.Serialize(game));
-            EditingGame = game;
+            var context = new EditGameViewModel
+            {
+                EditingGame = game
+            };
+            var saveCmd = ReactiveCommand.CreateFromTask(async () =>
+            {
+                Log.Debug("Save game: {Data}", JsonSerializer.Serialize(context));
+
+                await using var db = new GamiContext();
+                db.Games.Update(game);
+
+                await db.SaveChangesAsync();
+
+                RefreshCache();
+            });
+            var dialog = new ContentDialog
+            {
+                Title = "Edit game",
+                PrimaryButtonText = "Save",
+                SecondaryButtonText = "Cancel",
+                PrimaryButtonCommand = saveCmd,
+                Content = new GameEditor
+                {
+                    DataContext = context
+                }
+            };
+            dialog.ShowAsync();
         });
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
@@ -308,8 +335,6 @@ public class LibraryViewModel : ViewModelBase
             .ToImmutableList();
     }
 #pragma warning disable CA1822 // Mark members as static
-
-    [Reactive] public Game? EditingGame { get; set; }
 
     public ReactiveCommand<Unit, Unit> ClearSearch { get; }
     public ReactiveCommand<Game, Unit> PlayGame { get; }
