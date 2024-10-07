@@ -3,9 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Gami.Desktop.ViewModels"
-             xmlns:html="clr-namespace:TheArtOfDev.HtmlRenderer.Avalonia;assembly=Avalonia.HtmlRenderer"
              xmlns:addons="clr-namespace:Gami.Desktop.Addons"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
+             xmlns:views="clr-namespace:Gami.Desktop.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:AddonsViewModel"
              x:Class="Gami.Desktop.Views.AddOnsView">
@@ -34,7 +34,7 @@
                         <Label Content="{Binding  SelectedAddon.Name}"
                                FontWeight="Bold" />
 
-                        <html:HtmlLabel
+                        <views:AutoColorHtmlLabel
                             IsVisible="{Binding  SelectedAddon.Hint, Converter={x:Static ObjectConverters.IsNotNull}}"
                             Text="{Binding SelectedAddon.Hint, Converter={StaticResource MarkdownConverter}}" />
 
@@ -50,7 +50,7 @@
                                         <Label Content="{Binding Name }" />
                                         <StackPanel Grid.Column="2" Orientation="Vertical">
 
-                                            <html:HtmlLabel
+                                            <views:AutoColorHtmlLabel
                                                 Text="{Binding Hint , Converter={StaticResource MarkdownConverter}}" />
                                             <TextBox Text="{Binding Value }" TextChanged="TextBox_OnTextChanged" />
                                         </StackPanel>
