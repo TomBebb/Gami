@@ -11,8 +11,4 @@ public partial class MainView : UserControl
         InitializeComponent();
     }
 
-    private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e)
-    {
-        (DataContext as MainViewModel)!.Curr = e.SelectedItem.ToString()!;
-    }
 }

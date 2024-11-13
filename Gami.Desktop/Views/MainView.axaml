@@ -18,20 +18,18 @@
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
     </UserControl.Styles>
-    <fa:NavigationView SelectionChanged="NavigationView_OnSelectionChanged" PaneDisplayMode="Left"
+    <fa:NavigationView SelectedItem="{Binding CurrRoute}" PaneDisplayMode="Left"
+                       IsSettingsVisible="False"
                        Content="{Binding CurrView}"
-                       IsSettingsVisible="True">
-        <fa:NavigationView.MenuItems>
-            <fa:NavigationViewItem Content="Library"
-                                   IconSource="Library" />
-            <fa:NavigationViewItem Content="Achievements"
-                                   IconSource="Alert" />
-        </fa:NavigationView.MenuItems>
-        <fa:NavigationView.FooterMenuItems>
-            <fa:NavigationViewItem Content="Add-Ons"
+                       MenuItemsSource="{Binding Routes}"
+                       FooterMenuItemsSource="{Binding FooterRoutes}">
 
-                                   IconSource="Admin" />
-        </fa:NavigationView.FooterMenuItems>
+        <fa:NavigationView.MenuItemTemplate>
+            <DataTemplate DataType="{x:Type viewModels:Route}">
+                <fa:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}"
+                                       ToolTip.Tip="{Binding Tooltip}" />
 
+            </DataTemplate>
+        </fa:NavigationView.MenuItemTemplate>
     </fa:NavigationView>
 </UserControl>
