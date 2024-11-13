@@ -107,7 +107,12 @@
                                                 IsVisible="{Binding Installed}"
                                                 Text="Uninstall"
                                                 Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
-                                                CommandParameter="{Binding }" IconSource="Remove" />
+                                                CommandParameter="{Binding }">
+                                                
+                                                <fa:MenuFlyoutItem.IconSource>
+                                                    <fa:SymbolIconSource Symbol="Delete"></fa:SymbolIconSource>
+                                                </fa:MenuFlyoutItem.IconSource>
+                                                </fa:MenuFlyoutItem>
 
                                             <fa:MenuFlyoutItem
                                                 Text="Edit"
@@ -156,8 +161,9 @@
                                              Command="{Binding InstallGame}"
                                              CommandParameter="{Binding SelectedGame}"
                                              Label="Install" />
-                        <fa:CommandBarButton IconSource="Uninstall"
+                        <fa:CommandBarButton IconSource="Delete"
                                              Background="Orange"
+                                             HotKey="Delete"
                                              IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
                                              Command="{Binding UninstallGame}"
                                              CommandParameter="{Binding SelectedGame}"
@@ -169,19 +175,6 @@
                                              Label="Edit" />
 
                     </fa:CommandBar.PrimaryCommands>
-                    <fa:CommandBar.SecondaryCommands>
-
-                        <fa:CommandBarButton
-                            Command="{Binding DeleteGame}"
-                            CommandParameter="{Binding SelectedGame}"
-                            HotKey="Delete"
-                            Label="Delete">
-                            <fa:CommandBarButton.IconSource>
-                                <fa:SymbolIconSource Symbol="Clear" />
-                            </fa:CommandBarButton.IconSource>
-                        </fa:CommandBarButton>
-                    </fa:CommandBar.SecondaryCommands>
-
                 </fa:CommandBar>
 
                 <views:GameDetails Grid.Row="1" DataContext="{Binding SelectedGame}" />
