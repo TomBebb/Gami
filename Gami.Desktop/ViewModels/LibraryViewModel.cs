@@ -245,7 +245,7 @@ public class LibraryViewModel : ViewModelBase
                 await Task.WhenAll(
                     GamiAddons.ScannersByName.Values.Select(async v => { await DbOps.ScanLibrary(v); }));
 
-                if (settings.Metadata.FetchAchievements)
+                if (settings.Achievements.FetchAchievements)
                 {
                     dialog.Content = "Scanning achievements";
                     await Task.Run(async () => await DbOps.ScanAchievementsData(OnProgress));
@@ -262,7 +262,7 @@ public class LibraryViewModel : ViewModelBase
                 dialog.SetProgressBarState(0f, TaskDialogProgressState.Indeterminate);
                 await DbOps.ScanLibrary(key);
 
-                if (settings.Metadata.FetchAchievements &&
+                if (settings.Achievements.FetchAchievements &&
                     GamiAddons.AchievementsByName.TryGetValue(key, out var value))
                 {
                     dialog.Content = "Scanning achievements";

@@ -18,6 +18,7 @@ public class MySettings : Core.Models.Settings
     [Reactive] public bool MinimizeToSystemTray { get; set; }
     [Reactive] public bool MinimizeToSystemTrayOnClose { get; set; }
 
+    [Reactive] public AchievementsSettings Achievements { get; init; } = new();
     [Reactive] public MetadataSettings Metadata { get; init; } = new();
 
 

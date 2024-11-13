@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using Gami.Core;
 using Gami.Desktop.Db;
 using Gami.Desktop.Misc;
+using Gami.Desktop.Models.Settings;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,12 @@ public class App : Application
                     Log.Information("Save changes");
 
 
-                    Task.Run(async () => { await DbOps.AutoScan(); });
+                    Task.Run(async () =>
+                    {
+                        var settings = await MySettings.LoadAsync();
+                        if (settings.Achievements.ScanAchievementsOnStart)
+                            DbOps.AutoScan();
+                    });
                     Log.Information("Saved changes");
                 }
 

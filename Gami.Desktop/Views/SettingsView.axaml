@@ -21,7 +21,6 @@
                         <StackPanel Orientation="Horizontal">
                             <Label>After game launch:</Label>
                             <ComboBox SelectedIndex="{Binding Settings.GameLaunchWindowBehavior}">
-
                                 <ComboBoxItem>Minimize</ComboBoxItem>
                                 <ComboBoxItem>Close</ComboBoxItem>
                                 <ComboBoxItem>Do Nothing</ComboBoxItem>
@@ -47,10 +46,6 @@
                     <StackPanel Orientation="Vertical">
 
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding Settings.Metadata.FetchAchievements}" />
-                            <Label>Download achievements after library scan</Label>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.Metadata.FetchMetadata}" />
                             <Label>Download games metadata after library scan</Label>
                         </StackPanel>
@@ -69,11 +64,25 @@
                                 </ItemsControl>
                                 <Button>Add</Button>
                             </StackPanel>
-
-
                         </Grid>
                     </StackPanel>
 
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Achievements">
+                <ScrollViewer>
+                    <StackPanel Orientation="Vertical">
+
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Achievements.FetchAchievements}" />
+                            <Label>Download achievements after library scan</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Achievements.ScanAchievementsOnStart}" />
+                            <Label>Synchronize achievements on start</Label>
+                        </StackPanel>
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
         </TabControl>
