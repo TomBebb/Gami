@@ -1,4 +1,4 @@
-﻿namespace Gami.Desktop.Models;
+﻿namespace Gami.LauncherShared.Models;
 
 public enum GameLaunchBehavior
 {

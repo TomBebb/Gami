@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Addons;
+namespace Gami.LauncherShared.Addons;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]

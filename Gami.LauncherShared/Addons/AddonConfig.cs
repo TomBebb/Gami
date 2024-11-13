@@ -1,12 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.Json.Serialization;
 using Gami.Core;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Addons;
+namespace Gami.LauncherShared.Addons;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]

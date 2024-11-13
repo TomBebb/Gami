@@ -1,12 +1,10 @@
-﻿using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Gami.Core;
-using Gami.Desktop.Addons;
+using Gami.LauncherShared.Addons;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 
-namespace Gami.Desktop.Models.Settings;
+namespace Gami.LauncherShared.Models.Settings;
 
 public class MySettings : Core.Models.Settings
 {

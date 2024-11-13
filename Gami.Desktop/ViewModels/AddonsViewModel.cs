@@ -5,7 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using FluentAvalonia.UI.Controls;
 using Gami.Core;
-using Gami.Desktop.Addons;
+using Gami.LauncherShared.Addons;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;

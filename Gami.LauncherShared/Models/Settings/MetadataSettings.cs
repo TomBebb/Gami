@@ -2,7 +2,7 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace Gami.Desktop.Models.Settings;
+namespace Gami.LauncherShared.Models.Settings;
 
 public sealed class MetadataSettings : ReactiveObject
 {

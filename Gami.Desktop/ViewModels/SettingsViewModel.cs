@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive;
-using Gami.Desktop.Models.Settings;
+using Gami.LauncherShared.Models.Settings;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Controls;
 using Gami.Core;
-using Gami.Desktop.Addons;
 using Gami.Desktop.ViewModels;
+using Gami.LauncherShared.Addons;
 
 namespace Gami.Desktop.Views;
 

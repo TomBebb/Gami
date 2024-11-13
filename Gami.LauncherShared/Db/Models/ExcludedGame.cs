@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gami.Desktop.Db.Models;
+namespace Gami.LauncherShared.Db.Models;
 
 public sealed class ExcludedGame
 {

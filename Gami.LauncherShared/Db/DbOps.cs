@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
-using Gami.Desktop.Addons;
-using Gami.Desktop.Models.Settings;
+using Gami.LauncherShared.Addons;
+using Gami.LauncherShared.Models.Settings;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-namespace Gami.Desktop.Db;
+namespace Gami.LauncherShared.Db;
 
 public static class DbOps
 {

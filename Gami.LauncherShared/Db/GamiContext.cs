@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Gami.Core;
 using Gami.Core.Models;
-using Gami.Desktop.Db.Models;
+using Gami.LauncherShared.Db.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gami.Desktop.Db;
+namespace Gami.LauncherShared.Db;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]

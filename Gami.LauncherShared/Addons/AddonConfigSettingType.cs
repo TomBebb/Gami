@@ -1,6 +1,6 @@
 // ReSharper disable UnusedMember.Global
 
-namespace Gami.Desktop.Addons;
+namespace Gami.LauncherShared.Addons;
 
 public enum AddonConfigSettingType
 {

@@ -9,7 +9,7 @@
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:addons="clr-namespace:Gami.Desktop.Addons"
+             xmlns:addons="clr-namespace:Gami.LauncherShared.Addons;assembly=Gami.LauncherShared"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Name="View"
@@ -108,11 +108,11 @@
                                                 Text="Uninstall"
                                                 Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
                                                 CommandParameter="{Binding }">
-                                                
+
                                                 <fa:MenuFlyoutItem.IconSource>
-                                                    <fa:SymbolIconSource Symbol="Delete"></fa:SymbolIconSource>
+                                                    <fa:SymbolIconSource Symbol="Delete" />
                                                 </fa:MenuFlyoutItem.IconSource>
-                                                </fa:MenuFlyoutItem>
+                                            </fa:MenuFlyoutItem>
 
                                             <fa:MenuFlyoutItem
                                                 Text="Edit"

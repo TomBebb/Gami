@@ -1,8 +1,7 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Gami.Desktop.Addons;
+namespace Gami.LauncherShared.Addons;
 
 internal class AddonLoadContext(string pluginPath) : AssemblyLoadContext
 {

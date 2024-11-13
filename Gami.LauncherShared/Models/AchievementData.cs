@@ -1,6 +1,6 @@
 ﻿using Gami.Core.Models;
 
-namespace Gami.Desktop.Models;
+namespace Gami.LauncherShared.Models;
 
 public readonly record struct AchievementData(Achievement Achievement, AchievementProgress Progress)
 {

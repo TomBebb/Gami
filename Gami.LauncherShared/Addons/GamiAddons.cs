@@ -1,14 +1,9 @@
-using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Gami.Core;
 using Gami.Core.Models;
 using Octokit;
@@ -16,7 +11,7 @@ using Serilog;
 using Tomlyn;
 using Tomlyn.Model;
 
-namespace Gami.Desktop.Addons;
+namespace Gami.LauncherShared.Addons;
 
 public static class GamiAddons
 
