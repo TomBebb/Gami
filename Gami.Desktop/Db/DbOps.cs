@@ -9,6 +9,7 @@ using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
 using Gami.Desktop.Addons;
+using Gami.Desktop.Models.Settings;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -171,8 +172,8 @@ public static class DbOps
         Log.Debug("Steam saved for {Game}", game);
     }
 
-    // ReSharper disable once UnusedMember.Local
-    private static async ValueTask ScanAchievementsProgress()
+    // ReSharper disable once UnusedMember.Local 
+    public static async ValueTask ScanAchievementsProgress(AchievementsSettings settings)
     {
         Log.Information("Scanning achievements progress");
         foreach (var (type, scanner) in GamiAddons.AchievementsByName)
@@ -181,11 +182,15 @@ public static class DbOps
             ImmutableArray<AchievementGameLibraryRef> gamesToScan;
             await using (var db = new GamiContext())
             {
+                var filteredGames =
+                    db.Games
+                        .Where(g => g.LibraryType == type)
+                        .Where(g => db.Achievements.Any(a => a.GameId == g.Id));
+                if (settings.OnlyScanInstalled)
+                    filteredGames = filteredGames.Where(g => g.InstallStatus == GameInstallStatus.Installed);
                 gamesToScan =
                 [
-                    .. db.Games
-                        .Where(g => g.LibraryType == type)
-                        .Where(g => db.Achievements.Any(a => a.GameId == g.Id))
+                    .. filteredGames
                         .Select(g => new AchievementGameLibraryRef
                         {
                             LibraryType = g.LibraryType,
@@ -272,11 +277,6 @@ public static class DbOps
         }
 
         await db.SaveChangesAsync();
-    }
-
-    public static async ValueTask AutoScan()
-    {
-        await ScanAchievementsProgress();
     }
 
     private class AchievementGameLibraryRef : GameLibraryRef

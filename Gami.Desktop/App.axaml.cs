@@ -50,8 +50,8 @@ public class App : Application
                     Task.Run(async () =>
                     {
                         var settings = await MySettings.LoadAsync();
-                        if (settings.Achievements.ScanAchievementsOnStart)
-                            DbOps.AutoScan();
+                        if (settings.Achievements.ScanAchievementsProgressOnStart)
+                            await DbOps.ScanAchievementsProgress(settings.Achievements);
                     });
                     Log.Information("Saved changes");
                 }
