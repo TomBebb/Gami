@@ -26,8 +26,8 @@ public sealed record MappedGame(Game Game, bool Selected = false);
 
 public class LibraryViewModel : ViewModelBase
 {
-    private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
-    private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromSeconds(20);
 
     public LibraryViewModel()
     {
@@ -49,7 +49,7 @@ public class LibraryViewModel : ViewModelBase
                 {
                     Log.Information("Playing Game");
                     InputManager.DidConfirm = false;
-                    await PlayGame(SelectedGame!);
+                    Task.Run(() => PlayGame(SelectedGame!).AsTask());
                 }
 
                 await Task.Delay(200);
@@ -111,7 +111,7 @@ public class LibraryViewModel : ViewModelBase
             Current = await GamiAddons.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
         }
 
-        Log.Debug("Game open: {Open}", Current != null);
+        Log.Information("Game open: {Open}", Current != null);
         if (Current != null)
         {
             Current.EnableRaisingEvents = true;
