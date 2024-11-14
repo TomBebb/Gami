@@ -81,13 +81,7 @@ public class LibraryViewModel : ViewModelBase
             game.Launch();
 
             PlayingGame = game;
-
-            var start = DateTime.UtcNow;
-            while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
-            {
-                await Task.Delay(LookupProcessInterval);
-                Current = await GamiAddons.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
-            }
+            Current = await game.AutoScanProcess();
 
             Log.Debug("Game open: {Open}", Current != null);
             if (Current != null)

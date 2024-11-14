@@ -26,9 +26,6 @@ public sealed record MappedGame(Game Game, bool Selected = false);
 
 public class LibraryViewModel : ViewModelBase
 {
-    private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromSeconds(20);
-
     public LibraryViewModel()
     {
         Log.Information("LibraryViewModel");
@@ -104,12 +101,7 @@ public class LibraryViewModel : ViewModelBase
 
         PlayingGame = game;
 
-        var start = DateTime.UtcNow;
-        while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
-        {
-            await Task.Delay(LookupProcessInterval);
-            Current = await GamiAddons.LaunchersByName[game.LibraryType].GetMatchingProcess(game);
-        }
+        Current = await game.AutoScanProcess();
 
         Log.Information("Game open: {Open}", Current != null);
         if (Current != null)
