@@ -3,6 +3,7 @@
         xmlns:vm="using:Gami.BigPicture.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Gami.BigPicture.Views.MainWindow"
         SystemDecorations="None"
@@ -19,12 +20,15 @@
 
     <StackPanel Orientation="Vertical">
 
-        <Grid ColumnDefinitions="*, Auto">
+        <Grid ColumnDefinitions="*, Auto, Auto">
             <Label>
                 Recent
             </Label>
 
             <Label Grid.Column="1" Content="{Binding CurrentTime}" />
+
+            <i:Icon Grid.Column="2"
+                    Value="{Binding BatteryIcon}" />
         </Grid>
 
         <ContentControl Content="{Binding CurrView}" />
