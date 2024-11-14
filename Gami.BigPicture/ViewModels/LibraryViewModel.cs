@@ -91,7 +91,7 @@ public class LibraryViewModel : ViewModelBase
 
     [Reactive] public ImmutableArray<MappedGame> MappedGames { get; set; } = ImmutableArray<MappedGame>.Empty;
 
-    [Reactive] public InputManager InputManager { get; set; } = new();
+    [Reactive] public InputManager InputManager { get; set; } = InputManager.Instance;
 
     [Reactive] public int SelectedRow { get; set; }
 

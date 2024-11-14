@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 using Silk.NET.SDL;
@@ -16,7 +17,7 @@ public sealed class InputManager : IDisposable
     public bool DidConfirm;
 
 
-    public InputManager()
+    private InputManager()
     {
         _sdl.Init(Sdl.InitGamecontroller | Sdl.InitJoystick);
         Task.Run(async () =>
@@ -31,6 +32,8 @@ public sealed class InputManager : IDisposable
             }
         });
     }
+
+    public static InputManager Instance { get; private set; } = new();
 
     [Reactive]
     public ImmutableHashSet<MappedInputType> ActiveInputs { get; private set; } =
@@ -56,9 +59,24 @@ public sealed class InputManager : IDisposable
         };
     }
 
+    private static MappedInputType? MapKey(Key key)
+    {
+        return key switch
+        {
+            Key.Enter => MappedInputType.Confirm,
+            Key.Back => MappedInputType.Back,
+            Key.Up => MappedInputType.Up,
+            Key.Down => MappedInputType.Down,
+            Key.Left => MappedInputType.Left,
+            Key.Right => MappedInputType.Right,
+            Key.Escape => MappedInputType.MainMenu,
+            _ => null
+        };
+    }
+
     public void ProcessEvent(Event ev, ref bool quit)
     {
-        Log.Information("Processing event {Event}", (EventType)ev.Type);
+        Log.Debug("Processing event {Event}", (EventType)ev.Type);
         switch ((EventType)ev.Type)
         {
             case EventType.Quit:
@@ -82,7 +100,8 @@ public sealed class InputManager : IDisposable
             {
                 var mapped = MapButton((GameControllerButton)ev.Cbutton.Button);
                 if (mapped.HasValue) ActiveInputs = ActiveInputs.Add(mapped.Value);
-                Log.Debug("Button down: {Ty}; Pressed: {Pressed}; Mapped: {Mapped}", (GameControllerButton)ev.Cbutton.Button,
+                Log.Debug("Button down: {Ty}; Pressed: {Pressed}; Mapped: {Mapped}",
+                    (GameControllerButton)ev.Cbutton.Button,
                     ActiveInputs, mapped);
                 if (mapped == MappedInputType.Confirm)
                     DidConfirm = true;
@@ -97,5 +116,18 @@ public sealed class InputManager : IDisposable
                 break;
             }
         }
+    }
+
+    public void OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        Log.Debug("Key down: {Key}", e.Key);
+        var mapped = MapKey(e.Key);
+        if (mapped.HasValue) ActiveInputs = ActiveInputs.Add(mapped.Value);
+    }
+
+    public void OnKeyUp(object? sender, KeyEventArgs e)
+    {
+        var mapped = MapKey(e.Key);
+        if (mapped.HasValue) ActiveInputs = ActiveInputs.Remove(mapped.Value);
     }
 }
