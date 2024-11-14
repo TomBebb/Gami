@@ -30,11 +30,11 @@ public class LibraryViewModel : ViewModelBase
             {
                 if (SelectedColumn > 0 && InputManager.ActiveInputs.Contains(MappedInputType.Left))
                     SelectedColumn--;
-                if (SelectedColumn + 1 <= TilesPerRow && InputManager.ActiveInputs.Contains(MappedInputType.Right))
+                if (SelectedColumn + 1 < TilesPerRow && InputManager.ActiveInputs.Contains(MappedInputType.Right))
                     SelectedColumn++;
                 if (SelectedRow > 0 && InputManager.ActiveInputs.Contains(MappedInputType.Up))
                     SelectedRow--;
-                if (SelectedRow + 1 <= TotalRows && InputManager.ActiveInputs.Contains(MappedInputType.Down))
+                if (SelectedRow + 1 < TotalRows && InputManager.ActiveInputs.Contains(MappedInputType.Down))
                     SelectedRow++;
                 await Task.Delay(200);
             }
