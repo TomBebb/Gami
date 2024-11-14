@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,13 +7,10 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using Gami.Core;
 using Gami.Desktop.Misc;
 using Gami.Desktop.ViewModels;
 using Gami.Desktop.Views;
-using Gami.LauncherShared.Db;
-using Gami.LauncherShared.Models.Settings;
-using Microsoft.EntityFrameworkCore;
+using Gami.LauncherShared;
 using ReactiveUI;
 using Serilog;
 
@@ -34,34 +30,12 @@ public class App : Application
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
             {
-                if (!Design.IsDesignMode)
-                {
-                    Log.Information("Ensure local app dir exists");
-                    Directory.CreateDirectory(Consts.BasePluginDir);
-                    using (DbContext context = new GamiContext())
-                    {
-                        Log.Information("Ensure DB created");
-                        context.Database.EnsureCreated();
-                    }
-
-                    Log.Information("Save changes");
-
-
-                    Task.Run(async () =>
-                    {
-                        var settings = await MySettings.LoadAsync();
-                        if (settings.Achievements.ScanAchievementsProgressOnStart)
-                            await DbOps.ScanAchievementsProgress(settings.Achievements);
-                    });
-                    Log.Information("Saved changes");
-                }
+                if (!Design.IsDesignMode) Startup.CommonSetup();
 
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainViewModel()
                 };
-                if (!Design.IsDesignMode && !Directory.Exists(Consts.AppDir))
-                    Directory.CreateDirectory(Consts.AppDir);
                 break;
             }
             case ISingleViewApplicationLifetime singleViewPlatform:
