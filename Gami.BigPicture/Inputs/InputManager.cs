@@ -13,6 +13,8 @@ public sealed class InputManager : IDisposable
     private readonly Sdl _sdl = Sdl.GetApi();
     private bool _isDisposed;
 
+    public bool DidConfirm;
+
 
     public InputManager()
     {
@@ -80,8 +82,10 @@ public sealed class InputManager : IDisposable
             {
                 var mapped = MapButton((GameControllerButton)ev.Cbutton.Button);
                 if (mapped.HasValue) ActiveInputs = ActiveInputs.Add(mapped.Value);
-                Log.Debug("Button down: {Ty}; Pressed: {Pressed}", (GameControllerButton)ev.Cbutton.Button,
-                    ActiveInputs);
+                Log.Debug("Button down: {Ty}; Pressed: {Pressed}; Mapped: {Mapped}", (GameControllerButton)ev.Cbutton.Button,
+                    ActiveInputs, mapped);
+                if (mapped == MappedInputType.Confirm)
+                    DidConfirm = true;
                 break;
             }
             case EventType.Controllerbuttonup:
