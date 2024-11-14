@@ -10,5 +10,7 @@ public partial class MainWindow : Window
         KeyDown += InputManager.Instance.OnKeyDown;
         KeyUp += InputManager.Instance.OnKeyUp;
         InitializeComponent();
+
+        Focus();
     }
 }
