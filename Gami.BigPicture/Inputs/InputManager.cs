@@ -120,9 +120,12 @@ public sealed class InputManager : IDisposable
 
     public void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        Log.Debug("Key down: {Key}", e.Key);
         var mapped = MapKey(e.Key);
-        if (mapped.HasValue) ActiveInputs = ActiveInputs.Add(mapped.Value);
+
+        Log.Debug("Key down: {Key}; mapped: {Mapped}", e.Key, mapped);
+        if (!mapped.HasValue) return;
+        if (mapped == MappedInputType.Confirm) DidConfirm = true;
+        ActiveInputs = ActiveInputs.Add(mapped.Value);
     }
 
     public void OnKeyUp(object? sender, KeyEventArgs e)
