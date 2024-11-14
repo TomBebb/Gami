@@ -14,8 +14,6 @@ public sealed class InputManager : IDisposable
     private readonly Sdl _sdl = Sdl.GetApi();
     private bool _isDisposed;
 
-    public bool DidConfirm;
-
 
     private InputManager()
     {
@@ -43,6 +41,10 @@ public sealed class InputManager : IDisposable
     {
         _isDisposed = true;
     }
+
+    public event Action<MappedInputType> OnPressed;
+
+    public event Action<MappedInputType> OnReleased;
 
     private static MappedInputType? MapButton(GameControllerButton button)
     {
@@ -74,7 +76,21 @@ public sealed class InputManager : IDisposable
         };
     }
 
-    public void ProcessEvent(Event ev, ref bool quit)
+    private void ProcessPressed(MappedInputType inputType)
+    {
+        if (ActiveInputs.Contains(inputType)) return;
+        ActiveInputs = ActiveInputs.Add(inputType);
+        OnPressed?.Invoke(inputType);
+    }
+
+    private void ProcessReleased(MappedInputType inputType)
+    {
+        if (!ActiveInputs.Contains(inputType)) return;
+        ActiveInputs = ActiveInputs.Remove(inputType);
+        OnReleased?.Invoke(inputType);
+    }
+
+    private void ProcessEvent(Event ev, ref bool quit)
     {
         Log.Debug("Processing event {Event}", (EventType)ev.Type);
         switch ((EventType)ev.Type)
@@ -99,20 +115,15 @@ public sealed class InputManager : IDisposable
             case EventType.Controllerbuttondown:
             {
                 var mapped = MapButton((GameControllerButton)ev.Cbutton.Button);
-                if (mapped.HasValue) ActiveInputs = ActiveInputs.Add(mapped.Value);
-                Log.Debug("Button down: {Ty}; Pressed: {Pressed}; Mapped: {Mapped}",
-                    (GameControllerButton)ev.Cbutton.Button,
-                    ActiveInputs, mapped);
-                if (mapped == MappedInputType.Confirm)
-                    DidConfirm = true;
+                if (mapped.HasValue)
+                    ProcessPressed(mapped.Value);
                 break;
             }
             case EventType.Controllerbuttonup:
             {
                 var mapped = MapButton((GameControllerButton)ev.Cbutton.Button);
-                if (mapped.HasValue) ActiveInputs = ActiveInputs.Remove(mapped.Value);
-                Log.Debug("Button up: {Ty}; Pressed: {Pressed}", (GameControllerButton)ev.Cbutton.Button,
-                    ActiveInputs);
+                if (mapped.HasValue)
+                    ProcessReleased(mapped.Value);
                 break;
             }
         }
@@ -121,16 +132,14 @@ public sealed class InputManager : IDisposable
     public void OnKeyDown(object? sender, KeyEventArgs e)
     {
         var mapped = MapKey(e.Key);
-
-        Log.Debug("Key down: {Key}; mapped: {Mapped}", e.Key, mapped);
         if (!mapped.HasValue) return;
-        if (mapped == MappedInputType.Confirm) DidConfirm = true;
-        ActiveInputs = ActiveInputs.Add(mapped.Value);
+        ProcessPressed(mapped.Value);
     }
 
     public void OnKeyUp(object? sender, KeyEventArgs e)
     {
         var mapped = MapKey(e.Key);
-        if (mapped.HasValue) ActiveInputs = ActiveInputs.Remove(mapped.Value);
+        if (!mapped.HasValue) return;
+        ProcessReleased(mapped.Value);
     }
 }

@@ -30,6 +30,13 @@ public class LibraryViewModel : ViewModelBase
     {
         Log.Information("LibraryViewModel");
         RefreshCache();
+
+        InputManager.OnPressed += ty =>
+        {
+            if (ty != MappedInputType.Confirm) return;
+            Log.Information("Playing Game");
+            Task.Run(() => PlayGame(SelectedGame!).AsTask());
+        };
         Task.Run(async () =>
         {
             while (true)
@@ -42,12 +49,6 @@ public class LibraryViewModel : ViewModelBase
                     SelectedRow--;
                 if (SelectedRow + 1 < TotalRows && InputManager.ActiveInputs.Contains(MappedInputType.Down))
                     SelectedRow++;
-                if (InputManager.DidConfirm)
-                {
-                    Log.Information("Playing Game");
-                    InputManager.DidConfirm = false;
-                    Task.Run(() => PlayGame(SelectedGame!).AsTask());
-                }
 
                 await Task.Delay(200);
             }

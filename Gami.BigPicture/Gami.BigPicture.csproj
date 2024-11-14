@@ -23,7 +23,7 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0"/>
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)"/>
-        <PackageReference Include="Gami.Core" Version="0.11.0"/>
+        <PackageReference Include="Gami.Core" Version="0.11.1"/>
         <PackageReference Include="Hardware.Info" Version="101.0.0"/>
         <PackageReference Include="Projektanker.Icons.Avalonia" Version="9.4.1"/>
         <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="9.4.1"/>
