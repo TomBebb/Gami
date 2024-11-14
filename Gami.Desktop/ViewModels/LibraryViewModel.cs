@@ -16,6 +16,7 @@ using Gami.Desktop.Views;
 using Gami.LauncherShared.Addons;
 using Gami.LauncherShared.Db;
 using Gami.LauncherShared.Db.Models;
+using Gami.LauncherShared.Misc;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -298,17 +299,8 @@ public class LibraryViewModel : ViewModelBase
         var games = db.Games
             .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));
 
-        games = sort switch
-        {
-            SortGameField.Name => games.Sort(v => v.Name, dir),
-            SortGameField.LibraryType => games.Sort(v => v.LibraryType, dir),
-            SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
-            SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
-            SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
-            _ => games
-        };
 
-        Games = games
+        Games = games.Sort(sort, dir)
             .Select(g => new Game
             {
                 Name = g.Name,

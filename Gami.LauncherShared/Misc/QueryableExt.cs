@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using DynamicData;
 using DynamicData.Binding;
 
-namespace Gami.Desktop.Misc;
+namespace Gami.LauncherShared.Misc;
 
 public static class QueryableExt
 {

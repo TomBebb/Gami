@@ -8,5 +8,6 @@ public enum MappedInputType
     Right,
 
     Confirm,
-    Back
+    Back,
+    MainMenu
 }

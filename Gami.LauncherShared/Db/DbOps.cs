@@ -209,10 +209,10 @@ public static class DbOps
 
                     await foreach (var pr in scanner.ScanProgress(g)) progress.Add(pr);
 
-                    Log.Information("Inserting achievements progress for: {Name}; Total: {Total}", g.Name,
+                    Log.Debug("Inserting achievements progress for: {Name}; Total: {Total}", g.Name,
                         progress.Count);
                     await db.BulkInsertOrUpdateAsync(progress);
-                    Log.Information("Inserted achievements progress for: {Name}; Total: {Total}", g.Name,
+                    Log.Debug("Inserted achievements progress for: {Name}; Total: {Total}", g.Name,
                         progress.Count);
                 }));
         }

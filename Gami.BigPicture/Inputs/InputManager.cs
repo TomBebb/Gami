@@ -13,6 +13,7 @@ public sealed class InputManager : IDisposable
     private readonly Sdl _sdl = Sdl.GetApi();
     private bool _isDisposed;
 
+
     public InputManager()
     {
         _sdl.Init(Sdl.InitGamecontroller | Sdl.InitJoystick);
@@ -48,6 +49,7 @@ public sealed class InputManager : IDisposable
             GameControllerButton.DpadDown => MappedInputType.Down,
             GameControllerButton.DpadLeft => MappedInputType.Left,
             GameControllerButton.DpadRight => MappedInputType.Right,
+            GameControllerButton.Guide => MappedInputType.MainMenu,
             _ => null
         };
     }

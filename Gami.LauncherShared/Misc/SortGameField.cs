@@ -1,4 +1,4 @@
-﻿namespace Gami.Desktop.Misc;
+﻿namespace Gami.LauncherShared.Misc;
 
 public enum SortGameField
 {
