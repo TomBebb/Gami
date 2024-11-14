@@ -21,11 +21,13 @@ public class MainWindowViewModel : ViewModelBase
         {
             if (bs == null) return;
 
-            Log.Information("Battery percent: {Percentage}, status: {Status}", bs.EstimatedChargeRemaining,
-                bs.BatteryStatus);
+
+            Log.Information("Battery percent: {Percentage}, status: {Status}/{Desc}", bs.EstimatedChargeRemaining,
+                bs.BatteryStatus, bs.BatteryStatusDescription);
+            var charging = bs.BatteryStatusDescription == "Charging";
             var roundedPercent = 10 * (int)Math.Round((float)bs.EstimatedChargeRemaining / 10);
-            var percentEnding = roundedPercent == 100 ? "" : $"-{roundedPercent}";
-            BatteryIcon = $"mdi-battery{percentEnding}";
+            var percentEnding = roundedPercent == 100 && !charging ? "" : $"-{roundedPercent}";
+            BatteryIcon = string.Join("", "mdi-battery", charging ? "-charging" : "", percentEnding);
         });
 
         Task.Run(async () =>
