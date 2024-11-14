@@ -92,7 +92,7 @@ public sealed class InputManager : IDisposable
 
     private void ProcessEvent(Event ev, ref bool quit)
     {
-        Log.Debug("Processing event {Event}", (EventType)ev.Type);
+        Log.Information("Processing event {Event}", (EventType)ev.Type);
         switch ((EventType)ev.Type)
         {
             case EventType.Quit:
