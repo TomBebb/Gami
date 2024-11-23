@@ -19,6 +19,7 @@
         </Style>
     </UserControl.Styles>
     <fa:NavigationView SelectedItem="{Binding CurrRoute}" PaneDisplayMode="Left"
+                       SelectionChanged="NavigationView_OnSelectionChanged"
                        IsSettingsVisible="False"
                        Content="{Binding CurrView}"
                        MenuItemsSource="{Binding Routes}"
