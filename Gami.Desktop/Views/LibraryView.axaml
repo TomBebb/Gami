@@ -8,7 +8,6 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:addons="clr-namespace:Gami.LauncherShared.Addons;assembly=Gami.LauncherShared"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
@@ -22,6 +21,7 @@
     </Design.DataContext>
     <UserControl.Resources>
         <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
+        <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
         <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
@@ -124,7 +124,7 @@
                                     <Image Grid.Column="0"
                                            IsVisible="{Binding IconUrl, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
-                                           asyncImageLoader:ImageLoader.Source="{Binding IconUrl}" />
+                                           Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
                                     <Label Grid.Column="1"
                                            VerticalAlignment="Center"
                                            Content="{Binding Name}" />

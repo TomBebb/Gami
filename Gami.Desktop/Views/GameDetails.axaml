@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:Gami.Core.Models;assembly=Gami.Core"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="models:Game"
@@ -14,16 +13,15 @@
     </Design.DataContext>
     <UserControl.Resources>
         <conv:TimeSpanDisplayConverter x:Key="TimeSpanDisplayConverter" />
+        <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
     </UserControl.Resources>
-
     <ScrollViewer>
         <StackPanel Orientation="Vertical">
 
             <Image
                 Stretch="UniformToFill"
                 MaxHeight="300"
-
-                asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
+                Source="{Binding HeroUrl, Converter={StaticResource BitmapValueConverter}}" />
             <Grid ColumnDefinitions="5*, 2, 10*">
 
                 <Grid RowDefinitions="*,8*">
