@@ -17,20 +17,43 @@
         <Style Selector="ListBox.RadioButtonListBox">
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
+        <Style Selector="Button.WindowButton">
+            <Setter Property="Padding" Value="3" />
+        </Style>
+        <Style Selector="Button.WindowButton fa|SymbolIcon">
+            <Setter Property="FontSize" Value="16" />
+        </Style>
     </UserControl.Styles>
-    <fa:NavigationView SelectedItem="{Binding CurrRoute}" PaneDisplayMode="Left"
-                       SelectionChanged="NavigationView_OnSelectionChanged"
-                       IsSettingsVisible="False"
-                       Content="{Binding CurrView}"
-                       MenuItemsSource="{Binding Routes}"
-                       FooterMenuItemsSource="{Binding FooterRoutes}">
 
-        <fa:NavigationView.MenuItemTemplate>
-            <DataTemplate DataType="{x:Type viewModels:Route}">
-                <fa:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}"
-                                       ToolTip.Tip="{Binding Tooltip}" />
+    <Grid RowDefinitions="Auto, *" ColumnDefinitions="*, Auto">
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
 
-            </DataTemplate>
-        </fa:NavigationView.MenuItemTemplate>
-    </fa:NavigationView>
+            <Button Classes="WindowButton" Click="Minimize">
+                <fa:SymbolIcon Symbol="Remove" />
+            </Button>
+            <Button Classes="WindowButton" Click="Maximize">
+                <fa:SymbolIcon Symbol="Restore" />
+            </Button>
+            <Button Classes="WindowButton" Click="Close">
+                <fa:SymbolIcon Symbol="Clear" />
+            </Button>
+        </StackPanel>
+        <fa:NavigationView Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"
+                           SelectedItem="{Binding CurrRoute}"
+                           PaneDisplayMode="Left"
+                           SelectionChanged="NavigationView_OnSelectionChanged"
+                           IsSettingsVisible="False"
+                           Content="{Binding CurrView}"
+                           MenuItemsSource="{Binding Routes}"
+                           FooterMenuItemsSource="{Binding FooterRoutes}">
+
+            <fa:NavigationView.MenuItemTemplate>
+                <DataTemplate DataType="{x:Type viewModels:Route}">
+                    <fa:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}"
+                                           ToolTip.Tip="{Binding Tooltip}" />
+
+                </DataTemplate>
+            </fa:NavigationView.MenuItemTemplate>
+        </fa:NavigationView>
+    </Grid>
 </UserControl>
