@@ -1,4 +1,6 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using Gami.Desktop.ViewModels;
@@ -8,9 +10,23 @@ namespace Gami.Desktop.Views;
 
 public partial class MainView : UserControl
 {
+    private Window Window => (Window)Parent!;
+
+    private WindowState WindowState
+    {
+        get => Window.WindowState;
+        set => Window.WindowState = value;
+    }
+
     public MainView()
     {
         InitializeComponent();
+    }
+
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (WindowState == WindowState.Normal)
+            Window.BeginMoveDrag(e);
     }
 
     private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e)
@@ -19,21 +35,12 @@ public partial class MainView : UserControl
         (DataContext as MainViewModel)!.CurrRoute = (Route)e.SelectedItem;
     }
 
-    private void Minimize(object? sender, RoutedEventArgs e)
-    {
-        var window = (Window)Parent;
-        window!.WindowState = WindowState.Minimized;
-    }
+    private void Minimize(object? sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void Maximize(object? sender, RoutedEventArgs e)
     {
-        var window = (Window)Parent;
-        window!.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     }
 
-    private void Close(object? sender, RoutedEventArgs e)
-    {
-        var window = (Window)Parent;
-        window!.Close();
-    }
+    private void Close(object? sender, RoutedEventArgs e) => Window.Close();
 }

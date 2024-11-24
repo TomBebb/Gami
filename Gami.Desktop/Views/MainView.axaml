@@ -26,7 +26,12 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto, *" ColumnDefinitions="*, Auto">
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+
+        <StackPanel Orientation="Horizontal" PointerPressed="InputElement_OnPointerPressed" Background="Gray"
+                    HorizontalAlignment="Stretch">
+            <Label>TODO</Label>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="5">
 
             <Button Classes="WindowButton" Click="Minimize">
                 <fa:SymbolIcon Symbol="Remove" />
