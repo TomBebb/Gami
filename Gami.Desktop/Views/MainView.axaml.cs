@@ -28,7 +28,7 @@ public partial class MainView : UserControl
     private void Maximize(object? sender, RoutedEventArgs e)
     {
         var window = (Window)Parent;
-        window!.WindowState = WindowState.Maximized;
+        window!.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     }
 
     private void Close(object? sender, RoutedEventArgs e)
