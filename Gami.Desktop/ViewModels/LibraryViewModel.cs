@@ -341,7 +341,11 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> DeleteGame { get; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
 
+    [Reactive] public LibraryViewType ViewType { get; set; } = LibraryViewType.Table;
 
+    public bool IsList => ViewType == LibraryViewType.List;
+    public bool IsTable => ViewType == LibraryViewType.Table;
+    public bool IsGrid => ViewType == LibraryViewType.Grid;
     [Reactive] public ImmutableList<Game> Games { get; private set; } = ImmutableList<Game>.Empty;
 
 #pragma warning restore CA1822 // Mark members as static

@@ -1,17 +1,17 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
-using Markdig;
+using Humanizer;
 
 namespace Gami.Desktop.Conv;
 
-public sealed class MarkdownHtmlConverter : IValueConverter
+public sealed class HumanizerConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter,
         CultureInfo culture) =>
-        value == null ? null : Markdown.ToHtml(value!.ToString());
+        value?.ToString().Humanize();
 
     public object ConvertBack(object? value, Type targetType,
         object? parameter, CultureInfo culture) =>
-        throw new NotSupportedException();
+        value?.ToString().Dehumanize();
 }

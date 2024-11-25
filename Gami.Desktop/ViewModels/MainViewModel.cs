@@ -11,13 +11,6 @@ using Serilog;
 
 namespace Gami.Desktop.ViewModels;
 
-public sealed record Route(
-    string Path,
-    string Name,
-    Func<string, ViewModelBase> ViewModelFactory,
-    string Tooltip = "",
-    Symbol? Icon = null);
-
 public class MainViewModel : ViewModelBase
 {
     public MainViewModel()
