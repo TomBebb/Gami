@@ -13,6 +13,7 @@
         <entry key="Gami.Desktop/Views/GameDetails.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/GameEditor.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/LibraryView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
+        <entry key="Gami.Desktop/Views/LibraryViewToolbar.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/MainView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/MainWindow.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />
         <entry key="Gami.Desktop/Views/SettingsView.axaml" value="Gami.Desktop/Gami.Desktop.csproj" />

@@ -32,7 +32,7 @@ public partial class MainView : UserControl
     private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e)
     {
         Log.Debug("NavigationView_OnSelectionChanged: {Selection}", e.SelectedItem);
-        (DataContext as MainViewModel)!.CurrRoute = (Route)e.SelectedItem;
+        (DataContext as MainViewModel)!.CurrPath = ((Route)e.SelectedItem).Path;
     }
 
     private void Minimize(object? sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
