@@ -33,9 +33,36 @@
             <Setter Property="BorderBrush" Value="Chartreuse" />
             <Setter Property="BorderThickness" Value="3" />
         </Style>
+        <Style Selector="Border.GridItem">
+            <Setter Property="BorderBrush" Value="Chartreuse" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Border.GridItem:pointerover">
+            <Setter Property="BorderThickness" Value="4" />
+        </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
 
+        <ScrollViewer IsVisible="{Binding IsGrid}">
+            <Grid>
+                <ItemsControl ItemsSource="{ Binding Games}">
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Columns}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Classes="GridItem">
+                                <Image Source="{Binding HeroUrl, Converter={StaticResource BitmapValueConverter}}" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
         <DataGrid IsVisible="{Binding IsTable}"
                   SelectionMode="Single"
                   IsReadOnly="True"
