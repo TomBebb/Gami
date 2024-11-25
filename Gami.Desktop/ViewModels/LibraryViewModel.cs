@@ -189,6 +189,13 @@ public class LibraryViewModel : ViewModelBase
             .BindTo(this, x => x.IsPlayingSelected);
 
         RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
+
+        this.WhenAnyValue(v => v.ViewType).Subscribe(vt =>
+        {
+            IsGrid = vt == LibraryViewType.Grid;
+            IsList = vt == LibraryViewType.List;
+            IsTable = vt == LibraryViewType.Table;
+        });
     }
 
 #pragma warning disable CA1822
@@ -350,9 +357,9 @@ public class LibraryViewModel : ViewModelBase
 
     [Reactive] public LibraryViewType ViewType { get; set; } = LibraryViewType.Grid;
 
-    public bool IsList => ViewType == LibraryViewType.List;
-    public bool IsTable => ViewType == LibraryViewType.Table;
-    public bool IsGrid => ViewType == LibraryViewType.Grid;
+    [Reactive] public bool IsList { get; set; }
+    [Reactive] public bool IsTable { get; set; }
+    [Reactive] public bool IsGrid { get; set; }
 
     [Reactive] public int Columns { get; set; } = 5;
     public int TotalRows => (int)Math.Ceiling(Games.Count / (float)Columns);
