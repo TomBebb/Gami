@@ -31,6 +31,11 @@ public class MainViewModel : ViewModelBase
             if (curr == null)
                 return;
 
+            if (curr is LibraryViewModel library)
+                AsLibrary = library;
+            else
+                AsLibrary = null;
+
             CurrView = curr switch
             {
                 LibraryViewModel lm => new LibraryView { DataContext = lm },
@@ -83,4 +88,5 @@ public class MainViewModel : ViewModelBase
     [Reactive] private ReactiveObject? CurrObject { get; set; }
 
     [Reactive] public UserControl? CurrView { get; set; }
+    [Reactive] public LibraryViewModel? AsLibrary { get; set; }
 }
