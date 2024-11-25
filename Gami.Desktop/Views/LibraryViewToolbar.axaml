@@ -65,5 +65,19 @@
             </ComboBox>
         </StackPanel>
 
+        <StackPanel Orientation="Horizontal">
+            <Label VerticalAlignment="Center">View:</Label>
+
+            <ComboBox SelectedIndex="{Binding ViewType}"
+
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding ViewFields}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <ComboBoxItem Content="{Binding }" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
     </StackPanel>
 </UserControl>

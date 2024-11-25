@@ -18,6 +18,7 @@ using Gami.LauncherShared.Db;
 using Gami.LauncherShared.Db.Models;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -214,10 +215,16 @@ public class LibraryViewModel : ViewModelBase
 
     public ImmutableArray<string> SortFields { get; set; } =
     [
-        .. Enum.GetValues(typeof(SortGameField))
-            .Cast<SortGameField>()
+        .. Enum.GetValues<SortGameField>()
             .Select(v => v
-                .GetName())
+                .Humanize(LetterCasing.Title))
+    ];
+
+    public ImmutableArray<string> ViewFields { get; set; } =
+    [
+        .. Enum.GetValues<LibraryViewType>()
+            .Select(v => v
+                .Humanize(LetterCasing.Title))
     ];
 
     [Reactive] public int SortFieldIndex { get; set; }
