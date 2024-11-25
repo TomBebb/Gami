@@ -8,6 +8,7 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Name="View"
@@ -55,7 +56,8 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Classes="GridItem">
-                            <Image Source="{Binding HeroUrl, Converter={StaticResource BitmapValueConverter}}" />
+                            <Image
+                                asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
