@@ -41,6 +41,14 @@
         <Style Selector="Border.GridItem:pointerover">
             <Setter Property="BorderThickness" Value="4" />
         </Style>
+        <Style Selector="Button.Play">
+
+            <Setter Property="FontSize" Value="32" />
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="Border.GridItem:pointerover Grid Button.Play">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
     </UserControl.Styles>
     <Grid>
 
@@ -56,8 +64,16 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Classes="GridItem">
-                            <Image
-                                asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
+                            <Grid>
+                                <Image
+                                    asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
+                                <Button Classes="Play"
+                                        Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayGame }"
+                                        CommandParameter="{Binding}">
+
+                                    <fa:SymbolIcon Classes="Play" Symbol="PlayFilled" />
+                                </Button>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
