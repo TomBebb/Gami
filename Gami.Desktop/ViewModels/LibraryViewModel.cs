@@ -348,6 +348,7 @@ public class LibraryViewModel : ViewModelBase
     public bool IsGrid => ViewType == LibraryViewType.Grid;
 
     [Reactive] public int Columns { get; set; } = 5;
+    public int TotalRows => (int)Math.Ceiling(Games.Count / (float)Columns);
     [Reactive] public ImmutableList<Game> Games { get; private set; } = ImmutableList<Game>.Empty;
 
 #pragma warning restore CA1822 // Mark members as static
