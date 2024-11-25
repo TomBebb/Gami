@@ -23,12 +23,24 @@
         <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
         <conv:HumanizerConverter x:Key="HumanizerConverter" />
     </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="StackPanel.Items">
+            <Setter Property="Spacing" Value="3" />
+            <Setter Property="Orientation" Value="Horizontal" />
+        </Style>
+        <Style Selector="Border.Item">
+            <Setter Property="CornerRadius" Value="2 3 2 3" />
+            <Setter Property="BorderBrush" Value="Chartreuse" />
+            <Setter Property="BorderThickness" Value="3" />
+        </Style>
+    </UserControl.Styles>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
 
         <DataGrid IsVisible="{Binding IsTable}"
                   SelectionMode="Single"
                   IsReadOnly="True"
                   CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
                   ItemsSource="{Binding Games}">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="">
@@ -46,12 +58,19 @@
                 <DataGridTemplateColumn Header="Genres">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
+
                             <ItemsControl ItemsSource="{Binding Genres}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Classes="Items" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-
-                                        <Label Content="{Binding Name }" />
+                                        <Border Classes="Item">
+                                            <Label Content="{Binding Name }" />
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
