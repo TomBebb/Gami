@@ -19,12 +19,19 @@ public static class DbOps
             GamiAddons.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
     }
 
-    public static async ValueTask UpdateLastPlayedAsync(Game game)
+    public static async ValueTask UpdateTimesAsync(Game game, TimeSpan? currPlaytime = null)
     {
         await using var db = new GamiContext();
-        game.LastPlayed = DateTime.UtcNow;
         db.Games.Attach(game);
+        game.LastPlayed = DateTime.UtcNow;
         db.Entry(game).Property(x => x.LastPlayed).IsModified = true;
+
+        if (currPlaytime.HasValue)
+        {
+            game.Playtime += currPlaytime.Value;
+            db.Entry(game).Property(x => x.Playtime).IsModified = true;
+        }
+
         await db.SaveChangesAsync();
     }
 
