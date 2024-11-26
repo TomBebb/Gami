@@ -178,6 +178,19 @@ public class LibraryViewModel : ViewModelBase
             };
             dialog.ShowAsync();
         });
+        PlayOrInstallGame = ReactiveCommand.Create<Game>(g =>
+        {
+            switch (g.InstallStatus)
+            {
+                case GameInstallStatus.Installed:
+                    PlayGame.Execute(g);
+                    break;
+                case GameInstallStatus.InLibrary:
+                    InstallGame.Execute(g);
+                    break;
+                default: throw new ApplicationException("Unknown Install Status: " + g.InstallStatus);
+            }
+        });
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
         this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex)
@@ -349,6 +362,7 @@ public class LibraryViewModel : ViewModelBase
 
     public ReactiveCommand<Unit, Unit> ClearSearch { get; }
     public ReactiveCommand<Game, Unit> PlayGame { get; }
+    public ReactiveCommand<Game, Unit> PlayOrInstallGame { get; }
     public ReactiveCommand<Game, Unit> EditGame { get; set; }
     public ReactiveCommand<Game, Unit> InstallGame { get; set; }
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
