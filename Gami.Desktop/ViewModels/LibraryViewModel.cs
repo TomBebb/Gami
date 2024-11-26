@@ -80,6 +80,7 @@ public class LibraryViewModel : ViewModelBase
             game.Launch();
 
             PlayingGame = game;
+            await DbOps.UpdateLastPlayedAsync(game);
 
             var start = DateTime.UtcNow;
             while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
@@ -92,8 +93,9 @@ public class LibraryViewModel : ViewModelBase
             if (Current != null)
             {
                 Current.EnableRaisingEvents = true;
-                Current.Exited += (_, _) =>
+                Current.Exited += async (_, _) =>
                 {
+                    await DbOps.UpdateLastPlayedAsync(PlayingGame);
                     PlayingGame = null;
                     Log.Debug("Game closed");
                 };
