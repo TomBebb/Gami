@@ -77,7 +77,8 @@ public class LibraryViewModel : ViewModelBase
             {
                 await using var db = new GamiContext();
                 await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
-                RefreshCache();
+
+                Games.RemoveKey(game.Id);
             }
         });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
