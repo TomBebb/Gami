@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
@@ -8,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using Gami.Core.Models;
@@ -36,9 +38,13 @@ public class LibraryViewModel : ViewModelBase
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
 
-
     public LibraryViewModel()
     {
+        Games.Connect()
+            .Filter(v => string.IsNullOrEmpty(Search) || v.Name.Contains(Search))
+            .SortBy(v => v.Name, SortDirection.Descending)
+            .Bind(out _gamesList)
+            .Subscribe();
         DeleteGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             var dialog = new ContentDialog
@@ -82,6 +88,8 @@ public class LibraryViewModel : ViewModelBase
             PlayingGame = game;
             await DbOps.UpdateTimesAsync(game);
 
+            Games.Edit(v => v.AddOrUpdate(game));
+
             var start = DateTime.UtcNow;
             while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
             {
@@ -96,9 +104,11 @@ public class LibraryViewModel : ViewModelBase
                 Current.EnableRaisingEvents = true;
                 Current.Exited += async (_, _) =>
                 {
-                    await DbOps.UpdateTimesAsync(PlayingGame, DateTime.UtcNow - actualStart);
                     PlayingGame = null;
                     Log.Debug("Game closed");
+
+                    await DbOps.UpdateTimesAsync(game, DateTime.UtcNow - actualStart);
+                    Games.Edit(v => v.AddOrUpdate(game));
                 };
             }
             else
@@ -129,7 +139,6 @@ public class LibraryViewModel : ViewModelBase
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Install game: {Game}", game);
-            Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             await game.Install();
             var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
             await using var db = new GamiContext();
@@ -138,7 +147,7 @@ public class LibraryViewModel : ViewModelBase
             db.Games.Attach(game);
             db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
             await db.SaveChangesAsync();
-            RefreshCache();
+            Games.Edit(gs => gs.AddOrUpdate(game));
         });
         UninstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
@@ -151,7 +160,7 @@ public class LibraryViewModel : ViewModelBase
             db.Games.Attach(game);
             db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
             await db.SaveChangesAsync();
-            RefreshCache();
+            Games.Edit(gs => gs.AddOrUpdate(game));
         });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
@@ -183,8 +192,6 @@ public class LibraryViewModel : ViewModelBase
         });
         ClearSearch = ReactiveCommand.Create(() => { Search = ""; });
         ExitGame = ReactiveCommand.Create(() => { Current?.Kill(true); });
-        this.WhenAnyValue(v => v.Search, v => v.SortFieldIndex)
-            .Subscribe(_ => RefreshCache());
         RefreshCache();
 
         this.WhenAnyValue(v => v.PlayingGame, v => v.SelectedGame)
@@ -296,12 +303,13 @@ public class LibraryViewModel : ViewModelBase
     private void RefreshCache()
     {
         var sort = (SortGameField)SortFieldIndex;
-        Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}", Search, sort);
         const SortDirection dir = SortDirection.Ascending;
         using var db = new GamiContext();
-        var games = db.Games
-            .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));
+        IQueryable<Game> games = db.Games;
 
+        Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}; Total: {Total}", Search, sort,
+            games.Count());
+        /*
         games = sort switch
         {
             SortGameField.Name => games.Sort(v => v.Name, dir),
@@ -310,9 +318,9 @@ public class LibraryViewModel : ViewModelBase
             SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
             SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
             _ => games
-        };
+        };*/
 
-        Games = games
+        Games.Edit(gs => gs.AddOrUpdate(games
             .Select(g => new Game
             {
                 Name = g.Name,
@@ -332,8 +340,7 @@ public class LibraryViewModel : ViewModelBase
                 LibraryType = g.LibraryType,
                 LibraryId = g.LibraryId,
                 InstallStatus = g.InstallStatus
-            })
-            .ToImmutableList();
+            }).AsEnumerable()));
     }
 #pragma warning disable CA1822 // Mark members as static
 
@@ -346,7 +353,9 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
 
 
-    [Reactive] public ImmutableList<Game> Games { get; private set; } = ImmutableList<Game>.Empty;
+    [Reactive] public SourceCache<Game, string> Games { get; private set; } = new(v => v.Id);
+    private ReadOnlyObservableCollection<Game> _gamesList;
+    public ReadOnlyObservableCollection<Game> GamesList => _gamesList;
 
 #pragma warning restore CA1822 // Mark members as static
 }
