@@ -175,7 +175,7 @@ public class LibraryViewModel : ViewModelBase
 
                 await db.SaveChangesAsync();
 
-                RefreshCache();
+                Games.Edit(gs => gs.AddOrUpdate(game));
             });
             var dialog = new ContentDialog
             {
