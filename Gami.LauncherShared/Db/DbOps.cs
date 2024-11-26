@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using EFCore.BulkExtensions;
 using Gami.Core;
 using Gami.Core.Ext;
 using Gami.Core.Models;
 using Gami.LauncherShared.Addons;
 using Gami.LauncherShared.Models.Settings;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace Gami.LauncherShared.Db;
@@ -21,30 +19,25 @@ public static class DbOps
 
     public static async ValueTask UpdateTimesAsync(Game game, TimeSpan? currPlaytime = null)
     {
-        await using var db = new GamiContext();
-        db.Games.Attach(game);
+        using var db = new GamiContext();
         game.LastPlayed = DateTime.UtcNow;
-        db.Entry(game).Property(x => x.LastPlayed).IsModified = true;
-
         if (currPlaytime.HasValue)
-        {
-            game.Playtime += currPlaytime.Value;
-            db.Entry(game).Property(x => x.Playtime).IsModified = true;
-        }
 
-        await db.SaveChangesAsync();
+            game.Playtime += currPlaytime.Value;
+
+        await db.Games.UpdateAsync(game);
     }
 
 
     public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner, Action<float> onProgress)
     {
-        await using var db = new GamiContext();
+        using var db = new GamiContext();
 
         ImmutableArray<GameLibraryRef> gamesMissingAchievements =
         [
             .. db.Games
                 // ReSharper disable once AccessToDisposedClosure
-                .Where(g => !db.Achievements.Any(a => a.GameId == g.Id))
+                .FindAllAsync(g => g.LibraryType==  !db.Achievements.ExistsAsync(a => a.GameId == g.Id))
                 .Where(g => g.LibraryType == scanner.Type)
                 .Select(g => new GameLibraryRef
                 {
@@ -81,19 +74,12 @@ public static class DbOps
 
     public static async ValueTask ScanMetadata(Action<float> onProgress)
     {
-        ImmutableArray<GameLibraryRef> refs;
-        await using (var db = new GamiContext())
-        {
-            refs =
-            [
-                .. db.Games.Where(g => g.Description == "").Select(g => new GameLibraryRef
-                {
-                    LibraryId = g.LibraryId,
-                    Name = g.Name,
-                    LibraryType = g.LibraryType
-                })
-            ];
-        }
+        ImmutableArray<Game> refs;
+        using var db = new GamiContext();
+        refs =
+        [
+            .. await db.Games.FindAllAsync(g => g.Description == "")
+        ];
 
         await Task.WhenAll(refs.Select(async (vm, index) =>
         {
