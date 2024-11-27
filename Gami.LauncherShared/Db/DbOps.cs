@@ -19,6 +19,23 @@ public static class DbOps
             GamiAddons.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
     }
 
+    public static async ValueTask UpdateTimesAsync(Game game, TimeSpan? currPlaytime = null)
+    {
+        await using var db = new GamiContext();
+        db.Games.Attach(game);
+        game.LastPlayed = DateTime.UtcNow;
+        db.Entry(game).Property(x => x.LastPlayed).IsModified = true;
+
+        if (currPlaytime.HasValue)
+        {
+            game.Playtime += currPlaytime.Value;
+            db.Entry(game).Property(x => x.Playtime).IsModified = true;
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+
     public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner, Action<float> onProgress)
     {
         await using var db = new GamiContext();
@@ -218,10 +235,7 @@ public static class DbOps
         }
     }
 
-    public static ValueTask ScanLibrary(string key)
-    {
-        return ScanLibrary(GamiAddons.ScannersByName[key]);
-    }
+    public static ValueTask ScanLibrary(string key) => ScanLibrary(GamiAddons.ScannersByName[key]);
 
     public static async ValueTask ScanLibrary(IGameLibraryScanner scanner)
     {

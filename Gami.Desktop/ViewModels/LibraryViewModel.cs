@@ -81,6 +81,7 @@ public class LibraryViewModel : ViewModelBase
             game.Launch();
 
             PlayingGame = game;
+            await DbOps.UpdateTimesAsync(game);
 
             var start = DateTime.UtcNow;
             while (Current == null && DateTime.UtcNow - start < LookupProcessTimeout)
@@ -92,9 +93,11 @@ public class LibraryViewModel : ViewModelBase
             Log.Debug("Game open: {Open}", Current != null);
             if (Current != null)
             {
+                var actualStart = DateTime.UtcNow;
                 Current.EnableRaisingEvents = true;
-                Current.Exited += (_, _) =>
+                Current.Exited += async (_, _) =>
                 {
+                    await DbOps.UpdateTimesAsync(PlayingGame, DateTime.UtcNow - actualStart);
                     PlayingGame = null;
                     Log.Debug("Game closed");
                 };
@@ -126,6 +129,7 @@ public class LibraryViewModel : ViewModelBase
         });
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
+            Log.Information("Install game: {Game}", game);
             Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
             await game.Install();
             var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
