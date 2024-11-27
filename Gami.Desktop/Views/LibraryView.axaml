@@ -136,16 +136,18 @@
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
                   ItemsSource="{Binding Games}">
-            <DataGrid.RowDetailsTemplate>
-                <DataTemplate>
-                    <Label>Demo</Label>
-                </DataTemplate>
-            </DataGrid.RowDetailsTemplate>
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
+                            <Image Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}">
+                                <Image.ContextFlyout>
+
+                                    <MenuFlyout
+                                        ItemsSource="{Binding ., Converter={StaticResource MenuItemsConverter}}" />
+
+                                </Image.ContextFlyout>
+                            </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
