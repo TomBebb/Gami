@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -44,12 +45,28 @@ public class LibraryViewModel : ViewModelBase
     {
         Func<Game, bool> filterFunc = g =>
             string.IsNullOrEmpty(Search) || g.Name.Contains(Search, StringComparison.InvariantCultureIgnoreCase);
+        IObservable<IComparer<Game>> mappedSorter = this.WhenAnyValue(x => x.SortFieldIndex)
+            .Select(raw => (SortGameField)raw)
+            .Select(sort =>
+            {
+                return sort switch
+                {
+                    SortGameField.Name => SortExpressionComparer<Game>.Ascending(g => g.Name),
+                    SortGameField.InstallStatus => SortExpressionComparer<Game>.Ascending(g => g.InstallStatus),
+                    SortGameField.LastPlayed => SortExpressionComparer<Game>.Descending(g =>
+                        g.LastPlayed ?? DateTime.UnixEpoch),
+                    SortGameField.ReleaseDate => SortExpressionComparer<Game>.Descending(g =>
+                        g.LastPlayed ?? DateTime.UnixEpoch),
+                    SortGameField.PlayTime => SortExpressionComparer<Game>.Descending(g => g.Playtime),
+                    SortGameField.LibraryType => SortExpressionComparer<Game>.Ascending(g => g.LibraryType),
+                    _ => throw new ArgumentOutOfRangeException(nameof(sort), sort, null)
+                };
+            });
         var filterFuncObs = this.WhenAnyValue(x => x.Search).Select(search => filterFunc);
 
         Games.Connect()
             .Filter(filterFuncObs)
-            .SortBy(v => v.Name, SortDirection.Descending)
-            .Bind(out _gamesList)
+            .SortAndBind(_gamesList, mappedSorter)
             .Subscribe();
         DeleteGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
@@ -320,16 +337,6 @@ public class LibraryViewModel : ViewModelBase
 
         Log.Debug("Refresh cache - Search: {Search}; Sort: {Sort}; Total: {Total}", Search, sort,
             games.Count());
-        /*
-        games = sort switch
-        {
-            SortGameField.Name => games.Sort(v => v.Name, dir),
-            SortGameField.LibraryType => games.Sort(v => v.LibraryType, dir),
-            SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
-            SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
-            SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
-            _ => games
-        };*/
 
         Games.Edit(gs => gs.AddOrUpdate(games
             .Select(g => new Game
@@ -366,8 +373,8 @@ public class LibraryViewModel : ViewModelBase
 
 
     [Reactive] public SourceCache<Game, string> Games { get; private set; } = new(v => v.Id);
-    private ReadOnlyObservableCollection<Game> _gamesList;
-    public ReadOnlyObservableCollection<Game> GamesList => _gamesList;
+    private readonly ObservableCollection<Game> _gamesList = new();
+    public ObservableCollection<Game> GamesList => _gamesList;
 
 #pragma warning restore CA1822 // Mark members as static
 }
