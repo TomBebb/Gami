@@ -1,9 +1,11 @@
 using System;
 using System.Globalization;
+using System.Net;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Serilog;
 
 namespace Gami.Desktop.Conv;
 
@@ -22,13 +24,16 @@ public class BitmapValueConverter : IValueConverter
         switch (scheme)
         {
             case "file":
-                return new Bitmap(uri.AbsolutePath);
+                var mapped = WebUtility.UrlDecode(uri.AbsolutePath);
+                return new Bitmap(mapped);
 
             default:
                 return new Bitmap(AssetLoader.Open(uri));
         }
     }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
         throw new NotSupportedException();
+    }
 }
