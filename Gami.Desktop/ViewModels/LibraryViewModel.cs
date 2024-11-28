@@ -16,6 +16,7 @@ using Gami.Desktop.Views;
 using Gami.LauncherShared.Addons;
 using Gami.LauncherShared.Db;
 using Gami.LauncherShared.Db.Models;
+using Gami.LauncherShared.Misc;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
 using Humanizer;
@@ -34,6 +35,7 @@ namespace Gami.Desktop.ViewModels;
 
 public class LibraryViewModel : ViewModelBase
 {
+    private static readonly TimeSpan CheckInstallInterval = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
 
@@ -129,30 +131,37 @@ public class LibraryViewModel : ViewModelBase
         });
         InstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
-            Log.Information("Install game: {Game}", game);
-            Log.Information("Install game: {Game}", JsonSerializer.Serialize(game));
+            Log.Information("Install game: {Game}", game.Name);
             await game.Install();
-            var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
-            await using var db = new GamiContext();
-            game.InstallStatus = status;
 
-            db.Games.Attach(game);
-            db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
-            await db.SaveChangesAsync();
-            RefreshCache();
+            using var _ = game.WhenAnyValue(g => g.InstallStatus).Subscribe(_ =>
+            {
+                game.SaveInstallState();
+                RefreshCache();
+            });
+            var library = GamiAddons.LibraryManagersByName[game.LibraryType];
+            while (game.InstallStatus != GameInstallStatus.Installed)
+            {
+                await Task.Delay(CheckInstallInterval);
+                game.InstallStatus = await library.CheckInstallStatus(game);
+            }
         });
         UninstallGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
-            Log.Information("Uninstall game: {Game}", JsonSerializer.Serialize(game));
+            Log.Information("Uninstall game: {Game}", game.Name);
             game.Uninstall();
-            var status = await GamiAddons.LibraryManagersByName[game.LibraryType].CheckInstallStatus(game);
-            await using var db = new GamiContext();
-            game.InstallStatus = status;
-            game.Id = $"{game.LibraryType}:{game.LibraryId}";
-            db.Games.Attach(game);
-            db.Entry(game).Property(x => x.InstallStatus).IsModified = true;
-            await db.SaveChangesAsync();
-            RefreshCache();
+
+            using var _ = game.WhenAnyValue(g => g.InstallStatus).Subscribe(_ =>
+            {
+                game.SaveInstallState();
+                RefreshCache();
+            });
+            var library = GamiAddons.LibraryManagersByName[game.LibraryType];
+            while (game.InstallStatus == GameInstallStatus.Installed)
+            {
+                await Task.Delay(CheckInstallInterval);
+                game.InstallStatus = await library.CheckInstallStatus(game);
+            }
         });
         EditGame = ReactiveCommand.Create((Game game) =>
         {
@@ -336,6 +345,7 @@ public class LibraryViewModel : ViewModelBase
             SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
             SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
             SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
+            SortGameField.PlayTime => games.Sort(v => v.Playtime, SortDirection.Descending),
             _ => games
         };
 
