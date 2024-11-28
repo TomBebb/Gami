@@ -27,11 +27,6 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
 
-// ReSharper disable MemberCanBeMadeStatic.Global
-
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
-
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace Gami.Desktop.ViewModels;
 
@@ -40,6 +35,13 @@ public class LibraryViewModel : ViewModelBase
     private static readonly TimeSpan CheckInstallInterval = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
+
+    private void UpdateViewGame(Game game)
+    {
+        var selectedGame = SelectedGame;
+        Games.Edit(gs => gs.AddOrUpdate(game));
+        SelectedGame = selectedGame;
+    }
 
     public LibraryViewModel()
     {
@@ -100,7 +102,9 @@ public class LibraryViewModel : ViewModelBase
             {
                 await using var db = new GamiContext();
                 await db.Games.Where(g => g.Id == game.Id).ExecuteDeleteAsync();
+                var selectedGame = SelectedGame;
                 Games.Remove(game);
+                SelectedGame = selectedGame;
             }
         });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
@@ -164,7 +168,7 @@ public class LibraryViewModel : ViewModelBase
             {
                 game.SaveInstallState();
 
-                Games.Edit(gs => gs.AddOrUpdate(game));
+                UpdateViewGame(game);
             });
             var library = GamiAddons.LibraryManagersByName[game.LibraryType];
             while (game.InstallStatus != GameInstallStatus.Installed)
@@ -181,7 +185,7 @@ public class LibraryViewModel : ViewModelBase
             using var _ = game.WhenAnyValue(g => g.InstallStatus).Subscribe(_ =>
             {
                 game.SaveInstallState();
-                Games.Edit(gs => gs.AddOrUpdate(game));
+                UpdateViewGame(game);
             });
             var library = GamiAddons.LibraryManagersByName[game.LibraryType];
             while (game.InstallStatus == GameInstallStatus.Installed)
@@ -203,7 +207,7 @@ public class LibraryViewModel : ViewModelBase
 
                 await db.SaveChangesAsync();
 
-                Games.Edit(gs => gs.AddOrUpdate(game));
+                UpdateViewGame(game);
             });
             var dialog = new ContentDialog
             {
