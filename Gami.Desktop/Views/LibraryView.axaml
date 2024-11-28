@@ -33,7 +33,7 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="models:Game">
-                                <Grid VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
+                                <Grid Background="Transparent" VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
                                     <Grid.ContextFlyout>
 
                                         <fa:FAMenuFlyout>

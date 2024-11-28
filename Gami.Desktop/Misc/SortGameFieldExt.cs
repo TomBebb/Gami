@@ -13,6 +13,7 @@ public static class SortGameFieldExt
             SortGameField.ReleaseDate => "Release Date",
             SortGameField.InstallStatus => "Install",
             SortGameField.LastPlayed => "Last Played",
+            SortGameField.PlayTime => "Total Play Time",
             _ => throw new ArgumentOutOfRangeException(nameof(field), field, null)
         };
     }
