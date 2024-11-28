@@ -318,6 +318,7 @@ public class LibraryViewModel : ViewModelBase
             SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
             SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
             SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
+            SortGameField.PlayTime => games.Sort(v => v.Playtime, SortDirection.Descending),
             _ => games
         };
 
