@@ -42,8 +42,12 @@ public class LibraryViewModel : ViewModelBase
 
     public LibraryViewModel()
     {
+        Func<Game, bool> filterFunc = g =>
+            string.IsNullOrEmpty(Search) || g.Name.Contains(Search, StringComparison.InvariantCultureIgnoreCase);
+        var filterFuncObs = this.WhenAnyValue(x => x.Search).Select(search => filterFunc);
+
         Games.Connect()
-            .Filter(v => string.IsNullOrEmpty(Search) || v.Name.Contains(Search))
+            .Filter(filterFuncObs)
             .SortBy(v => v.Name, SortDirection.Descending)
             .Bind(out _gamesList)
             .Subscribe();
