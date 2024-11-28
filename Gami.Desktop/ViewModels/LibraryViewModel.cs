@@ -18,6 +18,7 @@ using Gami.Desktop.Views;
 using Gami.LauncherShared.Addons;
 using Gami.LauncherShared.Db;
 using Gami.LauncherShared.Db.Models;
+using Gami.LauncherShared.Misc;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -141,7 +142,7 @@ public class LibraryViewModel : ViewModelBase
             using var _ = game.WhenAnyValue(g => g.InstallStatus).Subscribe(_ =>
             {
                 game.SaveInstallState();
-                
+
                 Games.Edit(gs => gs.AddOrUpdate(game));
             });
             var library = GamiAddons.LibraryManagersByName[game.LibraryType];
@@ -347,7 +348,7 @@ public class LibraryViewModel : ViewModelBase
                 LibraryId = g.LibraryId,
                 InstallStatus = g.InstallStatus
             })
-            .ToImmutableList();
+            .ToImmutableList()));
     }
 #pragma warning disable CA1822 // Mark members as static
 
