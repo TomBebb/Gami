@@ -13,6 +13,23 @@
         <viewModels:LibraryViewModel />
     </UserControl.DataContext>
     <StackPanel Orientation="Horizontal" Spacing="16">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="{Binding ViewType}" />
+
+
+            <Button IsEnabled="{Binding !IsList}" Command="{Binding SetListView}">
+                List
+            </Button>
+
+            <Button IsEnabled="{Binding !IsTable}" Command="{Binding SetTableView}">
+                Table
+            </Button>
+
+            <Button IsEnabled="{Binding !IsGrid}" Command="{Binding SetGridView}">
+                Grid
+            </Button>
+
+        </StackPanel>
         <Grid ColumnDefinitions="* Auto">
             <TextBox Text="{Binding Search}"
                      Width="200"
@@ -64,6 +81,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </StackPanel>
+
 
     </StackPanel>
 </UserControl>

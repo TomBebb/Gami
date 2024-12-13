@@ -32,6 +32,11 @@ namespace Gami.Desktop.ViewModels;
 
 public class LibraryViewModel : ViewModelBase
 {
+    [Reactive] public LibraryViewType ViewType { get; set; } = LibraryViewType.List;
+    [Reactive] public bool IsList { get; set; }
+    [Reactive] public bool IsTable { get; set; }
+    [Reactive] public bool IsGrid { get; set; }
+
     private static readonly TimeSpan CheckInstallInterval = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan LookupProcessInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LookupProcessTimeout = TimeSpan.FromMinutes(2);
@@ -107,6 +112,9 @@ public class LibraryViewModel : ViewModelBase
                 SelectedGame = selectedGame;
             }
         });
+        SetListView = ReactiveCommand.Create(() => { ViewType = LibraryViewType.List; });
+        SetTableView = ReactiveCommand.Create(() => { ViewType = LibraryViewType.Table; });
+        SetGridView = ReactiveCommand.Create(() => { ViewType = LibraryViewType.Grid; });
         PlayGame = ReactiveCommand.CreateFromTask(async (Game game) =>
         {
             Log.Information("Play game: {Game}", JsonSerializer.Serialize(game));
@@ -230,6 +238,12 @@ public class LibraryViewModel : ViewModelBase
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
 
+        this.WhenAnyValue(v => v.ViewType).Subscribe(vt =>
+        {
+            IsList = vt == LibraryViewType.List;
+            IsTable = vt == LibraryViewType.Table;
+            IsGrid = vt == LibraryViewType.Grid;
+        });
         RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
     }
 
@@ -374,6 +388,9 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Game, Unit> DeleteGame { get; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
+    public ReactiveCommand<Unit, Unit> SetListView { get; }
+    public ReactiveCommand<Unit, Unit> SetTableView { get; }
+    public ReactiveCommand<Unit, Unit> SetGridView { get; }
 
 
     [Reactive] public SourceCache<Game, string> Games { get; private set; } = new(v => v.Id);
