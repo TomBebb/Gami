@@ -21,110 +21,141 @@
     <UserControl.Resources>
         <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
         <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
+        <conv:TimeSpanDisplayConverter x:Key="TimeSpanDisplayConverter" />
     </UserControl.Resources>
-    <Grid ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
-        <ScrollViewer Grid.Row="1" Grid.Column="0">
-            <StackPanel>
-                <ListBox ItemsSource="{Binding GamesList}"
-                         SelectedItem="{Binding 
+
+    <StackPanel>
+        <ScrollViewer IsVisible="{Binding IsTable}">
+            <DataGrid ItemsSource="{Binding GamesList}" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header=" ">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="models:Game">
+                                <Image
+                                    IsVisible="{Binding IconUrl, 
+                            Converter={x:Static ObjectConverters.IsNotNull}}"
+                                    Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
+
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                    <DataGridTemplateColumn Header="Playtime">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="models:Game">
+                                <Label
+                                    Content="{Binding Playtime, Converter={StaticResource TimeSpanDisplayConverter}}" />
+
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Last Played" Binding="{Binding LastPlayed}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </ScrollViewer>
+        <Grid IsVisible="{Binding IsList}" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
+            <ScrollViewer Grid.Row="1" Grid.Column="0">
+                <StackPanel>
+                    <ListBox ItemsSource="{Binding GamesList}"
+                             SelectedItem="{Binding 
                 SelectedGame}">
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="models:Game">
-                            <Grid Background="Transparent" VerticalAlignment="Stretch"
-                                  ColumnDefinitions="*, 10*,Auto, Auto">
-                                <Grid.ContextFlyout>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="models:Game">
+                                <Grid Background="Transparent" VerticalAlignment="Stretch"
+                                      ColumnDefinitions="*, 10*,Auto, Auto">
+                                    <Grid.ContextFlyout>
 
-                                    <fa:FAMenuFlyout>
-                                        <fa:MenuFlyoutItem
-                                            IsVisible="{Binding Installed}"
-                                            Text="Play"
-                                            IconSource="Play"
-                                            Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayGame }"
-                                            CommandParameter="{Binding }" />
+                                        <fa:FAMenuFlyout>
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Play"
+                                                IconSource="Play"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayGame }"
+                                                CommandParameter="{Binding }" />
 
-                                        <fa:MenuFlyoutItem
-                                            IsVisible="{Binding !Installed}"
-                                            Text="Install"
-                                            IconSource="Add"
-                                            Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).InstallGame }"
-                                            CommandParameter="{Binding }" />
-                                        <fa:MenuFlyoutItem
-                                            IsVisible="{Binding Installed}"
-                                            Text="Uninstall"
-                                            Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
-                                            CommandParameter="{Binding }">
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding !Installed}"
+                                                Text="Install"
+                                                IconSource="Add"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).InstallGame }"
+                                                CommandParameter="{Binding }" />
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Uninstall"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
+                                                CommandParameter="{Binding }">
 
-                                            <fa:MenuFlyoutItem.IconSource>
-                                                <fa:SymbolIconSource Symbol="Delete" />
-                                            </fa:MenuFlyoutItem.IconSource>
-                                        </fa:MenuFlyoutItem>
+                                                <fa:MenuFlyoutItem.IconSource>
+                                                    <fa:SymbolIconSource Symbol="Delete" />
+                                                </fa:MenuFlyoutItem.IconSource>
+                                            </fa:MenuFlyoutItem>
 
-                                        <fa:MenuFlyoutItem
-                                            Text="Edit"
-                                            IconSource="Edit"
-                                            Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).EditGame }"
-                                            CommandParameter="{Binding }" />
-                                    </fa:FAMenuFlyout>
-                                </Grid.ContextFlyout>
-                                <Image Grid.Column="0"
-                                       IsVisible="{Binding IconUrl, 
+                                            <fa:MenuFlyoutItem
+                                                Text="Edit"
+                                                IconSource="Edit"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).EditGame }"
+                                                CommandParameter="{Binding }" />
+                                        </fa:FAMenuFlyout>
+                                    </Grid.ContextFlyout>
+                                    <Image Grid.Column="0"
+                                           IsVisible="{Binding IconUrl, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
-                                       Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
-                                <Label Grid.Column="1"
-                                       VerticalAlignment="Center"
-                                       Content="{Binding Name}" />
-                                <fa:SymbolIcon
-                                    Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
-                                    Grid.Column="2" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
-        </ScrollViewer>
+                                           Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
+                                    <Label Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Content="{Binding Name}" />
+                                    <fa:SymbolIcon
+                                        Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
+                                        Grid.Column="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
 
-        <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
-        <Grid Grid.Row="1" Grid.Column="2"
-              RowDefinitions="Auto,*"
-              IsVisible="{Binding SelectedGame, 
+            <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />
+            <Grid Grid.Row="1" Grid.Column="2"
+                  RowDefinitions="Auto,*"
+                  IsVisible="{Binding SelectedGame, 
                        Converter={x:Static ObjectConverters.IsNotNull}}">
-            <fa:CommandBar HorizontalAlignment="Stretch"
-                           DefaultLabelPosition="Right">
-                <fa:CommandBar.PrimaryCommands>
-                    <fa:CommandBarButton IconSource="Stop"
-                                         IsVisible="{Binding IsPlayingSelected}"
-                                         Command="{Binding ExitGame}"
-                                         Label="Stop" />
-                    <fa:CommandBarButton IconSource="Play"
-                                         IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
-                                         Command="{Binding PlayGame}"
-                                         CommandParameter="{Binding SelectedGame}"
-                                         Label="Play" />
-                    <fa:CommandBarButton IconSource="Add"
-                                         Background="LightGreen"
-                                         IsVisible="{Binding !SelectedGame.Installed}"
-                                         Command="{Binding InstallGame}"
-                                         CommandParameter="{Binding SelectedGame}"
-                                         Label="Install" />
-                    <fa:CommandBarButton IconSource="Delete"
-                                         Background="Orange"
-                                         HotKey="Delete"
-                                         IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
-                                         Command="{Binding UninstallGame}"
-                                         CommandParameter="{Binding SelectedGame}"
-                                         Label="Uninstall" />
-                    <fa:CommandBarButton IconSource="Edit"
-                                         Background="LightBlue"
-                                         Command="{Binding EditGame}"
-                                         CommandParameter="{Binding SelectedGame}"
-                                         Label="Edit" />
+                <fa:CommandBar HorizontalAlignment="Stretch"
+                               DefaultLabelPosition="Right">
+                    <fa:CommandBar.PrimaryCommands>
+                        <fa:CommandBarButton IconSource="Stop"
+                                             IsVisible="{Binding IsPlayingSelected}"
+                                             Command="{Binding ExitGame}"
+                                             Label="Stop" />
+                        <fa:CommandBarButton IconSource="Play"
+                                             IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
+                                             Command="{Binding PlayGame}"
+                                             CommandParameter="{Binding SelectedGame}"
+                                             Label="Play" />
+                        <fa:CommandBarButton IconSource="Add"
+                                             Background="LightGreen"
+                                             IsVisible="{Binding !SelectedGame.Installed}"
+                                             Command="{Binding InstallGame}"
+                                             CommandParameter="{Binding SelectedGame}"
+                                             Label="Install" />
+                        <fa:CommandBarButton IconSource="Delete"
+                                             Background="Orange"
+                                             HotKey="Delete"
+                                             IsVisible="{Binding SelectedGame.Installed, FallbackValue=False}"
+                                             Command="{Binding UninstallGame}"
+                                             CommandParameter="{Binding SelectedGame}"
+                                             Label="Uninstall" />
+                        <fa:CommandBarButton IconSource="Edit"
+                                             Background="LightBlue"
+                                             Command="{Binding EditGame}"
+                                             CommandParameter="{Binding SelectedGame}"
+                                             Label="Edit" />
 
-                </fa:CommandBar.PrimaryCommands>
-            </fa:CommandBar>
+                    </fa:CommandBar.PrimaryCommands>
+                </fa:CommandBar>
 
-            <views:GameDetails Grid.Row="1" DataContext="{Binding SelectedGame}" />
+                <views:GameDetails Grid.Row="1" DataContext="{Binding SelectedGame}" />
+            </Grid>
         </Grid>
-    </Grid>
-
+    </StackPanel>
 </UserControl>

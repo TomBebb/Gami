@@ -11,6 +11,7 @@ public sealed class TimeSpanDisplayConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter,
         CultureInfo culture)
     {
+        Console.WriteLine("Convert " + value?.GetType().Name);
         if (value is not TimeSpan span)
             return new BindingNotification(new InvalidCastException(),
                 BindingErrorType.Error);
