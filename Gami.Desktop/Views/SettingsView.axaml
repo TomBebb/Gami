@@ -75,6 +75,10 @@
                     <StackPanel Orientation="Vertical">
 
                         <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Achievements.ShowAchievements}" />
+                            <Label>Display achievements</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.Achievements.FetchAchievements}" />
                             <Label>Synchronize achievements after library scan</Label>
                         </StackPanel>

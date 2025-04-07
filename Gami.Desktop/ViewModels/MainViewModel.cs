@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Controls;
 using FluentAvalonia.UI.Controls;
 using Gami.Desktop.Views;
+using Gami.LauncherShared.Models.Settings;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Serilog;
@@ -22,6 +23,11 @@ public class MainViewModel : ViewModelBase
 {
     public MainViewModel()
     {
+        var baseRoutes = ImmutableList<Route>.Empty.Add(
+            new Route("library", "Library", _ => new LibraryViewModel(), "List installed games", Symbol.Library)
+        );
+
+        Routes = baseRoutes;
         CurrRoute = Routes.First();
         RouteDictionary = Routes.Concat(FooterRoutes).ToImmutableDictionary(v => v.Path);
 
@@ -62,17 +68,24 @@ public class MainViewModel : ViewModelBase
 
             CurrRoute = RouteDictionary[path];
         });
-
+        this.WhenAnyValue(v => v.Settings).Subscribe(settings =>
+        {
+            var routes = baseRoutes;
+           if (settings.Achievements.ShowAchievements)
+                routes = routes.Add(
+                    new Route("achievements", "Achievements", _ => new AchievementsViewModel(), "List installed games",
+                        Symbol.Alert));
+            Routes = routes;
+            RouteDictionary = Routes.Concat(FooterRoutes).ToImmutableDictionary(v => v.Path);
+        });
         CurrPath = "library";
 
         CurrView = new LibraryView { DataContext = (LibraryViewModel)CurrObject! };
     }
 
-    public List<Route> Routes { get; } =
-    [
-        new("library", "Library", _ => new LibraryViewModel(), "List installed games", Symbol.Library),
-        new("achievements", "Achievements", _ => new AchievementsViewModel(), "List installed games", Symbol.Alert)
-    ];
+    [Reactive] public MySettings Settings { get; set; } = MySettings.Load();
+    
+    [Reactive] public ImmutableList<Route> Routes { get; set; } 
 
     public List<Route> FooterRoutes { get; } =
     [
@@ -80,7 +93,7 @@ public class MainViewModel : ViewModelBase
         new("settings", "Settings", _ => new SettingsViewModel(), "List games", Symbol.Settings)
     ];
 
-    private ImmutableDictionary<string, Route> RouteDictionary { get; }
+    private ImmutableDictionary<string, Route> RouteDictionary { get; set; }
 
     [Reactive] public string CurrPath { get; set; }
     [Reactive] public Route CurrRoute { get; set; }
