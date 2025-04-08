@@ -74,7 +74,7 @@
     <Grid>
 
         <ScrollViewer IsVisible="{Binding IsGrid}">
-            <ItemsControl ItemsSource="{ Binding Games}">
+            <ItemsControl ItemsSource="{ Binding GamesList}">
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -170,7 +170,7 @@
         <Grid IsVisible="{Binding IsList}" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
             <ScrollViewer Grid.Row="1" Grid.Column="0">
                 <ListBox
-                    ItemsSource="{Binding Games}"
+                    ItemsSource="{Binding GamesList}"
                     SelectedItem="{Binding 
                 SelectedGame}">
 
