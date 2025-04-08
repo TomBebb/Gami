@@ -88,7 +88,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.Achievements.OnlyScanInstalled}" />
-                            <Label>Only synchronize achievements progress of installed games</Label>
+                            <Label>Only fetch achievements of installed games</Label>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
