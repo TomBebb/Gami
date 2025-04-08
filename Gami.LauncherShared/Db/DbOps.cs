@@ -13,10 +13,13 @@ namespace Gami.LauncherShared.Db;
 
 public static class DbOps
 {
-    public static async ValueTask ScanAchievementsData(Action<float> onProgress)
+    public static async ValueTask ScanAchievementsData(AchievementsSettings settings, Action<float> onProgress)
     {
         await Task.WhenAll(
-            GamiAddons.AchievementsByName.Values.Select(async g => { await ScanAchievementsData(g, onProgress); }));
+            GamiAddons.AchievementsByName.Values.Select(async g =>
+            {
+                await ScanAchievementsData(settings, g, onProgress);
+            }));
     }
 
     public static async ValueTask UpdateTimesAsync(Game game, TimeSpan? currPlaytime = null)
@@ -36,13 +39,16 @@ public static class DbOps
     }
 
 
-    public static async ValueTask ScanAchievementsData(IGameAchievementScanner scanner, Action<float> onProgress)
+    public static async ValueTask ScanAchievementsData(AchievementsSettings settings, IGameAchievementScanner scanner,
+        Action<float> onProgress)
     {
         await using var db = new GamiContext();
 
         ImmutableArray<GameLibraryRef> gamesMissingAchievements =
         [
             .. db.Games
+                .Where(g => !settings.OnlyScanInstalled || g.InstallStatus == GameInstallStatus.Installed ||
+                            g.InstallStatus == GameInstallStatus.Installing)
                 // ReSharper disable once AccessToDisposedClosure
                 .Where(g => !db.Achievements.Any(a => a.GameId == g.Id))
                 .Where(g => g.LibraryType == scanner.Type)

@@ -8,7 +8,6 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Name="View"
@@ -20,196 +19,70 @@
         <viewModels:LibraryViewModel />
     </Design.DataContext>
     <UserControl.Resources>
-        <conv:MenuItemsConverter x:Key="MenuItemsConverter" />
         <conv:InstallStatusToIconConv x:Key="InstallStatusToIconConv" />
         <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
-        <conv:HumanizerConverter x:Key="HumanizerConverter" />
     </UserControl.Resources>
-    <UserControl.Styles>
-        <Style Selector="StackPanel.Items">
-            <Setter Property="Spacing" Value="3" />
-            <Setter Property="Orientation" Value="Horizontal" />
-        </Style>
-        <Style Selector="Border.Item">
-            <Setter Property="CornerRadius" Value="2 3 2 3" />
-            <Setter Property="BorderBrush" Value="Chartreuse" />
-            <Setter Property="BorderThickness" Value="3" />
-        </Style>
-        <Style Selector="Border.GridItem">
-            <Setter Property="BorderBrush" Value="Chartreuse" />
-            <Setter Property="BorderThickness" Value="1" />
-        </Style>
-        <Style Selector="Border.GridItem:pointerover">
-            <Setter Property="BorderThickness" Value="4" />
-        </Style>
-        <Style Selector="Border.GridItem Grid Button">
-            <Setter Property="FontSize" Value="32" />
-        </Style>
-        <Style Selector="Border.GridItem Grid Button.Main">
-            <Setter Property="Opacity" Value="0" />
-        </Style>
-        <Style Selector="Border.GridItem:pointerover Grid Button.Main">
-            <Setter Property="Opacity" Value="0.9" />
-        </Style>
-        <Style Selector="Button.Play">
-            <Setter Property="Background" Value="#00ff00" />
-        </Style>
-        <Style Selector="Button.Play:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#c0ffc0" />
-        </Style>
-        <Style Selector="Button.Install">
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Background" Value="#ccf" />
-        </Style>
-        <Style Selector="Button.Install:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#aaf" />
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-        </Style>
-        <Style Selector="Button.Play fa|SymbolIcon">
-            <Setter Property="Symbol" Value="PlayFilled" />
-        </Style>
-        <Style Selector="Button.Install fa|SymbolIcon">
-            <Setter Property="Symbol" Value="Add" />
-        </Style>
-    </UserControl.Styles>
-    <Grid>
-
-        <ScrollViewer IsVisible="{Binding IsGrid}">
-            <ItemsControl ItemsSource="{ Binding Games}">
-
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding Columns}" Rows="{Binding TotalRows}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="models:Game">
-                        <Border Classes="GridItem">
-
-                            <Border.ContextFlyout>
-                                <MenuFlyout
-                                    ItemsSource="{Binding ., Converter={StaticResource MenuItemsConverter}}" />
-                            </Border.ContextFlyout>
-                            <Grid>
-                                <Image
-                                    asyncImageLoader:ImageLoader.Source="{Binding HeroUrl}" />
-                                <Grid ColumnDefinitions="*,*">
-
-                                    <Button
-                                        Classes="Main"
-                                        Classes.Play="{Binding Installed}"
-                                        Classes.Install="{Binding Installed, Converter={x:Static BoolConverters.Not}}"
-                                        Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayOrInstallGame }"
-                                        CommandParameter="{Binding}">
-                                        <Button.Transitions>
-                                            <Transitions>
-                                                <DoubleTransition Property="Opacity" Duration="0:0:0.4" />
-                                                <BrushTransition Property="Background" Duration="0:0:0.4" />
-                                            </Transitions>
-                                        </Button.Transitions>
-                                        <fa:SymbolIcon />
-                                    </Button>
-                                    <Button
-                                        Grid.Column="1"
-                                        Classes="Main"
-                                        Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).EditGame }"
-                                        CommandParameter="{Binding}">
-                                        <Button.Transitions>
-                                            <Transitions>
-                                                <DoubleTransition Property="Opacity" Duration="0:0:0.4" />
-                                                <BrushTransition Property="Background" Duration="0:0:0.4" />
-                                            </Transitions>
-                                        </Button.Transitions>
-                                        <fa:SymbolIcon Symbol="Edit" />
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-        <DataGrid IsVisible="{Binding IsTable}"
-                  SelectionMode="Single"
-                  IsReadOnly="True"
-                  CanUserReorderColumns="True"
-                  CanUserResizeColumns="True"
-                  ItemsSource="{Binding Games}">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}">
-                                <Image.ContextFlyout>
-
-                                    <MenuFlyout
-                                        ItemsSource="{Binding ., Converter={StaticResource MenuItemsConverter}}" />
-
-                                </Image.ContextFlyout>
-                            </Image>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" MaxWidth="400" />
-                <DataGridTextColumn Header="Status"
-                                    Binding="{Binding InstallStatus, Converter={StaticResource HumanizerConverter }}" />
-                <DataGridTextColumn Header="Library"
-                                    Binding="{Binding LibraryType, Converter={StaticResource HumanizerConverter }}" />
-                <DataGridTemplateColumn Header="Genres">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-
-                            <ItemsControl ItemsSource="{Binding Genres}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Classes="Items" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Classes="Item">
-                                            <Label Content="{Binding Name }" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Grid IsVisible="{Binding IsList}" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
+        <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
             <ScrollViewer Grid.Row="1" Grid.Column="0">
-                <ListBox
-                    ItemsSource="{Binding Games}"
-                    SelectedItem="{Binding 
+                <StackPanel>
+                    <ListBox ItemsSource="{Binding GamesList}"
+                             SelectedItem="{Binding 
                 SelectedGame}">
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="models:Game">
-                            <Grid Background="Transparent" VerticalAlignment="Stretch"
-                                  ColumnDefinitions="*, 10*,Auto, Auto">
-                                <Grid.ContextFlyout>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="models:Game">
+                                <Grid Background="Transparent" VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
+                                    <Grid.ContextFlyout>
 
-                                    <MenuFlyout
-                                        ItemsSource="{Binding ., Converter={StaticResource MenuItemsConverter}}" />
-                                </Grid.ContextFlyout>
-                                <Image Grid.Column="0"
-                                       IsVisible="{Binding IconUrl, 
+                                        <fa:FAMenuFlyout>
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Play"
+                                                IconSource="Play"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).PlayGame }"
+                                                CommandParameter="{Binding }" />
+
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding !Installed}"
+                                                Text="Install"
+                                                IconSource="Add"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).InstallGame }"
+                                                CommandParameter="{Binding }" />
+                                            <fa:MenuFlyoutItem
+                                                IsVisible="{Binding Installed}"
+                                                Text="Uninstall"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).UninstallGame }"
+                                                CommandParameter="{Binding }">
+
+                                                <fa:MenuFlyoutItem.IconSource>
+                                                    <fa:SymbolIconSource Symbol="Delete" />
+                                                </fa:MenuFlyoutItem.IconSource>
+                                            </fa:MenuFlyoutItem>
+
+                                            <fa:MenuFlyoutItem
+                                                Text="Edit"
+                                                IconSource="Edit"
+                                                Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).EditGame }"
+                                                CommandParameter="{Binding }" />
+                                        </fa:FAMenuFlyout>
+                                    </Grid.ContextFlyout>
+                                    <Image Grid.Column="0"
+                                           IsVisible="{Binding IconUrl, 
                             Converter={x:Static ObjectConverters.IsNotNull}}"
-                                       Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
-                                <Label Grid.Column="1"
-                                       VerticalAlignment="Center"
-                                       Content="{Binding Name}" />
-                                <fa:SymbolIcon
-                                    Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
-                                    Grid.Column="2" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                           Source="{Binding IconUrl, Converter={StaticResource BitmapValueConverter}}" />
+                                    <Label Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           Content="{Binding Name}" />
+                                    <fa:SymbolIcon
+                                        Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
+                                        Grid.Column="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
             </ScrollViewer>
 
             <GridSplitter Grid.Row="1" Grid.Column="1" ResizeDirection="Columns" />

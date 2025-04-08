@@ -5,7 +5,6 @@ using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Serilog;
 
 namespace Gami.Desktop.Conv;
 
@@ -13,7 +12,8 @@ public class BitmapValueConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        if (value == null)
+            return null;
         if (targetType != typeof(IImage))
             throw new NotSupportedException();
 
