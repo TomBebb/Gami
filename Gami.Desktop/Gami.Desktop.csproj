@@ -89,4 +89,13 @@
     <ItemGroup>
         <ProjectReference Include="..\Gami.LauncherShared\Gami.LauncherShared.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="DynamicData">
+            <HintPath>..\..\..\.nuget\packages\dynamicdata\9.0.4\lib\net8.0\DynamicData.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.EntityFrameworkCore">
+            <HintPath>..\..\..\.nuget\packages\microsoft.entityframeworkcore\9.0.0\lib\net8.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+        </Reference>
+    </ItemGroup>
 </Project>

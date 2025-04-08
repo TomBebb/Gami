@@ -22,6 +22,7 @@ using Gami.LauncherShared.Db.Models;
 using Gami.LauncherShared.Misc;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -243,6 +244,7 @@ public class LibraryViewModel : ViewModelBase
             .Select(v => v.Item1?.LibraryId == v.Item2?.LibraryId && v.Item1?.LibraryType == v.Item2?.LibraryType)
             .BindTo(this, x => x.IsPlayingSelected);
 
+        this.WhenAnyValue(v => v.ViewType).Subscribe(vt => Log.Debug("View type: {ViewType}", vt));
         RefreshGame = ReactiveCommand.CreateFromTask((string input) => Refresh(input).AsTask())!;
 
         this.WhenAnyValue(v => v.ViewType).Subscribe(vt =>
@@ -371,17 +373,6 @@ public class LibraryViewModel : ViewModelBase
         using var db = new GamiContext();
         var games = db.Games
             .Where(v => string.IsNullOrEmpty(Search) || EF.Functions.Like(v.Name, $"%{Search}%"));
-
-        games = sort switch
-        {
-            SortGameField.Name => games.Sort(v => v.Name, dir),
-            SortGameField.LibraryType => games.Sort(v => v.LibraryType, dir),
-            SortGameField.ReleaseDate => games.Sort(v => v.ReleaseDate, dir),
-            SortGameField.InstallStatus => games.Sort(v => v.InstallStatus, dir),
-            SortGameField.LastPlayed => games.Sort(v => v.LastPlayed, SortDirection.Descending),
-            SortGameField.PlayTime => games.Sort(v => v.Playtime, SortDirection.Descending),
-            _ => games
-        };
         Games.Edit(gs => gs.AddOrUpdate(games
             .Select(g => new Game
             {
@@ -403,7 +394,8 @@ public class LibraryViewModel : ViewModelBase
                 LibraryId = g.LibraryId,
                 InstallStatus = g.InstallStatus
             })
-            .ToImmutableList();
+            .ToImmutableList()
+        ));
     }
 #pragma warning disable CA1822 // Mark members as static
 
@@ -414,8 +406,15 @@ public class LibraryViewModel : ViewModelBase
     public ReactiveCommand<Game, Unit> UninstallGame { get; set; }
     public ReactiveCommand<Game, Unit> DeleteGame { get; }
     public ReactiveCommand<Unit, Unit> ExitGame { get; set; }
+    public ReactiveCommand<Game, Unit> PlayOrInstallGame { get; set; }
 
+    [Reactive] public LibraryViewType ViewType { get; set; }
+    [Reactive] public bool IsList { get; set; }
+    [Reactive] public bool IsGrid { get; set; }
+    [Reactive] public bool IsTable { get; set; }
 
+    public int TotalRows => Games.Count / Columns;
+    public int Columns => 5;
     [Reactive] public SourceCache<Game, string> Games { get; private set; } = new(v => v.Id);
     private readonly ObservableCollection<Game> _gamesList = new();
     public ObservableCollection<Game> GamesList => _gamesList;
