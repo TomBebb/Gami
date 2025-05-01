@@ -7,9 +7,6 @@ using ReactiveUI.Fody.Helpers;
 
 namespace Gami.LauncherShared.Addons;
 
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class AddonConfig : ReactiveObject
 {
     [Reactive] public required string Key { get; set; }
@@ -18,8 +15,8 @@ public class AddonConfig : ReactiveObject
     [Reactive] public string? Hint { get; set; }
 
     [Reactive]
-    public required ImmutableArray<AddoConfigSetting> Settings { get; init; } =
-        ImmutableArray<AddoConfigSetting>.Empty;
+    public required ImmutableArray<AddonConfigSetting> Settings { get; init; } =
+        ImmutableArray<AddonConfigSetting>.Empty;
 
 
     [JsonIgnore]
@@ -30,14 +27,14 @@ public class AddonConfig : ReactiveObject
     }
 
     [JsonIgnore]
-    public ImmutableArray<MappedAddoConfigSetting> MappedSettings
+    public ImmutableArray<MappedAddonConfigSetting> MappedSettings
     {
         get
         {
             var vals = MySettings;
             return
             [
-                .. Settings.Select(s => new MappedAddoConfigSetting
+                .. Settings.Select(s => new MappedAddonConfigSetting
                 {
                     Key = s.Key,
                     Name = s.Name,

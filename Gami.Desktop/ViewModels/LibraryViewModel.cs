@@ -241,7 +241,7 @@ public class LibraryViewModel : ViewModelBase
         {
             Key = "all",
             Name = "All",
-            Settings = ImmutableArray<AddoConfigSetting>.Empty
+            Settings = ImmutableArray<AddonConfigSetting>.Empty
         },
         .. GamiAddons.AddonConfigs.Values.Where(v => GamiAddons.ScannersByName.ContainsKey(v.Key))
     ];

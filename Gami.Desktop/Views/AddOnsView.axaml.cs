@@ -15,7 +15,7 @@ public partial class AddOnsView : UserControl
 
     private void TextBox_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        var model = (MappedAddoConfigSetting)((TextBox)sender).DataContext;
+        var model = (MappedAddonConfigSetting)((TextBox)sender).DataContext;
         if (model == null) return;
 
         var addons = (AddonsViewModel)((TextBox)sender)?.Parent?.Parent?.Parent?.Parent?.DataContext;

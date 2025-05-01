@@ -44,7 +44,7 @@
                         </Button>
                         <ItemsControl ItemsSource="{Binding SelectedAddon.MappedSettings}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="addons:MappedAddoConfigSetting">
+                                <DataTemplate DataType="addons:MappedAddonConfigSetting">
 
                                     <Grid ColumnDefinitions="*,*,3*">
                                         <Label Content="{Binding Name }" />

@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using Gami.LauncherShared.Addons;
 using Serilog;
 
 namespace Gami.Desktop;
@@ -15,6 +16,7 @@ internal sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+
         Log.Logger = new LoggerConfiguration()
 
 #if DEBUG
@@ -22,6 +24,8 @@ internal sealed class Program
 #endif
             .WriteTo.Console()
             .CreateLogger();
+        AddonOps.RunScriptDemo().AsTask().Wait();
+        return;
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

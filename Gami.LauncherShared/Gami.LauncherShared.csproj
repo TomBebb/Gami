@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="EFCore.BulkExtensions" Version="8.1.1"/>
         <PackageReference Include="Gami.Core" Version="0.15.0"/>
+        <PackageReference Include="Jint" Version="4.2.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0"/>
         <PackageReference Include="Octokit" Version="13.0.1"/>
         <PackageReference Include="ReactiveUI.Fody" Version="19.5.41"/>

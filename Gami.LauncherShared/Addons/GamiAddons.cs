@@ -169,7 +169,7 @@ public static class GamiAddons
             Key = (string)model["key"],
             Name = (string)model["name"],
             Hint = model.TryGetValue("hint", out var v) ? (string?)v : null,
-            Settings = settings.Select(v => new AddoConfigSetting
+            Settings = settings.Select(v => new AddonConfigSetting
             {
                 Key = (string)v["key"],
                 Name = (string)v["name"],
