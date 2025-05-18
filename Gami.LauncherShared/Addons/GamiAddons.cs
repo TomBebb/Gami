@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Gami.Core;
 using Gami.Core.Models;
+using Jint;
+using Jint.Native;
 using Octokit;
 using Serilog;
 using Tomlyn;
@@ -16,6 +18,7 @@ namespace Gami.LauncherShared.Addons;
 public static class GamiAddons
 
 {
+    private static readonly Engine JsEngine = new();
     private static readonly ImmutableArray<string> Addons;
 
     public static readonly JsonSerializerOptions PluginOpts = new(JsonSerializerDefaults.Web)
@@ -50,8 +53,16 @@ public static class GamiAddons
         // ReSharper disable once UnusedMember.Global
         AddonConfigs;
 
+
     static GamiAddons()
     {
+        JsEngine.Modules.Add("path",
+            builder =>
+            {
+                builder.ExportFunction("join",
+                    ps => JsValue.FromObject(JsEngine,
+                        Path.Join(ps.Select(v => v.AsString()).ToArray())));
+            });
         var dllPath = Path.Join(Consts.BasePluginDir, "dlls");
         Console.WriteLine($"Check Dlls: {dllPath}");
         if (!Directory.Exists(dllPath))
