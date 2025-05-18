@@ -49,6 +49,15 @@ declare function getOsKind(): "mac" | "linux" | "windows" | null
 
 declare module "path" {
     function join(a: string, b: string): string
+
+    function exists(path: string): boolean
+
+    function getRelative(relativeTo: string, path: string): string
+
+    function getFull(path: string): string
+
+    function getDirectoryName(path: string): string
+
 }
 
 /** Run a command or URL */

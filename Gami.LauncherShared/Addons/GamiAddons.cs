@@ -62,6 +62,18 @@ public static class GamiAddons
                 builder.ExportFunction("join",
                     ps => JsValue.FromObject(JsEngine,
                         Path.Join(ps.Select(v => v.AsString()).ToArray())));
+                builder.ExportFunction("exists",
+                    ps => JsValue.FromObject(JsEngine,
+                        Path.Exists(ps[0].AsString())));
+                builder.ExportFunction("getRelative",
+                    ps => JsValue.FromObject(JsEngine,
+                        Path.GetRelativePath(ps[0].AsString(), ps[1].AsString())));
+                builder.ExportFunction("getFull",
+                    ps => JsValue.FromObject(JsEngine,
+                        Path.GetFullPath(ps[0].AsString(), ps[1].AsString())));
+                builder.ExportFunction("getDirectoryName",
+                    ps => JsValue.FromObject(JsEngine,
+                        Path.GetDirectoryName(ps[0].AsString())));
             });
         var dllPath = Path.Join(Consts.BasePluginDir, "dlls");
         Console.WriteLine($"Check Dlls: {dllPath}");
