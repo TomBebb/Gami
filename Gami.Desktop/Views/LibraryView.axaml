@@ -8,7 +8,6 @@
              xmlns:views="clr-namespace:Gami.Desktop.Views"
              xmlns:viewModels="clr-namespace:Gami.Desktop.ViewModels"
              xmlns:conv="clr-namespace:Gami.Desktop.Conv"
-             xmlns:addons="clr-namespace:Gami.LauncherShared.Addons;assembly=Gami.LauncherShared"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:LibraryViewModel"
              x:Name="View"
@@ -24,69 +23,17 @@
         <conv:BitmapValueConverter x:Key="BitmapValueConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,Auto,Auto,*">
-        <Border Grid.Row="1" BorderBrush="Aqua" BorderThickness="1">
-            <StackPanel Orientation="Horizontal">
-                <SplitButton>
-                    <SplitButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Refresh Library</Label>
-                            <fa:SymbolIcon Symbol="Refresh" />
-                        </StackPanel>
-                    </SplitButton.Content>
-                    <SplitButton.Flyout>
-                        <fa:FAMenuFlyout Placement="Bottom" ItemsSource="{Binding Plugins}">
-
-                            <fa:FAMenuFlyout.ItemTemplate>
-                                <DataTemplate DataType="addons:AddonConfig">
-                                    <!-- ReSharper disable once Xaml.PossibleNullReferenceException -->
-                                    <fa:MenuFlyoutItem Text="{Binding Name   }" CommandParameter="{Binding Key}"
-                                                       Command="{Binding #View.((viewModels:LibraryViewModel)DataContext).RefreshGame }" />
-                                </DataTemplate>
-                            </fa:FAMenuFlyout.ItemTemplate>
-                        </fa:FAMenuFlyout>
-                    </SplitButton.Flyout>
-                </SplitButton>
-                <Border BorderBrush="Teal" BorderThickness="1">
-                    <StackPanel Orientation="Horizontal">
-                        <Label VerticalAlignment="Center">Sort:</Label>
-
-                        <ComboBox SelectedIndex="{Binding SortFieldIndex}"
-
-                                  VerticalAlignment="Center"
-                                  ItemsSource="{Binding SortFields}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <ComboBoxItem Content="{Binding }" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-                </Border>
-
-            </StackPanel>
-        </Border>
 
         <Grid Grid.Row="3" ColumnDefinitions="2* Auto 7*" RowDefinitions="Auto *">
-            <Grid ColumnDefinitions="* Auto">
-                <TextBox Text="{Binding Search}" Watermark="Enter search" />
-                <Button Grid.Column="1"
-                        Command="{Binding ClearSearch}"
-                        IsVisible="{Binding Search, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-
-                    <fa:FontIcon Name="FontIcon"
-                                 Glyph="X"
-                                 FontSize="18" />
-                </Button>
-            </Grid>
             <ScrollViewer Grid.Row="1" Grid.Column="0">
                 <StackPanel>
-                    <ListBox ItemsSource="{Binding Games}"
+                    <ListBox ItemsSource="{Binding GamesList}"
                              SelectedItem="{Binding 
                 SelectedGame}">
 
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="models:Game">
-                                <Grid VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
+                                <Grid Background="Transparent" VerticalAlignment="Stretch" ColumnDefinitions="*, 10*,Auto, Auto">
                                     <Grid.ContextFlyout>
 
                                         <fa:FAMenuFlyout>

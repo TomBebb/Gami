@@ -2,9 +2,10 @@
 
 public enum SortGameField
 {
+    LastPlayed,
+    PlayTime,
     Name,
     LibraryType,
     ReleaseDate,
-    InstallStatus,
-    LastPlayed
+    InstallStatus
 }
