@@ -18,6 +18,11 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
+    <Window.Styles>
+        <Style Selector="Label, i|Icon">
+            <Setter Property="FontSize" Value="64"/>
+        </Style>
+    </Window.Styles>
     <StackPanel Orientation="Vertical">
 
         <Grid ColumnDefinitions="*, Auto, Auto">
