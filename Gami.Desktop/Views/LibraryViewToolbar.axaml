@@ -14,19 +14,14 @@
     </UserControl.DataContext>
     <StackPanel Orientation="Horizontal" Spacing="16">
         <StackPanel Orientation="Horizontal">
-            <Label Content="{Binding ViewType}" />
-
-
-            <Button IsEnabled="{Binding !IsList}" Command="{Binding SetListView}">
-                List
+            <Button IsEnabled="{Binding !IsList}" Command="{Binding SetListView}" ToolTip.Tip="List">
+                <fa:SymbolIcon Symbol="BulletList" />
             </Button>
-
-            <Button IsEnabled="{Binding !IsTable}" Command="{Binding SetTableView}">
-                Table
+            <Button IsEnabled="{Binding !IsTable}" Command="{Binding SetTableView}" ToolTip.Tip="Table">
+                <fa:SymbolIcon Symbol="List" />
             </Button>
-
-            <Button IsEnabled="{Binding !IsGrid}" Command="{Binding SetGridView}">
-                Grid
+            <Button IsEnabled="{Binding !IsGrid}" Command="{Binding SetGridView}" ToolTip.Tip="Grid">
+                <fa:SymbolIcon Symbol="TargetEdit" />
             </Button>
 
         </StackPanel>
