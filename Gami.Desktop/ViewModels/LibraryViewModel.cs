@@ -305,7 +305,7 @@ public class LibraryViewModel : ViewModelBase
                 if (settings.Achievements.FetchAchievements)
                 {
                     dialog.Content = "Scanning achievements";
-                    await Task.Run(async () => await DbOps.ScanAchievementsData(OnProgress));
+                    await Task.Run(async () => await DbOps.ScanAchievementsData(settings.Achievements, OnProgress));
                 }
 
                 if (settings.Metadata.FetchMetadata)
@@ -323,7 +323,8 @@ public class LibraryViewModel : ViewModelBase
                     GamiAddons.AchievementsByName.TryGetValue(key, out var value))
                 {
                     dialog.Content = "Scanning achievements";
-                    await Task.Run(async () => await DbOps.ScanAchievementsData(value, OnProgress));
+                    await Task.Run(async () =>
+                        await DbOps.ScanAchievementsData(settings.Achievements, value, OnProgress));
                 }
 
                 if (settings.Metadata.FetchMetadata)
@@ -331,6 +332,11 @@ public class LibraryViewModel : ViewModelBase
                     dialog.Content = "Scanning metadata";
                     await Task.Run(async () => await DbOps.ScanMetadata(key, OnProgress));
                 }
+            }
+
+            if (settings.Achievements.FetchAchievements)
+            {
+                await DbOps.ScanAchievementsProgress(settings.Achievements);
             }
 
             Dispatcher.UIThread.Post(() => { dialog.Hide(TaskDialogStandardResult.OK); });

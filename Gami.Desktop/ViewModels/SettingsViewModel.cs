@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive;
+using Gami.Desktop.Misc;
 using Gami.LauncherShared.Models.Settings;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -17,7 +18,12 @@ public class SettingsViewModel : ViewModelBase
         {
             await Settings.SaveAsync();
             SettingsChanged(Settings);
+            
+            ((MainViewModel)WindowUtil.GetMainWindow().DataContext).Settings = Settings;
+            Console.WriteLine(WindowUtil.GetMainWindow().DataContext?.ToString());
         });
+        
+        
     }
 
     [Reactive] public MySettings Settings { get; set; } = MySettings.Load();

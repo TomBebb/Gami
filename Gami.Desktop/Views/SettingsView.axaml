@@ -75,6 +75,10 @@
                     <StackPanel Orientation="Vertical">
 
                         <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Settings.Achievements.ShowAchievements}" />
+                            <Label>Display achievements</Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.Achievements.FetchAchievements}" />
                             <Label>Synchronize achievements after library scan</Label>
                         </StackPanel>
@@ -84,7 +88,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding Settings.Achievements.OnlyScanInstalled}" />
-                            <Label>Only synchronize achievements progress of installed games</Label>
+                            <Label>Synchronize achievements of installed games only</Label>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
