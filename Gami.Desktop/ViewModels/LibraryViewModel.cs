@@ -19,6 +19,7 @@ using Gami.Desktop.Views;
 using Gami.LauncherShared.Addons;
 using Gami.LauncherShared.Db;
 using Gami.LauncherShared.Db.Models;
+using Gami.LauncherShared.Misc;
 using Gami.LauncherShared.Models;
 using Gami.LauncherShared.Models.Settings;
 using Microsoft.EntityFrameworkCore;
