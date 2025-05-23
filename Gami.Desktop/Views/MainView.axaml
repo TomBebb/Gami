@@ -21,8 +21,8 @@
         <Style Selector="Button.WindowButton">
             <Setter Property="Padding" Value="3" />
         </Style>
-        <Style Selector="Button.WindowButton fa|SymbolIcon">
-            <Setter Property="FontSize" Value="16" />
+        <Style Selector="Button.WindowButton LucideIcon">
+            <Setter Property="Size" Value="20" />
         </Style>
     </UserControl.Styles>
 
@@ -47,15 +47,9 @@
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="5">
 
-            <Button Classes="WindowButton" Click="Minimize">
-                <fa:SymbolIcon Symbol="Remove" />
-            </Button>
-            <Button Classes="WindowButton" Click="Maximize">
-                <fa:SymbolIcon Symbol="Restore" />
-            </Button>
-            <Button Classes="WindowButton" Click="Close">
-                <fa:SymbolIcon Symbol="Clear" />
-            </Button>
+            <Button Classes="WindowButton" Click="Minimize" Content="{LucideIconContent Minimize}" />
+            <Button Classes="WindowButton" Click="Maximize" Content="{LucideIconContent Maximize}" />
+            <Button Classes="WindowButton" Click="Close" Content="{LucideIconContent X}" />
         </StackPanel>
         <fa:NavigationView Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"
                            SelectedItem="{Binding CurrRoute}"
