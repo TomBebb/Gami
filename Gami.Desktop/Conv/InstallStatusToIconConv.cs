@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
-using FluentAvalonia.UI.Controls;
 using Gami.Core.Models;
+using Lucide.Avalonia;
 
 namespace Gami.Desktop.Conv;
 
@@ -15,14 +15,16 @@ public class InstallStatusToIconConv : IValueConverter
 
         return status switch
         {
-            GameInstallStatus.Installing => Symbol.Rotate,
-            GameInstallStatus.Queued => Symbol.Rotate,
-            GameInstallStatus.Installed => Symbol.Checkmark,
-            GameInstallStatus.InLibrary => Symbol.Clear,
+            GameInstallStatus.Installing => LucideIconKind.RotateCcw,
+            GameInstallStatus.Queued => LucideIconKind.RotateCcw,
+            GameInstallStatus.Installed => LucideIconKind.Check,
+            GameInstallStatus.InLibrary => LucideIconKind.X,
             _ => throw new ArgumentOutOfRangeException(nameof(value))
         };
     }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
+    }
 }

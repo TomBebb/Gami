@@ -75,8 +75,8 @@
                                     <Label Grid.Column="1"
                                            VerticalAlignment="Center"
                                            Content="{Binding Name}" />
-                                    <fa:SymbolIcon
-                                        Symbol="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
+                                    <LucideIcon
+                                        Kind="{Binding InstallStatus, Converter={StaticResource InstallStatusToIconConv}}"
                                         Grid.Column="2" />
                                 </Grid>
                             </DataTemplate>
